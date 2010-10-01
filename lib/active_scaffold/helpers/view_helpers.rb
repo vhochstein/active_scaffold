@@ -74,7 +74,7 @@ module ActiveScaffold
       #   <%= javascript_include_tag :defaults, 'your_own_cool_script', active_scaffold_javascripts, :cache => true %>
       def active_scaffold_javascripts(frontend = :default)
         ActiveScaffold::Config::Core.javascripts(frontend).collect do |name|
-          ActiveScaffold::Config::Core.asset_path(name, frontend)
+          ActiveScaffold::Config::Core.asset_path("#{ActiveScaffold.js_framework}/#{name}", frontend)
         end
       end
       
@@ -160,6 +160,7 @@ module ActiveScaffold
         html_options[:class] += " #{link.html_options[:class]}" unless link.html_options[:class].blank?
         html_options
       end
+
       def get_action_link_id(url_options, record = nil, column = nil)
         id = url_options[:id] || url_options[:parent_id]
         id = "#{column.association.name}-#{record.id}" if column && column.plural_association?

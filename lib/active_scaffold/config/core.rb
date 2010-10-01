@@ -214,13 +214,13 @@ module ActiveScaffold::Config
     # must be a class method so the layout doesn't depend on a controller that uses active_scaffold
     # note that this is unaffected by per-controller frontend configuration.
     def self.asset_path(filename, frontend = self.frontend)
-      "active_scaffold/#{frontend}/#{filename}"
+      File.join('active_scaffold', frontend.to_s, filename)
     end
 
     # must be a class method so the layout doesn't depend on a controller that uses active_scaffold
     # note that this is unaffected by per-controller frontend configuration.
     def self.javascripts(frontend = self.frontend)
-      javascript_dir = File.join(Rails.public_path, "javascripts", asset_path('', frontend))
+      javascript_dir = File.join(Rails.public_path, 'javascripts', asset_path('', frontend), ActiveScaffold.js_framework.to_s)
       Dir.entries(javascript_dir).reject { |e| !e.match(/\.js$/) or (!self.dhtml_history? and e.match('dhtml_history')) }
     end
 

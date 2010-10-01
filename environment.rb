@@ -13,4 +13,3 @@ ActiveRecord::Base.class_eval     {include ActiveRecordPermissions::ModelUserAcc
 ActiveRecord::Base.class_eval     {include ActiveRecordPermissions::Permissions}
 
 I18n.load_path += Dir[File.join(File.dirname(__FILE__), 'lib', 'active_scaffold', 'locale', '*.{rb,yml}')]
-#ActiveScaffold.js_framework = :jquery

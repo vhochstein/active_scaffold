@@ -12,7 +12,9 @@ require File.dirname(__FILE__) + '/environment'
 ## But at least rescue the action in production
 ##
 begin
-  require File.dirname(__FILE__) + '/install_assets'
+  %w{assets initializer}.each do |installer|
+    require File.join(File.dirname(__FILE__), "install_#{installer}")
+  end
 rescue
   raise $! unless Rails.env == 'production'
 end

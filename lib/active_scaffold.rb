@@ -46,11 +46,21 @@ module ActiveScaffold
   end
   
   def self.js_framework=(framework)
+    frameworks = [:jquery, :prototype]
+
+    unless frameworks.include? framework
+      raise "Invalid JavaScript framework : #{framework}. Available options are #{frameworks.to_sentence}"
+    end
+
     @@js_framework = framework
   end
   
   def self.js_framework
-    @@js_framework ||= :prototype
+    unless class_variable_defined? :@@js_framework
+      raise "You have to configure ActiveScaffold to use either Prototype or jQuery as a JavaScript framework"
+    end
+
+    @@js_framework
   end
 
   module ClassMethods

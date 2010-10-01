@@ -1,7 +1,7 @@
 module Rails
   module Generators
-    class ActiveScaffoldSetupGenerator < Rails::Generators::Base #metagenerator
-      argument :js_lib, :type => :string, :default => 'prototype', :desc => 'js_lib for activescaffold (prototype|jquery)' 
+    class ActiveScaffoldSetupGenerator < Rails::Generators::Base
+      argument :js_lib, :type => :string, :default => 'prototype', :desc => 'JavaScript framework used by ActiveScaffold (prototype|jquery)'
       
       def self.source_root
          @source_root ||= File.join(File.dirname(__FILE__), 'templates')
@@ -10,6 +10,7 @@ module Rails
       def install_plugins
         plugin 'verification', :git => 'git://github.com/rails/verification.git'
         plugin 'render_component', :git => 'git://github.com/vhochstein/render_component.git'
+
         if js_lib == 'prototype'
           get "http://github.com/vhochstein/prototype-ujs/raw/master/src/rails.js", "public/javascripts/rails.js" 
         elsif js_lib == 'jquery'
@@ -17,13 +18,9 @@ module Rails
           get "http://github.com/vhochstein/jQuery-Timepicker-Addon/raw/master/jquery-ui-timepicker-addon.js", "public/javascripts/jquery-ui-timepicker-addon.js"
         end
       end
-      
-      def configure_active_scaffold
-        if js_lib == 'jquery'
-          gsub_file 'vendor/plugins/active_scaffold/environment.rb', /#ActiveScaffold.js_framework = :jquery/, 'ActiveScaffold.js_framework = :jquery'
-        end
-      end
-      
+
+      # TODO : Make active_scaffold_includes pull the right includes depending on the
+      # configured js framework instead of hardcode it in app/views/layout/application.html.erb
       def configure_application_layout
         if js_lib == 'prototype'
           inject_into_file "app/views/layouts/application.html.erb", 
@@ -47,7 +44,22 @@ module Rails
                    :after => "hello: \"Hello world\"\n"
           gsub_file 'app/views/layouts/application.html.erb', /<%= javascript_include_tag :defaults/, '<%# javascript_include_tag :defaults'
         end
-      end     
+      end
+
+
+      # Just in case someone installs AS, starts the application and realizes that
+      # the setup hasn't been made properly
+      def tweak_initializer_if_present
+        initializer = File.join(Rails.root, 'config', 'initializers', 'active_scaffold.rb')
+
+        if File.exist?(initializer)
+          if js_lib == 'prototype'
+            gsub_file initializer, /=\s?\:jquery/, '= :prototype'
+          elsif js_lib == 'jquery'
+            gsub_file initializer, /=\s?\:prototype/, '= :jquery'
+          end
+        end
+      end
     end
   end
 end
