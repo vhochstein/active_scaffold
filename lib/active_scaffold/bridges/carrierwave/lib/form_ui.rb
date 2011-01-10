@@ -5,7 +5,7 @@ module ActiveScaffold
         options = active_scaffold_input_text_options(options)
         input = file_field(:record, column.name, options)
         carrierwave = @record.send("#{column.name}")
-        if carrierwave.file.present? && !carrierwave.file.empty?
+        if carrierwave.file.present? && carrierwave.file.file_length > 0
           if ActiveScaffold.js_framework == :jquery
             js_remove_file_code = "$(this).prev().val('true'); $(this).parent().hide().next().show(); return false;";
           else
