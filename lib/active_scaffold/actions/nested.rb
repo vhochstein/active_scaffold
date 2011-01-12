@@ -7,11 +7,12 @@ module ActiveScaffold::Actions
       base.module_eval do
         before_filter :register_constraints_with_action_columns
         before_filter :set_nested
-        before_filter :set_nested_list_label
+        before_filter :configure_nested
         include ActiveScaffold::Actions::Nested::ChildMethods if active_scaffold_config.model.reflect_on_all_associations.any? {|a| a.macro == :has_and_belongs_to_many}
       end
       base.before_filter :include_habtm_actions
       base.helper_method :nested
+      base.helper_method :nested_parent_record
     end
 
     protected
@@ -19,7 +20,7 @@ module ActiveScaffold::Actions
       @nested ||= ActiveScaffold::DataStructures::NestedInfo.get(active_scaffold_config.model, active_scaffold_session_storage)
       if !@nested.nil? && @nested.new_instance?
         register_constraints_with_action_columns(@nested.constrained_fields)
-        active_scaffold_constraints[:id] = nested.parent_id if @nested.belongs_to?
+        active_scaffold_constraints[:id] = params[:id] if @nested.belongs_to?
       end
       @nested
     end
@@ -38,12 +39,15 @@ module ActiveScaffold::Actions
       end
     end
     
-    def set_nested_list_label
+    def configure_nested
       if nested?
         active_scaffold_session_storage[:list][:label] =  if nested.belongs_to?
-        as_(:nested_of_model, :nested_model => active_scaffold_config.model.model_name.human, :parent_model => nested_parent_record.to_label)
+          as_(:nested_of_model, :nested_model => active_scaffold_config.model.model_name.human, :parent_model => nested_parent_record.to_label)
         else
           as_(:nested_for_model, :nested_model => active_scaffold_config.list.label, :parent_model => nested_parent_record.to_label)
+        end
+        if nested.sorted?
+          active_scaffold_config.list.user.nested_default_sorting = {:table_name => active_scaffold_config.model.model_name, :default_sorting => nested.default_sorting}
         end
       end
     end
@@ -59,7 +63,9 @@ module ActiveScaffold::Actions
           active_scaffold_config.action_links.add('new_existing', :label => :add_existing, :type => :collection, :security_method => :add_existing_authorized?) unless active_scaffold_config.action_links['new_existing']
           if active_scaffold_config.nested.shallow_delete
             active_scaffold_config.action_links.add('destroy_existing', :label => :remove, :type => :member, :confirm => :are_you_sure_to_delete, :method => :delete, :position => false, :security_method => :delete_existing_authorized?) unless active_scaffold_config.action_links['destroy_existing']
-            active_scaffold_config.action_links.delete("delete") if active_scaffold_config.action_links['delete']
+            if active_scaffold_config.actions.include?(:delete)
+              active_scaffold_config.action_links.delete("delete") if active_scaffold_config.action_links['delete']
+            end
           end
         else
           # Production mode is caching this link into a non nested scaffold
@@ -67,7 +73,9 @@ module ActiveScaffold::Actions
           
           if active_scaffold_config.nested.shallow_delete
             active_scaffold_config.action_links.delete("destroy_existing") if active_scaffold_config.action_links['destroy_existing']
-            active_scaffold_config.action_links.add(ActiveScaffold::Config::Delete.link) unless active_scaffold_config.action_links['delete']
+            if active_scaffold_config.actions.include?(:delete)
+              active_scaffold_config.action_links.add(ActiveScaffold::Config::Delete.link) unless active_scaffold_config.action_links['delete']
+            end
           end
         end
       end
@@ -84,18 +92,22 @@ module ActiveScaffold::Actions
     end
 
     def nested_parent_record(crud = :read)
-      find_if_allowed(nested.parent_id, crud, nested.parent_model)
+      @nested_parent_record ||= find_if_allowed(nested.parent_id, crud, nested.parent_model)
     end
        
     def create_association_with_parent(record)
-      if nested? && nested.belongs_to? && nested.child_association 
-        parent = nested_parent_record(:read)
-        case nested.child_association.macro
-        when :has_one
-          record.send("#{nested.child_association.name}=", parent)
-        when :has_many
-          record.send("#{nested.child_association.name}").send(:<<, parent)
-        end unless parent.nil?
+      if nested?
+        if (nested.belongs_to? || nested.has_one?) && nested.child_association
+          parent = nested_parent_record(:read)
+          case nested.child_association.macro
+          when :has_one
+            record.send("#{nested.child_association.name}=", parent)
+          when :belongs_to
+            record.send("#{nested.child_association.name}=", parent)
+          when :has_many
+            record.send("#{nested.child_association.name}").send(:<<, parent)
+          end unless parent.nil?
+        end
       end
     end
     

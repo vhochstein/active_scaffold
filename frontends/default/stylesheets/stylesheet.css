@@ -86,7 +86,8 @@ color: #fff;
 padding: 2px 5px 4px 5px;
 }
 
-.active-scaffold-header div.actions a {
+.active-scaffold-header div.actions a,
+.active-scaffold-header div.actions span {
 float: right;
 font: bold 14px arial;
 letter-spacing: -1px;
@@ -98,7 +99,25 @@ background-position: 1px 50%;
 background-repeat: no-repeat;
 }
 
-.view .active-scaffold-header div.actions a {
+.active-scaffold-header div.actions div.action_group {
+display: inline;
+float: right;
+}
+
+.active-scaffold-header div.actions div.action_group li a,
+.active-scaffold-header div.actions div.action_group li span {
+float: none;
+margin: 0 2px;
+}
+
+.active-scaffold-header div.actions .action_group ul {
+line-height: 130%;
+top: 14px;
+}
+
+.view .active-scaffold-header div.actions a,
+.view .active-scaffold-header div.actions span,
+.view .active-scaffold-header div.actions div.action_group {
 float: left;
 }
 
@@ -166,7 +185,7 @@ background-color: #555;
 
 .active-scaffold th a, .active-scaffold th a:visited {
 color: #fff;
-padding: 2px 15px 2px 5px;
+padding: 2px 2px 2px 5px;
 }
 
 .active-scaffold th p {
@@ -183,6 +202,10 @@ color: #ff8;
 background-color: #333;
 }
 
+.active-scaffold th.sorted a {
+padding-right: 18px;
+}
+
 .active-scaffold th.asc a,
 .active-scaffold th.asc a:hover {
 background: #333 url(../../../images/active_scaffold/default/arrow_up.gif) right 50% no-repeat;
@@ -196,6 +219,10 @@ background: #333 url(../../../images/active_scaffold/default/arrow_down.gif) rig
 .active-scaffold th.loading a,
 .active-scaffold th.loading a:hover {
 background: #333 url(../../../images/active_scaffold/default/indicator-small.gif) right 50% no-repeat;
+}
+
+.active-scaffold th .mark_heading {
+margin-left: 5px;
 }
 
 /* Table :: Record Rows
@@ -246,7 +273,6 @@ text-align: right;
 
 /* Table :: Actions (Edit, Delete)
    ============================= */
-
 .active-scaffold tr.record td.actions {
 border-right: solid 1px #ccc;
 padding: 0;
@@ -265,7 +291,8 @@ text-align: right;
 padding: 0 2px;
 }
 
-.active-scaffold tr.record td.actions a {
+.active-scaffold tr.record td.actions a,
+.active-scaffold tr.record td.actions span {
 font: bold 11px verdana, sans-serif;
 letter-spacing: -1px;
 padding: 2px;
@@ -273,6 +300,65 @@ margin: 0 2px;
 line-height: 16px;
 white-space: nowrap;
 }
+
+.active-scaffold .actions .action_group span:hover {
+background-color: #ff8;
+}
+
+.active-scaffold .actions .action_group {
+position: relative;
+text-align: right;
+color: #0066CC;
+}
+
+.active-scaffold .actions .action_group ul {
+border: medium none;
+list-style-type: none;
+margin: 0;
+padding: 0;
+position: absolute;
+line-height: 200%;
+display: none;
+width: 100%;
+left: -80px;
+}
+
+.active-scaffold .actions .action_group ul ul {
+display: none;
+position: absolute;
+top: 0;
+left: -120px;
+}
+
+.active-scaffold .actions .action_group ul li {
+background: none repeat scroll 0 0 #FFF;
+border-bottom: 2px solid #005CB8;
+border-left: 2px solid #005CB8;
+border-right: 2px solid #005CB8;
+display: block;
+padding-bottom: 5px;
+position: relative;
+width: 120px;
+z-index: 2;
+}
+
+.active-scaffold .actions .action_group ul li.top {
+border-top: 1px solid #005CB8;
+}
+
+.active-scaffold .actions .action_group:hover ul ul,
+.active-scaffold .actions .action_group:hover ul ul ul {
+display: none;
+}
+
+.active-scaffold .actions .action_group:hover ul,
+.active-scaffold .actions .action_group ul li:hover > ul,
+.active-scaffold .actions .action_group ul ul li:hover ul {
+display: block;
+}
+
+
+
 
 /* Table :: Inline Adapter
    ============================= */
@@ -328,7 +414,8 @@ top: 0px;
 right: 0px;
 }
 
-.active-scaffold .active-scaffold .active-scaffold-header div.actions a {
+.active-scaffold .active-scaffold .active-scaffold-header div.actions a,
+.active-scaffold .active-scaffold .active-scaffold-header div.actions span {
 font: bold 11px verdana, sans-serif;
 padding: 0 2px 1px 17px;
 }
@@ -626,7 +713,6 @@ letter-spacing: 0;
 
 .active-scaffold li.form-element {
 clear: both;
-padding-top: 2px;
 }
 
 .active-scaffold label {
@@ -644,12 +730,17 @@ padding: 6px 0;
 float: left;
 }
 
+.active-scaffold li.form-element dd input[type="checkbox"] {
+margin-top: 6px;
+}
+
 .active-scaffold .form dd {
 margin: 0;
 }
 
 
 .active-scaffold .description {
+display: inline-block;
 color: #999;
 font-size: 10px;
 margin-left: 5px;

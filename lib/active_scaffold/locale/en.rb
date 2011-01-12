@@ -9,6 +9,8 @@
       :click_to_edit => 'Click to edit',
       :click_to_reset => 'Click to reset',
       :close => 'Close',
+      :config_list => 'Configure',
+      :config_list_model => 'Configure Columns for %{model}',
       :create => 'Create',
       :create_model => 'Create %{model}',
       :create_another => 'Create Another %{model}',
@@ -79,6 +81,9 @@
       :past => 'Past', 
       :future => 'Future',
       :range => 'Range',
+      :seconds => 'Seconds',
+      :minutes => 'Minutes',
+      :hours => 'Hours',
       :days => 'Days',
       :weeks => 'Weeks',
       :months => 'Months',
@@ -97,8 +102,8 @@
       :errors => {
         :template => {
           :header => {
-            :one =>    "1 error prohibited this {{model}} from being saved.",
-            :other =>  "{{count}} errors prohibited this {{model}} from being saved"
+            :one =>    "1 error prohibited this %{model} from being saved.",
+            :other =>  "%{count} errors prohibited this %{model} from being saved"
           },
           :body => "There were problems with the following fields:"
         }
@@ -107,7 +112,8 @@
       :cant_destroy_record => "%{record} can't be destroyed",
       :internal_error => 'Request Failed (code 500, Internal Error)',
       :version_inconsistency => 'Version inconsistency - this record has been modified since you started editing it.',
-      :record_not_saved => 'Failed to save record cause of an unknown error'
+      :record_not_saved => 'Failed to save record cause of an unknown error',
+      :no_authorization_for_action => "No Authorization for action %{action}"
     }
   }
 }

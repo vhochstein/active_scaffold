@@ -32,10 +32,9 @@ $(document).ready(function() {
       if (action_link.is_disabled()) {
         return false;
       } else {
-        // hack: rails jquery defaults to dataType script
-        // but activescaffold is returning html content
-        // which chrome does nt like
-        if (action_link.position) event.data_type = 'dummy';
+        // hack: jquery requires if you request for javascript that javascript
+        // is coming back, however rails has a different mantra
+        if (action_link.position) event.data_type = 'rails';
         if (action_link.loading_indicator) action_link.loading_indicator.css('visibility','visible');
         action_link.disable();
       }
@@ -162,7 +161,14 @@ $(document).ready(function() {
       }
       
       if (csrf_param) options['params'] = csrf_param.attr('content') + '=' + csrf_token.attr('content');
-            
+
+      if (span.closest('div.active-scaffold').attr('data-eid')) {
+        if (options['params'].length > 0) {
+          options['params'] += ";";
+        }
+        options['params'] += ("eid=" + span.closest('div.active-scaffold').attr('data-eid'));
+      }
+
       if (mode === 'clone') {
         options.clone_id_suffix = record_id;
         options.clone_selector = '#' + column_heading.attr('id') + ' .as_inplace_pattern';
@@ -241,6 +247,17 @@ $(document).ready(function() {
     ActiveScaffold[(element.val() == 'RANGE') ? 'show' : 'hide'](element.attr('id').replace(/_opt/, '_range'));
     return true;
   });
+
+  $('select.as_update_date_operator').live('change', function(event) {
+    ActiveScaffold[$(this).val() == 'REPLACE' ? 'show' : 'hide']($(this).next());
+    ActiveScaffold[$(this).val() == 'REPLACE' ? 'hide' : 'show']($(this).next().next());
+    return true;
+  });
+
+  $('a[data-popup]').live('click', function(e) {
+      window.open($(this).attr('href'));
+      e.preventDefault();
+   });
   
 });
 
@@ -644,17 +661,19 @@ var ActiveScaffold = {
     }
   },
   
-  sortable: function(element, controller, reorder_params) {
+  sortable: function(element, controller, options, url_params) {
     if (typeof(element) == 'string') element = '#' + element;
     var element = $(element);
-    reorder_params.authenticity_token = $('meta[name=csrf-param]').attr('content'); 
-    element.sortable({
-       update: function(event, ui) {
-         var url = controller + '/reorder?'
+    var sortable_options = {};
+    if (options.update === true) {
+      url_params.authenticity_token = $('meta[name=csrf-param]').attr('content');
+      sortable_options.update = function(event, ui) {
+         var url = controller + '/' + options.action + '?'
          url += $(this).sortable('serialize',{key: encodeURIComponent($(this).attr('id') + '[]'), expression:/^[^_-](?:[A-Za-z0-9_-]*)-(.*)-row$/});
-         $.post(url.append_params(reorder_params)); 
+         $.post(url.append_params(url_params));
        }
-    });    
+    }
+    element.sortable(sortable_options);
   },
 
   record_select_onselect: function(edit_associated_url, active_scaffold_id, id){
@@ -731,8 +750,11 @@ ActiveScaffold.ActionLink = {
     if (element.length > 0) {
       element.data(); // jquery 1.4.2 workaround
       if (typeof(element.data('action_link')) === 'undefined' && !element.hasClass('as_adapter')) {
-        var parent = element.parent();
-        
+        var parent = element.closest('.actions');
+        if (parent.length === 0) {
+          // maybe an column action_link
+          parent = element.parent();
+        }
         if (parent && parent.is('td')) {
           // record action
           parent = parent.closest('tr.record');
@@ -755,21 +777,7 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
   init: function(a, target, loading_indicator) {
     this.tag = $(a);
     this.url = this.tag.attr('href');
-    this.method = 'get';
-    
-    if(this.url.match('_method=delete')){
-      this.method = 'delete';
-      // action delete is special case cause in ajax world it will be destroy
-    } else if(this.url.match('/delete')){
-      this.url = this.url.replace('/delete', '');
-      this.tag.attr('href', this.url);
-      this.method = 'delete';
-    } else if(this.url.match('_method=post')){
-      this.method = 'post';
-    } else if(this.url.match('_method=put')){
-      this.method = 'put';
-    }
-    if (this.method != 'get') this.tag.attr('data-method', this.method);
+    this.method = this.tag.attr('data-method') || 'get';
     this.target = target;
     this.loading_indicator = loading_indicator;
     this.hide_target = false;
@@ -828,7 +836,7 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
     this.adapter = element;
     this.adapter.addClass('as_adapter');
     this.adapter.data('action_link', this);
-  },
+  }
 });
 
 /**
@@ -840,11 +848,6 @@ ActiveScaffold.Actions.Record = ActiveScaffold.Actions.Abstract.extend({
     var refresh = this.target.attr('data-refresh');
     if (refresh) l.refresh_url = refresh;
     
-    if ($(link).hasClass('delete')) {
-      l.url = l.url.replace(/\/delete(\?.*)?$/, '$1');
-      l.url = l.url.replace(/\/delete\/(.*)/, '/destroy/$1');
-      l.tag.attr('href', l.url);
-    }
     if (l.position) {
       l.url = l.url.append_params({adapter: '_list_inline_adapter'});
       l.tag.attr('href', l.url);

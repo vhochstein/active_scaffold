@@ -43,23 +43,11 @@ module ActiveScaffold
             url_options[:link] = as_(:create_new) if link.crud_type == :create
           end
 
-          # check authorization
-          if column.association
-            associated_for_authorized = if associated.nil? || (associated.respond_to?(:empty?) && associated.empty?)
-              column.association.klass
-            elsif column.plural_association?
-              associated.first
-            else
-              associated
-            end
-            authorized = associated_for_authorized.authorized_for?(:crud_type => link.crud_type)
-            authorized = authorized and record.authorized_for?(:crud_type => :update, :column => column.name) if link.crud_type == :create
+          if column_link_authorized?(link, column, record, associated)
+            render_action_link(link, url_options, record)
           else
-            authorized = record.authorized_for?(:crud_type => link.crud_type)
+            "<a class='disabled'>#{text}</a>".html_safe
           end
-          # to make html render properly
-          return "<a class='disabled'>#{text}</a>".html_safe unless authorized
-          render_action_link(link, url_options, record)
         else
           text = active_scaffold_inplace_edit(record, column, {:formatted_column => text}) if inplace_edit?(record, column)
           text
@@ -74,24 +62,43 @@ module ActiveScaffold
           return link if polymorphic_controller.nil?
           link.controller = polymorphic_controller
         end
+        configure_column_link(link, associated, column.actions_for_association_links)
+      end
 
+      def configure_column_link(link, associated, actions)
         if column_empty?(associated) # if association is empty, we only can link to create form
-          if column.actions_for_association_links.include?(:new)
+          if actions.include?(:new)
             link.action = 'new'
             link.crud_type = :create
           end
-        elsif column.actions_for_association_links.include?(:edit)
+        elsif actions.include?(:edit)
           link.action = 'edit'
           link.crud_type = :update
-        elsif column.actions_for_association_links.include?(:show)
+        elsif actions.include?(:show)
           link.action = 'show'
           link.crud_type = :read
-        elsif column.actions_for_association_links.include?(:list)
-          link.parameters[:id] = record.send(column.association.name).id
+        elsif actions.include?(:list)
           link.action = 'index'
           link.crud_type = :read
         end
         link
+      end
+
+      def column_link_authorized?(link, column, record, associated)
+        if column.association
+          associated_for_authorized = if associated.nil? || (associated.respond_to?(:empty?) && associated.empty?)
+            column.association.klass
+          elsif [:has_many, :has_and_belongs_to_many].include? column.association.macro
+            associated.first
+          else
+            associated
+          end
+          authorized = associated_for_authorized.authorized_for?(:crud_type => link.crud_type)
+          authorized = authorized and record.authorized_for?(:crud_type => :update, :column => column.name) if link.crud_type == :create
+          authorized
+        else
+          record.authorized_for?(:crud_type => link.crud_type)
+        end
       end
 
       def polymorphic_controller_for_nested_link(column, record)
@@ -330,7 +337,7 @@ module ActiveScaffold
 
       def column_heading_value(column, sorting, sort_direction)
         if column.sortable?
-          options = {:id => search_form_id, :class => "as_sort",
+          options = {:id => nil, :class => "as_sort",
                      'data-page-history' => controller_id,
                      :remote => true, :method => :get}
           url_options = params_for(:action => :index, :page => 1,
@@ -347,7 +354,7 @@ module ActiveScaffold
       
       def render_nested_view(action_links, url_options, record)
         rendered = []
-        action_links.each do |link| 
+        action_links.member.each do |link|
           if link.nested_link? && link.column && @nested_auto_open[link.column.name] && @records.length <= @nested_auto_open[link.column.name] && respond_to?(:render_component) 
             link_url_options = {:adapter => '_list_inline_adapter', :format => :js}.merge(action_link_url_options(link, url_options, record, options = {:reuse_eid => true})) 
             link_id = get_action_link_id(link_url_options, record, link.column)

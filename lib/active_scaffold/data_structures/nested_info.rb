@@ -38,10 +38,18 @@ module ActiveScaffold::DataStructures
     def belongs_to?
       false
     end
+
+    def has_one?
+      false
+    end
     
     def readonly?
       false
-    end    
+    end
+
+    def sorted?
+      false
+    end
   end
   
   class NestedInfoAssociation < NestedInfo
@@ -58,6 +66,10 @@ module ActiveScaffold::DataStructures
     def belongs_to?
       association.belongs_to?
     end
+
+    def has_one?
+      association.macro == :has_one
+    end
     
     def readonly?
       if association.options.has_key? :readonly
@@ -65,6 +77,14 @@ module ActiveScaffold::DataStructures
       else
         association.options.has_key? :through
       end
+    end
+
+    def sorted?
+      association.options.has_key? :order
+    end
+
+    def default_sorting
+      association.options[:order]
     end
     
     protected

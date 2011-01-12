@@ -5,6 +5,7 @@ module ActiveScaffold::Config
 
       # start with the ActionLink defined globally
       @link = self.class.link.clone
+      @action_group = self.class.action_group.clone if self.class.action_group
 
       # no global setting here because multipart should only be set for specific forms
       @multipart = false
@@ -29,7 +30,7 @@ module ActiveScaffold::Config
     def columns
       unless @columns # lazy evaluation
         self.columns = @core.columns._inheritable
-        self.columns.exclude :created_on, :created_at, :updated_on, :updated_at
+        self.columns.exclude :created_on, :created_at, :updated_on, :updated_at, :marked
         self.columns.exclude *@core.columns.collect{|c| c.name if c.polymorphic_association?}.compact
       end
       @columns

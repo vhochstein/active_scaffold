@@ -151,21 +151,21 @@ module ActiveScaffold::Config
         self.columns[column].form_ui ||= :select
         self.columns[column].options ||= {}
         self.columns[column].options[:options] = self.sti_children.collect do |model_name|
-          [model_name.to_s.camelize.constantize.human_name, model_name.to_s.camelize]
+          [model_name.to_s.camelize.constantize.model_name.human, model_name.to_s.camelize]
         end
       end
     end
 
     # To be called after include action modules
     def _add_sti_create_links
-      new_action_link = @action_links['new']
+      new_action_link = @action_links.collection['new']
       unless new_action_link.nil?
-        @action_links.delete('new')
+        @action_links.collection.delete('new')
         self.sti_children.each do |child|
           new_sti_link = Marshal.load(Marshal.dump(new_action_link)) # deep clone
-          new_sti_link.label = as_(:create_model, :model => child.to_s.camelize.constantize.human_name)
+          new_sti_link.label = as_(:create_model, :model => child.to_s.camelize.constantize.model_name.human)
           new_sti_link.parameters = {model.inheritance_column => child}
-          @action_links.add(new_sti_link)
+          @action_links.collection.add(new_sti_link)
         end
       end
     end

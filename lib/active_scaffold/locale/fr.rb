@@ -8,6 +8,8 @@
       :cancel => 'Annuler',
       :click_to_edit => 'Cliquer pour éditer',
       :close => 'Fermer',
+      :config_list => 'Configure',
+      :config_list_model => 'Configure Columns for %{model}',
       :create => 'Créer',
       :create_model => 'Créer %{model}',
       :create_another => 'Créer un autre',
@@ -73,6 +75,9 @@
       :past => 'Past', 
       :future => 'Future',
       :range => 'Range',
+      :seconds => 'Seconds',
+      :minutes => 'Minutes',
+      :hours => 'Hours',
       :days => 'Days',
       :weeks => 'Weeks',
       :months => 'Months',
@@ -87,13 +92,15 @@
 		    :showMonthAfterYear => false,
       },
       :datetime_picker_options => {
-        :timeText => 'Heure'
+        :timeText => 'Heure',
+        :currentText => 'Maintenant',
+        :closeText => 'Fermer'
       },
       :errors => {
         :template => {
           :header => {
-            :one =>    "1 error prohibited this {{model}} from being saved.",
-            :other =>  "{{count}} errors prohibited this {{model}} from being saved"
+            :one =>    "1 error prohibited this %{model} from being saved.",
+            :other =>  "%{count} errors prohibited this %{model} from being saved"
           },
           :body => "There were problems with the following fields:"
         }
@@ -102,7 +109,8 @@
       :cant_destroy_record => "%{record} can't be destroyed",
       :internal_error => 'Erreur de la requête (code 500, Erreur interne)',
       :version_inconsistency => "Version incomplète - Cet enregistrement a été modifié depuis que vous avez commencé à l'éditer.",
-      :record_not_saved => 'Failed to save record cause of an unknown error'
+      :record_not_saved => 'Failed to save record cause of an unknown error',
+      :no_authorization_for_action => "No Authorization for action %{action}"
     }
   }
 }

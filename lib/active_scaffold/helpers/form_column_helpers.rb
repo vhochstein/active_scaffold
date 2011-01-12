@@ -5,9 +5,15 @@ module ActiveScaffold
       # This method decides which input to use for the given column.
       # It does not do any rendering. It only decides which method is responsible for rendering.
       def active_scaffold_input_for(column, scope = nil, options = {})
+        options = active_scaffold_input_options(column, scope, options)
+        options = update_columns_options(column, scope, options)
+        active_scaffold_render_input(column, options)
+      end
+
+      alias form_column active_scaffold_input_for
+
+      def active_scaffold_render_input(column, options)
         begin
-          options = active_scaffold_input_options(column, scope, options)
-          options = update_columns_options(column, scope, options)
           # first, check if the dev has created an override for this specific field
           if override_form_field?(column)
             send(override_form_field(column), @record, options)
@@ -17,8 +23,13 @@ module ActiveScaffold
           # fallback: we get to make the decision
           else
             if column.association
-              # if we get here, it's because the column has a form_ui but not one ActiveScaffold knows about.
-              raise "Unknown form_ui `#{column.form_ui}' for column `#{column.name}'"
+              if column.form_ui.nil?
+                # its an association and nothing is specified, we will assume form_ui :select
+                active_scaffold_input_select(column, options)
+              else
+                # if we get here, it's because the column has a form_ui but not one ActiveScaffold knows about.
+                raise "Unknown form_ui `#{column.form_ui}' for column `#{column.name}'"
+              end
             elsif column.virtual?
               active_scaffold_input_virtual(column, options)
 
@@ -46,8 +57,6 @@ module ActiveScaffold
           raise e
         end
       end
-
-      alias form_column active_scaffold_input_for
 
       # the standard active scaffold options used for textual inputs
       def active_scaffold_input_text_options(options = {})
@@ -130,19 +139,23 @@ module ActiveScaffold
         [(text.is_a?(Symbol) ? column.active_record_class.human_attribute_name(text) : text), value]
       end
 
+      def active_scaffold_input_enum(column, html_options)
+        options = { :selected => @record.send(column.name) }
+        options_for_select = column.options[:options].collect do |text, value|
+          active_scaffold_translated_option(column, text, value)
+        end
+        html_options.update(column.options[:html_options] || {})
+        options.update(column.options)
+        select(:record, column.name, options_for_select, options, html_options)
+      end
+
       def active_scaffold_input_select(column, html_options)
         if column.singular_association?
           active_scaffold_input_singular_association(column, html_options)
         elsif column.plural_association?
           active_scaffold_input_plural_association(column, html_options)
         else
-          options = { :selected => @record.send(column.name) }
-          options_for_select = column.options[:options].collect do |text, value|
-            active_scaffold_translated_option(column, text, value)
-          end
-          html_options.update(column.options[:html_options] || {})
-          options.update(column.options)
-          select(:record, column.name, options_for_select, options, html_options)
+          active_scaffold_input_enum(column, html_options)
         end
       end
 
@@ -151,7 +164,7 @@ module ActiveScaffold
         column.options[:options].inject('') do |html, (text, value)|
           text, value = active_scaffold_translated_option(column, text, value)
           html << content_tag(:label, radio_button(:record, column.name, value, html_options.merge(:id => html_options[:id] + '-' + value.to_s)) + text)
-        end
+        end.html_safe
       end
 
       # requires RecordSelect plugin to be installed and configured.

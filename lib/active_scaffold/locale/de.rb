@@ -7,7 +7,10 @@
       :are_you_sure_to_delete => 'Sind Sie sicher?',
       :cancel => 'Abbrechen',
       :click_to_edit => 'Zum Editieren anklicken',
+      :click_to_reset => 'Reset',
       :close => 'Schliessen',
+      :config_list => 'Konfigurieren',
+      :config_list_model => 'Konfiguriere Spalten für %{model}',
       :create => 'Anlegen',
       :create_model => 'Lege %{model} an',
       :create_another => 'Weitere anlegen',
@@ -58,6 +61,9 @@
       :'<' => '<',
       :'!=' => '!=',
       :between => 'Zwischen',
+      :contains => 'Enthält',
+      :begins_with => 'Beginnt',
+      :ends_with => 'Ended',
       :today => 'Heute',
       :yesterday => 'Gestern',
       :tomorrow => 'Morgen',
@@ -72,28 +78,33 @@
       :next_year => 'Nächstes Jahr',
       :past => 'Letzten', 
       :future => 'Nächsten',
-      :range => 'Spanne',
+      :range => 'Zeitraum',
+      :seconds => 'Sekunden',
+      :minutes => 'Minuten',
+      :hours => 'Stunden',
       :days => 'Tage',
       :weeks => 'Wochen',
       :months => 'Monate',
       :years => 'Jahre',
       :optional_attributes => 'Weitere',
-      :null => 'Definiert',
-      :not_null => 'Undefiniert',
+      :null => 'Null',
+      :not_null => 'Nicht Null',
       :date_picker_options => {
         :weekHeader => 'Wo',
 				:firstDay => 1,
 		    :isRTL => false,
-		    :showMonthAfterYear => false,
+		    :showMonthAfterYear => false
       },
       :datetime_picker_options => {
-        :timeText => 'Uhrzeit'
+        :timeText => 'Uhrzeit',
+        :currentText => 'Jetzt',
+        :closeText => 'Schließen'
       },
       :errors => {
         :template => {
           :header => {
-            :one =>    "Konnte {{model}} nicht speichern: ein Fehler.",
-            :other =>  "Konnte {{model}} nicht speichern: {{count}} Fehler."
+            :one =>    "Konnte %{model} nicht speichern: ein Fehler.",
+            :other =>  "Konnte %{model} nicht speichern: %{count} Fehler."
           },
           :body => "Bitte überprüfen Sie die folgenden Felder:"
         }
@@ -102,7 +113,8 @@
       :cant_destroy_record => "%{record} kann nicht gelöscht werden",
       :internal_error => 'Fehler bei der Verarbeitung (code 500, Interner Fehler)',
       :version_inconsistency => 'Inkonsistente Versionen - dieser Eintrag wurde verändert nachdem Sie mit der Bearbeitung begonnen haben.',
-      :record_not_saved => 'Eintrag kann nicht gespeichert werden. Ursache unbekannt.'
+      :record_not_saved => 'Eintrag kann nicht gespeichert werden. Ursache unbekannt.',
+      :no_authorization_for_action => "Keine Berechtigung für Aktion %{action}"
     }
   }
 }

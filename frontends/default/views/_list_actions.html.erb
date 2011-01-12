@@ -1,15 +1,14 @@
-<% action_links ||= active_scaffold_config.action_links %>
 <td class="actions"><table cellpadding="0" cellspacing="0">
   <tr>
     <td class="indicator-container">
       <%= loading_indicator_tag(:action => :record, :id => record.id) %>
     </td>
-    <% action_links.each do |link| -%>
-      <% next if skip_action_link(link, record) -%>
-      <td>
-      <%= record.authorized_for?(:crud_type => link.crud_type, :action => link.action) ? render_action_link(link, url_options, record) : action_link_html(link, nil, {:class => "disabled #{link.action}#{link.html_options[:class].blank? ? '' : (' ' + link.html_options[:class])}"}) %>
-      </td>
-    <% end -%>
+      <%= render :partial => 'action_group', :locals => {:action_links => action_links || active_scaffold_config.action_links.member,
+                                                         :url_options => url_options,
+                                                         :record => record,
+                                                         :traverse_options => {:for => record},
+                                                         :start_level_0_tag => '<td>',
+                                                         :end_level_0_tag => '</td>'} %>
   </tr>
 </table>
 </td>

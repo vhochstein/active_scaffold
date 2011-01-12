@@ -127,6 +127,14 @@ module ActiveScaffold
         html_options = action_link_html_options(link, url_options, record, html_options)
         action_link_html(link, url_options, html_options)
       end
+
+      def render_group_action_link(link, url_options, options, record = nil)
+        if link.type == :member && !options[:authorized]
+          action_link_html(link, nil, {:class => "disabled #{link.action}#{link.html_options[:class].blank? ? '' : (' ' + link.html_options[:class])}"})
+        else
+          render_action_link(link, url_options, record)
+        end
+      end
       
       def action_link_url_options(link, url_options, record, options = {})
         url_options = url_options.clone
@@ -135,7 +143,7 @@ module ActiveScaffold
         url_options.delete(:search) if link.controller and link.controller.to_s != params[:controller]
         url_options.merge! link.parameters if link.parameters
         url_options_for_nested_link(link.column, record, link, url_options, options) if link.nested_link?
-        url_options[:_method] = link.method if link.inline? && link.method != :get
+        url_options[:_method] = link.method if !link.confirm? && link.inline? && link.method != :get
         url_options
       end
       
@@ -144,14 +152,17 @@ module ActiveScaffold
         html_options.reverse_merge! link.html_options.merge(:class => link.action)
 
         # Needs to be in html_options to as the adding _method to the url is no longer supported by Rails        
-        html_options[:method] = link.method if !link.inline? && link.method != :get
+        html_options[:method] = link.method if link.method != :get
 
         html_options['data-confirm'] = link.confirm(record.try(:to_label)) if link.confirm?
         html_options['data-position'] = link.position if link.position and link.inline?
         html_options[:class] += ' as_action' if link.inline?
-        html_options[:popup] = true if link.popup?
+        if link.popup?
+          html_options['data-popup'] = true
+          html_options[:target] = '_blank'
+        end
         html_options[:id] = link_id
-        html_options[:remote] = true unless link.page?
+        html_options[:remote] = true unless link.page? || link.popup?
         if link.dhtml_confirm?
           html_options[:class] += ' as_action' if !link.inline?
           html_options[:page_link] = 'true' if !link.inline?
@@ -161,6 +172,7 @@ module ActiveScaffold
         html_options[:class] += " #{link.html_options[:class]}" unless link.html_options[:class].blank?
         html_options
       end
+
       def get_action_link_id(url_options, record = nil, column = nil)
         id = url_options[:id] || url_options[:parent_id]
         id = "#{column.association.name}-#{record.id}" if column && column.plural_association?
@@ -212,7 +224,7 @@ module ActiveScaffold
         classes << 'empty' if column_empty? column_value
         classes << 'sorted' if active_scaffold_config.list.user.sorting.sorts_on?(column)
         classes << 'numeric' if column.column and [:decimal, :float, :integer].include?(column.column.type)
-        classes.join(' ')
+        classes.join(' ').rstrip
       end
       
       def column_heading_class(column, sorting)
@@ -231,11 +243,15 @@ module ActiveScaffold
       end
 
       def column_calculation(column)
-        conditions = controller.send(:all_conditions)
-        includes = active_scaffold_config.list.count_includes
-        includes ||= controller.send(:active_scaffold_includes) unless conditions.nil?
-        calculation = beginning_of_chain.calculate(column.calculate, column.name, :conditions => conditions,
-         :joins => controller.send(:joins_for_collection), :include => includes)
+        unless column.calculate.instance_of? Proc
+          conditions = controller.send(:all_conditions)
+          includes = active_scaffold_config.list.count_includes
+          includes ||= controller.send(:active_scaffold_includes) unless conditions.nil?
+          calculation = beginning_of_chain.calculate(column.calculate, column.name, :conditions => conditions,
+           :joins => controller.send(:joins_for_collection), :include => includes)
+        else
+          column.calculate.call(@records)
+        end
       end
 
       def render_column_calculation(column)
@@ -243,7 +259,7 @@ module ActiveScaffold
         override_formatter = "render_#{column.name}_#{column.calculate}"
         calculation = send(override_formatter, calculation) if respond_to? override_formatter
 
-        "#{as_(column.calculate)}: #{format_column_value nil, column, calculation}"
+        "#{"#{as_(column.calculate)}: " unless column.calculate.is_a? Proc}#{format_column_value nil, column, calculation}"
       end
 
       def column_show_add_existing(column)
@@ -256,8 +272,9 @@ module ActiveScaffold
         value
       end
       
-      def error_messages_for(*params)
+      def active_scaffold_error_messages_for(*params)
         options = params.extract_options!.symbolize_keys
+        options.reverse_merge!(:container_tag => :div, :list_type => :ul)
 
         objects = Array.wrap(options.delete(:object) || params).map do |object|
           object = instance_variable_get("@#{object}") unless object.respond_to?(:to_model)
@@ -295,17 +312,21 @@ module ActiveScaffold
 
           error_messages = objects.sum do |object|
             object.errors.full_messages.map do |msg|
-              content_tag(:li, msg)
+              options[:list_type] != :br ? content_tag(:li, msg) : msg
             end
-          end.join.html_safe
+          end
+          error_messages = if options[:list_type] == :br
+            error_messages.join('<br/>').html_safe
+          else
+            content_tag(options[:list_type], error_messages.join.html_safe)
+          end
 
-          contents = ''
+          contents = []
           contents << content_tag(options[:header_tag] || :h2, header_message) unless header_message.blank?
           contents << content_tag(:p, message) unless message.blank?
-          contents << content_tag(:ul, error_messages)
-
-          content_tag(:div, contents.html_safe, html)
-
+          contents << error_messages
+          contents = contents.join.html_safe
+          options[:container_tag] ? content_tag(options[:container_tag], contents, html) : contents
         else
           ''
         end

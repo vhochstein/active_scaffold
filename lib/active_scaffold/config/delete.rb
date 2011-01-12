@@ -7,6 +7,7 @@ module ActiveScaffold::Config
 
       # start with the ActionLink defined globally
       @link = self.class.link.clone
+      @action_group = self.class.action_group.clone if self.class.action_group
     end
 
     # global level configuration
@@ -14,7 +15,7 @@ module ActiveScaffold::Config
 
     # the ActionLink for this action
     cattr_accessor :link
-    @@link = ActiveScaffold::DataStructures::ActionLink.new('delete', :label => :delete, :type => :member, :confirm => :are_you_sure_to_delete, :crud_type => :delete, :position => false, :security_method => :delete_authorized?)
+    @@link = ActiveScaffold::DataStructures::ActionLink.new('destroy', :label => :delete, :type => :member, :confirm => :are_you_sure_to_delete, :method => :delete, :crud_type => :delete, :position => false, :parameters => {:destroy_action => true}, :security_method => :delete_authorized?)
 
     # instance-level configuration
     # ----------------------------
