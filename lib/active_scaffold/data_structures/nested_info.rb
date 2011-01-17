@@ -77,6 +77,10 @@ module ActiveScaffold::DataStructures
     def has_one?
       association.macro == :has_one
     end
+
+    def has_many?
+      association.macro == :has_many
+    end
     
     def readonly?
       if association.options.has_key? :readonly
