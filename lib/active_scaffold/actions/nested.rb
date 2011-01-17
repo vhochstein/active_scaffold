@@ -30,12 +30,12 @@ module ActiveScaffold::Actions
     end
     
     def set_nested
-      if params[:parent_model] && ((params[:association] && params[:assoc_id]) || params[:named_scope])
+      if params[:parent_scaffold] && ((params[:association] && params[:assoc_id]) || params[:named_scope])
         @nested = nil
-        active_scaffold_session_storage[:nested] = {:parent_model => params[:parent_model].camelize.constantize,
+        active_scaffold_session_storage[:nested] = {:parent_scaffold => params[:parent_scaffold].to_s,
                                                                   :name => (params[:association] || params[:named_scope]).to_sym,
                                                                   :parent_id => params[:assoc_id]}
-        params.delete_if {|key, value| [:parent_model, :association, :named_scope, :assoc_id].include? key.to_sym}
+        params.delete_if {|key, value| [:parent_scaffold, :association, :named_scope, :assoc_id].include? key.to_sym}
       end
     end
     
@@ -97,14 +97,14 @@ module ActiveScaffold::Actions
        
     def create_association_with_parent(record)
       if nested?
-        if (nested.belongs_to? || nested.has_one?) && nested.child_association
+        if (nested.belongs_to? || nested.has_one? || nested.habtm?) && nested.child_association
           parent = nested_parent_record(:read)
           case nested.child_association.macro
           when :has_one
             record.send("#{nested.child_association.name}=", parent)
           when :belongs_to
             record.send("#{nested.child_association.name}=", parent)
-          when :has_many
+          when :has_many, :has_and_belongs_to_many
             record.send("#{nested.child_association.name}").send(:<<, parent)
           end unless parent.nil?
         end

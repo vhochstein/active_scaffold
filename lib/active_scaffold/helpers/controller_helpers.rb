@@ -29,10 +29,16 @@ module ActiveScaffold
           parameters[:controller] = params[:parent_controller]
           parameters[:eid] = params[:parent_controller]
         end
+        if nested?
+          parameters[:controller] = nested.parent_scaffold.controller_path
+          parameters[:eid] = nil
+        end
         parameters[:parent_column] = nil
         parameters[:parent_id] = nil
         parameters[:action] = "index"
         parameters[:id] = nil
+        parameters[:associated_id] = nil
+        parameters[:utf8] = nil
         params_for(parameters)
       end
     end
