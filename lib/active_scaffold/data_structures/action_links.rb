@@ -36,11 +36,9 @@ module ActiveScaffold::DataStructures
     # groups are represented as a string separated by a dot
     # eg member.crud
     def add_to_group(link, group = nil)
-      if group
-        group.split('.').inject(root){|group, group_name| group.send(group_name)}.add link
-      else
-        root << link
-      end
+      add_to = root
+      add_to = group.split('.').inject(root){|group, group_name| group.send(group_name)} if group
+      add_to << link unless link.nil?
     end
 
     # finds an ActionLink by matching the action
@@ -64,27 +62,41 @@ module ActiveScaffold::DataStructures
           collected = item.find_duplicate(link)
           links << collected unless collected.nil?
         else
-          links << item if item.action == link.action and item.controller == link.controller and item.parameters == link.parameters
+          links << item if item.action == link.action and item.static_controller? && item.controller == link.controller and item.parameters == link.parameters
         end
       end
       links.first
     end
 
     def delete(val)
-      self.each do |link, set|
+      self.each({:include_set => true}) do |link, set|
         if link.action == val.to_s
-          set.delete_if {|item|item.action == val.to_s}
+          set.delete_if {|item| item.is_a?(ActiveScaffold::DataStructures::ActionLink) && item.action == val.to_s}
         end
       end
     end
 
+    def delete_group(name)
+      @set.each do |group|
+        if group.name == name
+          @set.delete_if {|item| item.is_a?(ActiveScaffold::DataStructures::ActionLinks) && item.name == name}
+        else
+          group.delete_group(name)
+        end if group.is_a?(ActiveScaffold::DataStructures::ActionLinks)
+      end
+    end
+
     # iterates over the links, possibly by type
-    def each(type = nil, &block)
+    def each(options = {}, &block)
       @set.each {|item|
         if item.is_a?(ActiveScaffold::DataStructures::ActionLinks)
-          item.each(type, &block)
+          item.each(options, &block)
         else
-          yield item, @set
+          if options[:include_set]
+            yield item, @set
+          else
+            yield item
+          end
         end
       }
     end
@@ -102,10 +114,12 @@ module ActiveScaffold::DataStructures
       first_action = true
       @set.send(traverse_method) do |link|
         if link.is_a?(ActiveScaffold::DataStructures::ActionLinks)
-          yield(link, nil, {:node => :start_traversing, :first_action => first_action, :level => options[:level]})
-          link.traverse(controller,options, &block)
-          yield(link, nil, {:node => :finished_traversing, :first_action => first_action, :level => options[:level]})
-          first_action = false
+          unless link.empty?
+            yield(link, nil, {:node => :start_traversing, :first_action => first_action, :level => options[:level]})
+            link.traverse(controller,options, &block)
+            yield(link, nil, {:node => :finished_traversing, :first_action => first_action, :level => options[:level]})
+            first_action = false
+          end
         elsif controller.nil? || !skip_action_link(controller, link, *(Array(options[:for])))
           authorized = options[:for].nil? ? true : options[:for].authorized_for?(:crud_type => link.crud_type, :action => link.action)
           yield(self, link, {:authorized => authorized, :first_action => first_action, :level => options[:level]})

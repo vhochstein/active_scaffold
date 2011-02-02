@@ -8,19 +8,10 @@ module ActiveScaffold::Actions
       base.helper_method :beginning_of_chain
     end
     def render_field
-      @record ||= if params[:in_place_editing]
-        active_scaffold_config.model.find params[:id]
-      else
-        active_scaffold_config.model.new
-      end
-      column = active_scaffold_config.columns[params[:column]]
       if params[:in_place_editing]
-        render :inline => "<%= active_scaffold_input_for(active_scaffold_config.columns[params[:update_column].to_sym]) %>"
-      elsif !column.nil?
-        value = column_value_from_param_value(@record, column, params[:value])
-        @record.send "#{column.name}=", value
-        after_render_field(@record, column)
-        render :partial => "render_field", :collection => Array(params[:update_columns]), :content_type => 'text/javascript' 
+        render_field_for_inplace_editing
+      else
+        render_field_for_update_columns
       end
     end
     
@@ -28,6 +19,23 @@ module ActiveScaffold::Actions
 
     def nested?
       false
+    end
+
+    def render_field_for_inplace_editing
+      register_constraints_with_action_columns(nested.constrained_fields, active_scaffold_config.update.hide_nested_column ? [] : [:update]) if nested?
+      @record = find_if_allowed(params[:id], :update)
+      render :inline => "<%= active_scaffold_input_for(active_scaffold_config.columns[params[:update_column].to_sym]) %>"
+    end
+
+    def render_field_for_update_columns
+      @record = new_model
+      column = active_scaffold_config.columns[params[:column]]
+      unless column.nil?
+        value = column_value_from_param_value(@record, column, params[:value])
+        @record.send "#{column.name}=", value
+        after_render_field(@record, column)
+        render :partial => "render_field", :collection => Array(params[:update_columns]), :content_type => 'text/javascript'
+      end
     end
     
     # override this method if you want to do something after render_field
@@ -127,6 +135,18 @@ module ActiveScaffold::Actions
       end
       conditions
     end
+
+    def new_model
+      model = beginning_of_chain
+      if model.columns_hash[model.inheritance_column]
+        build_options = {model.inheritance_column.to_sym => active_scaffold_config.model_id} if nested? && nested.association && nested.association.collection?
+        params = self.params # in new action inheritance_column must be in params
+        params = params[:record] || {} unless params[model.inheritance_column] # in create action must be inside record key
+        model = params.delete(model.inheritance_column).camelize.constantize if params[model.inheritance_column]
+      end
+      model.respond_to?(:build) ? model.build(build_options || {}) : model.new
+    end
+
     private
     def respond_to_action(action)
       respond_to do |type|

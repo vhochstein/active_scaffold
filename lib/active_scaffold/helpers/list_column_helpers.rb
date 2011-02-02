@@ -58,7 +58,7 @@ module ActiveScaffold
       def action_link_to_inline_form(column, record, associated)
         link = column.link.clone
         if column.polymorphic_association?
-          polymorphic_controller = polymorphic_controller_for_nested_link(column, record)
+          polymorphic_controller = controller_path_for_activerecord(record.send(column.association.name).class)
           return link if polymorphic_controller.nil?
           link.controller = polymorphic_controller
         end
@@ -98,15 +98,6 @@ module ActiveScaffold
           authorized
         else
           record.authorized_for?(:crud_type => link.crud_type)
-        end
-      end
-
-      def polymorphic_controller_for_nested_link(column, record)
-        begin
-          controller = active_scaffold_controller_for(record.send(column.association.name).class)
-          controller.controller_path
-        rescue ActiveScaffold::ControllerNotFound
-          controller = nil
         end
       end
 
@@ -355,10 +346,10 @@ module ActiveScaffold
       def render_nested_view(action_links, url_options, record)
         rendered = []
         action_links.member.each do |link|
-          if link.nested_link? && link.column && @nested_auto_open[link.column.name] && @records.length <= @nested_auto_open[link.column.name] && respond_to?(:render_component) 
+          if link.nested_link? && link.column && @nested_auto_open[link.column.name] && @records.length <= @nested_auto_open[link.column.name] && controller.respond_to?(:render_component_into_view)
             link_url_options = {:adapter => '_list_inline_adapter', :format => :js}.merge(action_link_url_options(link, url_options, record, options = {:reuse_eid => true})) 
             link_id = get_action_link_id(link_url_options, record, link.column)
-            rendered << (render_component(link_url_options) + javascript_tag("ActiveScaffold.ActionLink.get('#{link_id}').set_opened();"))
+            rendered << (controller.send(:render_component_into_view, link_url_options) + javascript_tag("ActiveScaffold.ActionLink.get('#{link_id}').set_opened();"))
           end 
         end
         rendered.join(' ').html_safe

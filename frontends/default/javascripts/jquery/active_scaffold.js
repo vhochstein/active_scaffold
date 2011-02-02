@@ -521,9 +521,9 @@ var ActiveScaffold = {
     $(form_element + ":first *:input[type!=hidden]:first").focus();
   },
     
-  create_record_row: function(tbody, html, options) {
-    if (typeof(tbody) == 'string') tbody = '#' + tbody;
-    tbody = $(tbody);
+  create_record_row: function(active_scaffold_id, html, options) {
+    if (typeof(active_scaffold_id) == 'string') active_scaffold_id = '#' + active_scaffold_id;
+    tbody = $(active_scaffold_id).find('tbody.records');
     
     if (options.insert_at == 'top') {
       tbody.prepend(html);
@@ -632,6 +632,7 @@ var ActiveScaffold = {
     toggler.children('a').click(function() {
       toggable.toggle(); 
       $(this).html((toggable.is(':hidden')) ? options.show_label : options.hide_label);
+      return false;
     });
   },
   
@@ -827,6 +828,10 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
 
   scaffold_id: function() {
     return '#' + this.tag.closest('div.active-scaffold').attr('id');
+  },
+
+  scaffold: function() {
+    return this.tag.closest('div.active-scaffold');
   },
   
   update_flash_messages: function(messages) {

@@ -1,25 +1,34 @@
 form_selector = "#{element_form_id(:action => :create)}"
-
-page << "ActiveScaffold.find_action_link('#{form_selector}').update_flash_messages('#{escape_javascript(render(:partial => 'messages').strip)}');"
+insert_at ||= :top
+page << "var action_link = ActiveScaffold.find_action_link('#{form_selector}');"
+page << "action_link.update_flash_messages('#{escape_javascript(render(:partial => 'messages').strip)}');"
 if controller.send :successful?
-  if (active_scaffold_config.create.refresh_list_after_create)
+  if render_parent? && controller.respond_to?(:render_component_into_view)
+    parent_rendered = controller.send(:render_component_into_view, render_parent_options)
+    if nested_singular_association?
+      page << "action_link.close('#{escape_javascript(parent_rendered)}');"
+    else
+      if render_parent_action == :row
+        page << "ActiveScaffold.create_record_row(action_link.scaffold(),'#{escape_javascript(parent_rendered)}', #{{:insert_at => insert_at}.to_json});"
+      elsif render_parent_action == :index
+        page << parent_rendered
+      end
+      page << "action_link.close();"
+    end
+    #page.call 'ActiveScaffold.replace', active_scaffold_calculations_id, render(:partial => 'list_calculations') if active_scaffold_config.list.columns.any? {|c| c.calculation?}
+  elsif (active_scaffold_config.create.refresh_list)
     page.call 'ActiveScaffold.replace_html', active_scaffold_content_id, render(:partial => 'list', :layout => false)
-  elsif nested? && (nested.belongs_to? || nested.has_one?) && respond_to?(:render_component)
-    updated_parent_row = render_component({:controller => nested.parent_scaffold.controller_path, :action => :row, :id => nested.parent_id})
-    page << "ActiveScaffold.find_action_link('#{form_selector}').close('#{escape_javascript(updated_parent_row)}');"
-    page.call 'ActiveScaffold.replace', active_scaffold_calculations_id, render(:partial => 'list_calculations') if active_scaffold_config.list.columns.any? {|c| c.calculation?}
   elsif params[:parent_controller].nil?
     new_row = render :partial => 'list_record', :locals => {:record => @record}
-    insert_at ||= :top
-    page << "ActiveScaffold.create_record_row('#{active_scaffold_tbody_id}','#{escape_javascript(new_row)}', #{{:insert_at => insert_at}.to_json});"
+    page << "ActiveScaffold.create_record_row(action_link.scaffold(),'#{escape_javascript(new_row)}', #{{:insert_at => insert_at}.to_json});"
     page.call 'ActiveScaffold.replace', active_scaffold_calculations_id, render(:partial => 'list_calculations') if active_scaffold_config.list.columns.any? {|c| c.calculation?}
   end
 
-  unless nested? && (nested.belongs_to? || nested.has_one?)
+  unless render_parent?
     if (active_scaffold_config.create.persistent)
-      page << "ActiveScaffold.find_action_link('#{form_selector}').reload();"
+      page << "action_link.reload();"
     else
-      page << "ActiveScaffold.find_action_link('#{form_selector}').close();"
+      page << "action_link.close();"
     end
     if (active_scaffold_config.create.edit_after_create)
       page << "var link = $('#{action_link_id 'edit', @record.id}');"

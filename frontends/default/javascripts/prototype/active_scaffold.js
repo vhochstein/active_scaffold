@@ -408,8 +408,9 @@ var ActiveScaffold = {
     Form.focusFirstElement(form_element);
   },  
   
-  create_record_row: function(tbody, html, options) {
-    tbody = $(tbody);
+  create_record_row: function(active_scaffold_id, html, options) {
+    tbody = $(active_scaffold_id).down('tbody.records');
+
     var new_row = null;
     
     if (options.insert_at == 'top') {
@@ -444,6 +445,7 @@ var ActiveScaffold = {
       }
     }
     row.remove();
+    tbody = $(tbody);
     this.stripe(tbody);
     this.decrement_record_count(tbody.up('div.active-scaffold'));
     this.reload_if_empty(tbody, page_reload_url);
@@ -511,6 +513,7 @@ var ActiveScaffold = {
       var element = event.element();
       toggable.toggle(); 
       element.innerHTML = (toggable.style.display == 'none') ? options.show_label : options.hide_label;
+      return false;
     });
   },
   
@@ -727,6 +730,10 @@ ActiveScaffold.ActionLink.Abstract = Class.create({
 
   scaffold_id: function() {
     return this.tag.up('div.active-scaffold').readAttribute('id');
+  },
+
+  scaffold: function() {
+    return this.tag.up('div.active-scaffold');
   },
   
   update_flash_messages: function(messages) {

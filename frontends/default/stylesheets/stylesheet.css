@@ -35,7 +35,7 @@ text-decoration: none;
 color: #999;
 }
 
-.active-scaffold a:hover, .active-scaffold span.hover {
+.active-scaffold a:hover, .active-scaffold div.hover {
 background-color: #ff8;
 }
 
@@ -87,7 +87,7 @@ padding: 2px 5px 4px 5px;
 }
 
 .active-scaffold-header div.actions a,
-.active-scaffold-header div.actions span {
+.active-scaffold-header div.actions {
 float: right;
 font: bold 14px arial;
 letter-spacing: -1px;
@@ -105,9 +105,9 @@ float: right;
 }
 
 .active-scaffold-header div.actions div.action_group li a,
-.active-scaffold-header div.actions div.action_group li span {
+.active-scaffold-header div.actions div.action_group li div {
 float: none;
-margin: 0 2px;
+margin: 0;
 }
 
 .active-scaffold-header div.actions .action_group ul {
@@ -116,7 +116,7 @@ top: 14px;
 }
 
 .view .active-scaffold-header div.actions a,
-.view .active-scaffold-header div.actions span,
+.view .active-scaffold-header div.actions div,
 .view .active-scaffold-header div.actions div.action_group {
 float: left;
 }
@@ -137,10 +137,21 @@ opacity: 0.5;
 
 .active-scaffold-header div.actions a.new,
 .active-scaffold-header div.actions a.new_existing,
-.active-scaffold-header div.actions a.show_search {
-padding-left: 19px;
+.active-scaffold-header div.actions a.show_search,
+.active-scaffold-header div.actions a.show_config_list,
+.active-scaffold-header div.actions div.action_group div {
+margin:0;  
+padding: 1px 5px 1px 20px;
 background-position: 1px 50%;
 background-repeat: no-repeat;
+}
+
+.active-scaffold-header div.actions div.action_group div {
+  background-image: url(../../../images/active_scaffold/default/gears.png); /* default icon for actions or override with css */
+}
+
+.active-scaffold-header div.actions a.show_config_list {
+  background-image: url(../../../images/active_scaffold/default/config.png);
 }
 
 .active-scaffold-header div.actions a.new,
@@ -292,7 +303,7 @@ padding: 0 2px;
 }
 
 .active-scaffold tr.record td.actions a,
-.active-scaffold tr.record td.actions span {
+.active-scaffold tr.record td.actions div {
 font: bold 11px verdana, sans-serif;
 letter-spacing: -1px;
 padding: 2px;
@@ -301,49 +312,67 @@ line-height: 16px;
 white-space: nowrap;
 }
 
-.active-scaffold .actions .action_group span:hover {
+.active-scaffold tr.record td.actions a.disabled {
+color: #666;
+opacity: 0.5;
+}
+
+.active-scaffold .actions .action_group div:hover {
 background-color: #ff8;
 }
 
 .active-scaffold .actions .action_group {
 position: relative;
-text-align: right;
+text-align: left;
 color: #0066CC;
 }
 
 .active-scaffold .actions .action_group ul {
-border: medium none;
+border: 2px solid #005CB8;
 list-style-type: none;
 margin: 0;
 padding: 0;
 position: absolute;
 line-height: 200%;
 display: none;
-width: 100%;
-left: -80px;
+width: 150px;
+right: 0px;
 }
 
 .active-scaffold .actions .action_group ul ul {
 display: none;
 position: absolute;
 top: 0;
-left: -120px;
+right: 150px;
 }
 
 .active-scaffold .actions .action_group ul li {
-background: none repeat scroll 0 0 #FFF;
-border-bottom: 2px solid #005CB8;
-border-left: 2px solid #005CB8;
-border-right: 2px solid #005CB8;
+background: none repeat scroll 0 0 #EEE;
+border-top: 1px dashed #222;
 display: block;
-padding-bottom: 5px;
 position: relative;
-width: 120px;
+width: auto;
 z-index: 2;
 }
 
+.active-scaffold .actions .action_group ul li div {
+  margin: 0;
+  padding: 5px 5px 5px 25px;
+  background-position: 5px 50%;
+  background-repeat: no-repeat;
+}
+
+.active-scaffold .actions .action_group ul li a {
+  display: block;
+  color: #333;
+  margin: 0;
+  padding: 5px 5px 5px 25px;
+  background-position: 5px 50%;
+  background-repeat: no-repeat;
+}
+
 .active-scaffold .actions .action_group ul li.top {
-border-top: 1px solid #005CB8;
+border-top: 0px solid #005CB8;
 }
 
 .active-scaffold .actions .action_group:hover ul ul,
@@ -356,9 +385,6 @@ display: none;
 .active-scaffold .actions .action_group ul ul li:hover ul {
 display: block;
 }
-
-
-
 
 /* Table :: Inline Adapter
    ============================= */
@@ -415,9 +441,8 @@ right: 0px;
 }
 
 .active-scaffold .active-scaffold .active-scaffold-header div.actions a,
-.active-scaffold .active-scaffold .active-scaffold-header div.actions span {
+.active-scaffold .active-scaffold .active-scaffold-header div.actions div {
 font: bold 11px verdana, sans-serif;
-padding: 0 2px 1px 17px;
 }
 
 .blue-theme .active-scaffold .active-scaffold-header div.actions a,
