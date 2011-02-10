@@ -26,7 +26,7 @@ $(document).ready(function() {
     }
     return true;
   });
-  $('a.as_action').live('ajax:before', function(event) {
+  $('a.as_action').live('ajax:beforeSend', function(event) {
     var action_link = ActiveScaffold.ActionLink.get($(this));
     if (action_link) {
       if (action_link.is_disabled()) {
@@ -69,7 +69,7 @@ $(document).ready(function() {
     }
     return true;
   });
-  $('a.as_cancel').live('ajax:before', function(event) {
+  $('a.as_cancel').live('ajax:beforeSend', function(event) {
     var as_cancel = $(this);
     var action_link = ActiveScaffold.find_action_link(as_cancel);  
     
@@ -105,7 +105,7 @@ $(document).ready(function() {
     }
     return true;
   });
-  $('a.as_sort').live('ajax:before', function(event) {
+  $('a.as_sort').live('ajax:beforeSend', function(event) {
     var as_sort = $(this);
     var history_controller_id = as_sort.attr('data-page-history');
     if (history_controller_id) addActiveScaffoldPageToHistory(as_sort.attr('href'), history_controller_id);
@@ -188,7 +188,7 @@ $(document).ready(function() {
       }
     }
   });
-  $('a.as_paginate').live('ajax:before',function(event) {
+  $('a.as_paginate').live('ajax:beforeSend',function(event) {
     var as_paginate = $(this);
     var history_controller_id = as_paginate.attr('data-page-history');
     if (history_controller_id) addActiveScaffoldPageToHistory(as_paginate.attr('href'), history_controller_id);
@@ -204,7 +204,7 @@ $(document).ready(function() {
     $(this).prevAll('img.loading-indicator').css('visibility','hidden');
     return true;
   });
-  $('input[type=button].as_add_existing').live('ajax:before', function(event) {
+  $('input[type=button].as_add_existing').live('ajax:beforeSend', function(event) {
     var url = $(this).attr('href').replace('--ID--', $(this).prev().val());
     event.data_url = url;
     return true;
