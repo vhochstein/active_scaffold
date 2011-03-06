@@ -49,8 +49,11 @@ module ActiveScaffold
             "<a class='disabled'>#{text}</a>".html_safe
           end
         else
-          text = active_scaffold_inplace_edit(record, column, {:formatted_column => text}) if inplace_edit?(record, column)
-          text
+          if inplace_edit?(record, column) && record.authorized_for?(:crud_type => :update, :column => column.name)
+            text = active_scaffold_inplace_edit(record, column, {:formatted_column => text})
+          else
+            text
+          end
         end
       end
 
