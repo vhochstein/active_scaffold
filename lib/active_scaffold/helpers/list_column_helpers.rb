@@ -140,7 +140,7 @@ module ActiveScaffold
       end
 
       def column_override(column)
-        "#{(column.active_record_class.name)}_#{column.name.to_s.gsub('?', '')}_column" # parse out any question marks (see issue 227)
+        "#{(column.active_record_class.name.downcase)}_#{column.name.to_s.gsub('?', '')}_column" # parse out any question marks (see issue 227)
       end
 
       def column_override?(column)
