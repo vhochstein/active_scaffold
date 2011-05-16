@@ -136,13 +136,17 @@ module ActiveScaffold
         check_box(:record, column.name, options)
       end
 
-      def column_override(column)
-        "#{column.name.to_s.gsub('?', '')}_column" # parse out any question marks (see issue 227)
+      def column_override_name(column, old = false)
+        "#{clean_class_name(column.active_record_class.name) + '_' unless old}#{clean_column_name(column.name)}_column"
       end
 
-      def column_override?(column)
-        respond_to?(column_override(column))
+      def column_override(column)
+        method = column_override_name(column)
+        return method if respond_to?(method)
+        old_method = column_override_name(column, true)
+        respond_to?(old_method) ? old_method : nil
       end
+      alias_method :column_override?, :column_override
 
       def override_column_ui?(list_ui)
         respond_to?(override_column_ui(list_ui))

@@ -25,13 +25,17 @@ module ActiveScaffold
         simple_format(clean_column_value(record.send(column.name)))
       end
 
-      def show_column_override(column)
-        "#{column.name.to_s.gsub('?', '')}_show_column" # parse out any question marks (see issue 227)
+      def show_column_override_name(column, old = false)
+        "#{clean_class_name(column.active_record_class.name) + '_' unless old}#{clean_column_name(column.name)}_show_column"
       end
 
-      def show_column_override?(column)
-        respond_to?(show_column_override(column))
+      def show_column_override(column)
+        method = show_column_override_name(column)
+        return method if respond_to?(method)
+        old_method = show_column_override_name(column, true)
+        respond_to?(old_method) ? old_method : nil
       end
+      alias_method :show_column_override?, :show_column_override
 
       def override_show_column_ui?(list_ui)
         respond_to?(override_show_column_ui(list_ui))
