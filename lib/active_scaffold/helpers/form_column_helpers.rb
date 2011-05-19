@@ -257,10 +257,15 @@ module ActiveScaffold
         template_exists?(partial_name, path, true)
       end
 
-      # the naming convention for overriding form fields with helpers
+      # the naming convention for overriding form fields with partials
       def override_form_field_partial(column)
         path = active_scaffold_controller_for(column.active_record_class).controller_path
-        File.join(path, "#{clean_column_name(column.name)}_form_column")
+        partial_name = "#{clean_column_name(column.name)}_form_column"
+        if template_exists?(partial_name, path, true)
+          File.join(path, partial_name)
+        else
+          partial_name
+        end
       end
 
       def override_form_field(column)
