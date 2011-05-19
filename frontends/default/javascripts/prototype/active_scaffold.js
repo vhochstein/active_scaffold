@@ -78,7 +78,7 @@ document.observe("dom:loaded", function() {
   document.on('ajax:complete', 'a.as_action', function(event) {
     var action_link = ActiveScaffold.ActionLink.get(event.findElement());
     if (action_link && action_link.loading_indicator) {
-      action_link.loading_indicator.style.visibility = 'hidden';  
+      action_link.loading_indicator.style.visibility = 'hidden';
     }
     return true;
   });
@@ -93,7 +93,7 @@ document.observe("dom:loaded", function() {
   document.on('ajax:before', 'a.as_cancel', function(event) {
     var as_cancel = event.findElement();
     var action_link = ActiveScaffold.find_action_link(as_cancel);
-    
+
     if (action_link) {
       var refresh_data = as_cancel.readAttribute('data-refresh');
       if (refresh_data === 'true' && action_link.refresh_url) {
@@ -111,7 +111,7 @@ document.observe("dom:loaded", function() {
       if (action_link.position) {
         action_link.close(event.memo.request.responseText);
       } else {
-        event.memo.request.evalResponse(); 
+        event.memo.request.evalResponse();
       }
     }
     return true;
@@ -143,7 +143,7 @@ document.observe("dom:loaded", function() {
   });
   document.on('click', 'span.in_place_editor_field', function(event) {
     var span = event.findElement('span.in_place_editor_field');
-    
+
     if (typeof(span.inplace_edit) === 'undefined') {
       var options = {htmlResponse: false,
                      onEnterHover: null,
@@ -159,27 +159,27 @@ document.observe("dom:loaded", function() {
       if(!(my_parent.nodeName.toLowerCase() === 'td' || my_parent.nodeName.toLowerCase() === 'th')){
           my_parent = span.up('td');
       }
-          
+
       if (my_parent.nodeName.toLowerCase() === 'td') {
         var heading_selector = '.' + span.up().readAttribute('class').split(' ')[0] + '_heading';
         column_heading = span.up('.active-scaffold').down(heading_selector);
       } else if (my_parent.nodeName.toLowerCase() === 'th') {
         column_heading = my_parent;
       }
-          
+
       var render_url = column_heading.readAttribute('data-ie_render_url'),
           mode = column_heading.readAttribute('data-ie_mode'),
           record_id = span.readAttribute('data-ie_id');
-        
+
       ActiveScaffold.read_inplace_edit_heading_attributes(column_heading, options);
-      
+
       if (span.readAttribute('data-ie_url')) {
         options.url = span.readAttribute('data-ie_url');
       } else {
         options.url = column_heading.readAttribute('data-ie_url');
       }
       if (record_id) options.url = options.url.sub('__id__', record_id);
-       
+
       if (csrf_param) options['params'] = csrf_param.readAttribute('content') + '=' + csrf_token.readAttribute('content');
 
       if (span.up('div.active-scaffold').readAttribute('data-eid')) {
@@ -188,19 +188,19 @@ document.observe("dom:loaded", function() {
         }
         options['params'] += ("eid=" + span.up('div.active-scaffold').readAttribute('data-eid'));
       }
-            
+
       if (mode === 'clone') {
         options.nodeIdSuffix = record_id;
         options.inplacePatternSelector = '#' + column_heading.readAttribute('id') + ' .as_inplace_pattern';
         options['onFormCustomization'] = new Function('element', 'form', 'element.clonePatternField();');
       }
-      
+
       if (render_url) {
         var plural = false;
         if (column_heading.readAttribute('data-ie_plural')) plural = true;
         options['onFormCustomization'] = new Function('element', 'form', 'element.setFieldFromAjax(' + "'" + render_url.sub('__id__', record_id) + "', {plural: " + plural + '});');
       }
-      
+
       if (mode === 'inline_checkbox') {
         ActiveScaffold.process_checkbox_inplace_edit(span.down('input[type="checkbox"]'), options);
       } else {
@@ -213,7 +213,7 @@ document.observe("dom:loaded", function() {
     var as_paginate = event.findElement();
     var loading_indicator = as_paginate.up().down('img.loading-indicator');
     var history_controller_id = as_paginate.readAttribute('data-page-history');
-    
+
     if (history_controller_id) addActiveScaffoldPageToHistory(as_paginate.readAttribute('href'), history_controller_id);
     if (loading_indicator) loading_indicator.style.visibility = 'visible';
     return true;
@@ -226,8 +226,8 @@ document.observe("dom:loaded", function() {
   document.on('ajax:complete', 'a.as_paginate', function(event) {
     var as_paginate = event.findElement();
     var loading_indicator = as_paginate.up().down('img.loading-indicator');
-    
-    if(loading_indicator) loading_indicator.style.visibility = 'hidden';  
+
+    if(loading_indicator) loading_indicator.style.visibility = 'hidden';
     return true;
   });
   document.on('ajax:before', 'input[type=button].as_add_existing', function(event) {
@@ -235,6 +235,19 @@ document.observe("dom:loaded", function() {
     var url =  button.readAttribute('href').sub('--ID--', button.previous().getValue());
     event.memo.url = url;
     return true;
+  });
+  document.on('change', 'select[data_as_filter_column]', function(event) {
+    var el = event.findElement();
+    var url = window.location.href.replace(new RegExp(el.name + '=[^&]*'),'');
+    if(el.value){
+      var additional_param = el.name + '=' + encodeURIComponent(el.value);
+      var q_pos = url.indexOf('?');
+      if(q_pos + 1 == url.length)
+        url = url + additional_param;
+      else
+        url = url + ((q_pos == -1) ? '?' :'&') + additional_param;
+    }
+    window.location.href = url;
   });
   document.on('change', 'input.update_form, select.update_form', function(event) {
     var element = event.findElement();
@@ -259,7 +272,7 @@ document.observe("dom:loaded", function() {
         element.next('img.loading-indicator').style.visibility = 'hidden';
         as_form.enable();
       },
-      onFailure:  function(request) { 
+      onFailure:  function(request) {
         var as_div = event.findElement('div.active-scaffold');
         if (as_div) {
           ActiveScaffold.report_500_response(as_div)
@@ -299,7 +312,7 @@ document.observe("dom:loaded", function() {
     } else {
       ul_element.style.display = 'none';
     }
-     
+
     return true;
   });
   document.on("click", ".hover_click a.as_action", function(event, element) {
@@ -389,59 +402,59 @@ var ActiveScaffold = {
     if (row.hasClassName('even-record')) new_row.addClassName('even-record');
     new_row.highlight();
   },
-  
+
   replace: function(element, html) {
     element = $(element)
     Element.replace(element, html);
     element = $(element.readAttribute('id'));
     return element;
   },
-    
+
   replace_html: function(element, html) {
     element = $(element);
     element.update(html);
     return element;
   },
-  
+
   remove: function(element) {
     $(element).remove();
   },
-  
+
   hide: function(element) {
     $(element).hide();
   },
-  
+
   show: function(element) {
     $(element).show();
   },
-  
+
   reset_form: function(element) {
     $(element).reset();
   },
-  
+
   disable_form: function(as_form) {
     as_form = $(as_form)
     var loading_indicator = $(as_form.readAttribute('id').sub('-form', '-loading-indicator'));
     if (loading_indicator) loading_indicator.style.visibility = 'visible';
     as_form.disable();
   },
-  
+
   enable_form: function(as_form) {
     as_form = $(as_form)
     var loading_indicator = $(as_form.readAttribute('id').sub('-form', '-loading-indicator'));
     if (loading_indicator) loading_indicator.style.visibility = 'hidden';
     as_form.enable();
   },
-  
+
   focus_first_element_of_form: function(form_element) {
     Form.focusFirstElement(form_element);
-  },  
-  
+  },
+
   create_record_row: function(active_scaffold_id, html, options) {
     tbody = $(active_scaffold_id).down('tbody.records');
 
     var new_row = null;
-    
+
     if (options.insert_at == 'top') {
       tbody.insert({top: html});
       new_row = tbody.firstDescendant();
@@ -454,19 +467,19 @@ var ActiveScaffold = {
       }
       new_row = Selector.findChildElements(tbody, ['tr.record']).last();
     }
-    
+
     this.stripe(tbody);
     this.hide_empty_message(tbody);
     this.increment_record_count(tbody.up('div.active-scaffold'));
     new_row.highlight();
   },
-  
+
   delete_record_row: function(row, page_reload_url) {
     row = $(row);
     var tbody = row.up('tbody.records');
-    
+
     var current_action_node = row.down('td.actions a.disabled');
-    
+
     if (current_action_node) {
       var action_link = ActiveScaffold.ActionLink.get(current_action_node);
       if (action_link) {
@@ -496,15 +509,15 @@ var ActiveScaffold = {
       server_error.show();
     }
   },
-  
+
   find_action_link: function(element) {
-    return ActiveScaffold.ActionLink.get($(element).up('.as_adapter')); 
+    return ActiveScaffold.ActionLink.get($(element).up('.as_adapter'));
   },
-  
+
   scroll_to: function(element) {
     $(element).scrollTo();
   },
-  
+
   process_checkbox_inplace_edit: function(checkbox, options) {
     var checked = checkbox.readAttribute('checked');
     // checked attribute is nt updated
@@ -520,7 +533,7 @@ var ActiveScaffold = {
       }
     });
   },
-  
+
   read_inplace_edit_heading_attributes: function(column_heading, options) {
     if (column_heading.readAttribute('data-ie_cancel_text')) options.cancelText = column_heading.readAttribute('data-ie_cancel_text');
     if (column_heading.readAttribute('data-ie_loading_text')) options.loadingText = column_heading.readAttribute('data-ie_loading_text');
@@ -529,8 +542,8 @@ var ActiveScaffold = {
     if (column_heading.readAttribute('data-ie_rows')) options.rows = column_heading.readAttribute('data-ie_rows');
     if (column_heading.readAttribute('data-ie_cols')) options.cols = column_heading.readAttribute('data-ie_cols');
     if (column_heading.readAttribute('data-ie_size')) options.size = column_heading.readAttribute('data-ie_size');
-  }, 
-  
+  },
+
   create_inplace_editor: function(span, options) {
     if (options['params'].length > 0) {
       options['callback'] = new Function('form', 'return Form.serialize(form) + ' + "'&" + options['params'] + "';");
@@ -539,21 +552,21 @@ var ActiveScaffold = {
     span.inplace_edit = new ActiveScaffold.InPlaceEditor(span.readAttribute('id'), options.url, options)
     span.inplace_edit.enterEditMode();
   },
-  
+
   create_visibility_toggle: function(element, options) {
     var toggable = $(element);
     var toggler = toggable.previous();
     var initial_label = (options.default_visible === true) ? options.hide_label : options.show_label;
-    
+
     toggler.insert(' (<a class="visibility-toggle" href="#">' + initial_label + '</a>)');
     toggler.firstDescendant().observe('click', function(event) {
       var element = event.element();
-      toggable.toggle(); 
+      toggable.toggle();
       element.innerHTML = (toggable.style.display == 'none') ? options.show_label : options.hide_label;
       return false;
     });
   },
-  
+
   create_associated_record_form: function(element, content, options) {
     var element = $(element);
     if (options.singular == false) {
@@ -569,7 +582,7 @@ var ActiveScaffold = {
       }
     }
   },
-  
+
   render_form_field: function(source, content, options) {
     var source = $(source);
     var element = source.up('.association-record');
@@ -614,7 +627,7 @@ var ActiveScaffold = {
     if(options.include_mark_all === true) {
       var mark_all_checkbox = element.previous('thead').down('th.marked-column_heading span input[type="checkbox"]');
       if(options.checked === true) {
-        mark_all_checkbox.writeAttribute({ checked: 'checked' }); 
+        mark_all_checkbox.writeAttribute({ checked: 'checked' });
       } else {
         mark_all_checkbox.removeAttribute('checked');
       }
@@ -756,13 +769,13 @@ ActiveScaffold.ActionLink.Abstract = Class.create({
     this.loading_indicator = loading_indicator;
     this.hide_target = false;
     this.position = this.tag.readAttribute('data-position');
-		
+
     this.tag.store('action_link', this);
   },
 
   open: function(event) {
   },
-  
+
   insert: function(content) {
     throw 'unimplemented'
   },
@@ -804,12 +817,12 @@ ActiveScaffold.ActionLink.Abstract = Class.create({
   scaffold: function() {
     return this.tag.up('div.active-scaffold');
   },
-  
+
   update_flash_messages: function(messages) {
     message_node = $(this.scaffold_id().sub('-active-scaffold', '-messages'));
     if (message_node) message_node.update(messages);
   },
-  
+
   set_adapter: function(element) {
     this.adapter = element;
     this.adapter.addClassName('as_adapter');
@@ -824,7 +837,7 @@ ActiveScaffold.Actions.Record = Class.create(ActiveScaffold.Actions.Abstract, {
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     if (this.target.hasAttribute('data-refresh') && !this.target.readAttribute('data-refresh').blank()) l.refresh_url = this.target.readAttribute('data-refresh');
-    
+
     if (l.position) {
       l.url = l.url.append_params({adapter: '_list_inline_adapter'});
       l.tag.href = l.url;
@@ -933,7 +946,7 @@ ActiveScaffold.InPlaceEditor = Class.create(Ajax.InPlaceEditor, {
       this._originalBackground = null;
     }
   },
-  
+
   setFieldFromAjax: function(url, options) {
     var ipe = this;
     $(ipe._controls.editor).remove();
@@ -986,12 +999,12 @@ ActiveScaffold.InPlaceEditor = Class.create(Ajax.InPlaceEditor, {
       this._form.appendChild(patternNode);
     }.bind(this));
   },
-  
+
   getPatternNodes: function(inplacePatternSelector) {
     var nodes = {editNode: null, additionalNodes: []};
     var selectedNodes = $$(inplacePatternSelector);
     var firstNode = selectedNodes.first();
-    
+
     if (typeof(firstNode) !== 'undefined') {
       // AS inplace_edit_control_container -> we have to select all child nodes
       // Workaround for ie which does not support css > selector
@@ -1004,7 +1017,7 @@ ActiveScaffold.InPlaceEditor = Class.create(Ajax.InPlaceEditor, {
     }
     return nodes;
   },
-  
+
   setValue: function(editField, textValue) {
     var function_name = 'setValueFor' + editField.nodeName.toLowerCase();
     if (typeof(this[function_name]) == 'function') {
@@ -1013,7 +1026,7 @@ ActiveScaffold.InPlaceEditor = Class.create(Ajax.InPlaceEditor, {
       editField.value = textValue;
     }
   },
-  
+
   setValueForselect: function(editField, textValue) {
     var len = editField.options.length;
     var i = 0;
