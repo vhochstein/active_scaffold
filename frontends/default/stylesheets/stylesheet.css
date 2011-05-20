@@ -81,7 +81,7 @@ margin: 0;
 color: #555;
 font: bold 160% arial, sans-serif;
 float:left;
-clear:left;
+clear:right;
 }
 
 .blue-theme .active-scaffold-header h2 {
