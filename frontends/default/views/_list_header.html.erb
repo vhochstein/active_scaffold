@@ -1,11 +1,3 @@
-<h2><%= active_scaffold_config.list.user.label %></h2>
-<% action_links = active_scaffold_config.action_links.collection %>
-<% unless action_links.empty? -%>
-  <div class="actions">
-    <%= render :partial => 'action_group', :locals => {:action_links => action_links, :url_options => params_for, :traverse_options => nested? ? {:reverse => true} : {}} %>
-    <%= loading_indicator_tag(:action => :table) %>
-  </div>
-<% end %>
 <% if active_scaffold_config.list.filter_column -%>
   <div class="filter_columns">
     <% (active_scaffold_config.list.filter_column.is_a?(Array) ? active_scaffold_config.list.filter_column : [active_scaffold_config.list.filter_column]).each do |field| -%>
@@ -16,3 +8,11 @@
     <% end -%>
   </div>
 <% end -%>
+<h2><%= active_scaffold_config.list.user.label %></h2>
+<% action_links = active_scaffold_config.action_links.collection %>
+<% unless action_links.empty? -%>
+  <div class="actions">
+    <%= render :partial => 'action_group', :locals => {:action_links => action_links, :url_options => params_for, :traverse_options => nested? ? {:reverse => true} : {}} %>
+    <%= loading_indicator_tag(:action => :table) %>
+  </div>
+<% end %>

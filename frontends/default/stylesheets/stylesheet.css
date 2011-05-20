@@ -81,6 +81,7 @@ margin: 0;
 color: #555;
 font: bold 160% arial, sans-serif;
 float:left;
+clear:left;
 }
 
 .blue-theme .active-scaffold-header h2 {
@@ -115,7 +116,7 @@ float:right;
 }
 .active-scaffold-header .filter_column_option {
 float: right;
-margin-right: 10px;
+margin-left: 10px;
 }
 
 .active-scaffold-header div.actions div.action_group {
