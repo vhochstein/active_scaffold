@@ -23,6 +23,7 @@ margin: 5px 0;
 .active-scaffold table {
 width: 100%;
 border-collapse: separate;
+clear:both;
 }
 
 .active-scaffold a,
@@ -79,6 +80,8 @@ padding: 2px 0px;
 margin: 0;
 color: #555;
 font: bold 160% arial, sans-serif;
+float:left;
+clear:right;
 }
 
 .blue-theme .active-scaffold-header h2 {
@@ -106,6 +109,14 @@ margin-left: 0px;
 
 .active-scaffold .active-scaffold .active-scaffold-header div.actions > a {
 padding: 1px 5px;
+}
+
+.active-scaffold-header .filter_columns{
+float:right;
+}
+.active-scaffold-header .filter_column_option {
+float: right;
+margin-left: 10px;
 }
 
 .active-scaffold-header div.actions div.action_group {
@@ -153,7 +164,7 @@ opacity: 0.5;
 .active-scaffold-header div.actions a.show_search,
 .active-scaffold-header div.actions a.show_config_list,
 .active-scaffold-header div.actions div.action_group div {
-margin:0;  
+margin:0;
 padding: 5px 5px 5px 25px;
 background-position: 5px 50%;
 background-repeat: no-repeat;
@@ -197,9 +208,6 @@ cursor: default;
 }
 
 .active-scaffold-header div.actions {
-position: absolute;
-right: 5px;
-top: 5px;
 text-align: right;
 }
 

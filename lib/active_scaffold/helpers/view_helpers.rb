@@ -30,6 +30,26 @@ module ActiveScaffold
         controller.class.active_scaffold_controller_for(*args)
       end
 
+      # not part of active_scaffold
+      def filter_option_helpers(field)
+        field_name = field if active_scaffold_config.model.columns.any? {|c| c.name.to_s == field.to_s }
+        if !field_name && (association = active_scaffold_config.model.reflect_on_all_associations.find {|a| a.name == field && a.belongs_to? })
+          field_name = association.association_foreign_key
+        end
+        raise ArgumentError, "Couldn't find column #{field} in #{active_scaffold_config.model}" unless field_name
+
+        options = active_scaffold_config.model.all(:select => "distinct #{field_name}", :order => "#{field_name} ASC").collect do |x|
+          val = x.send(field)
+          next unless val
+          if val.is_a?(ActiveRecord::Base)
+            [val.to_label, association ? val.send(association.association_primary_key) : val.send(val.class.primary_key)]
+          else
+            ((val.class == FalseClass) || (val.class == TrueClass)) ? ([val.to_s, val ? '1' : '0']) : val
+          end
+        end.compact
+        options_for_select([nil] + options, params[field])
+      end
+
       ##
       ## Uncategorized
       ##
@@ -73,7 +93,7 @@ module ActiveScaffold
       def form_remote_upload_tag(url_for_options = {}, options = {})
         options[:target] = action_iframe_id(url_for_options)
         options[:multipart] ||= true
-        options[:class] = "#{options[:class]} as_remote_upload".strip 
+        options[:class] = "#{options[:class]} as_remote_upload".strip
         output=""
         output << form_tag(url_for_options, options)
         (output << "<iframe id='#{action_iframe_id(url_for_options)}' name='#{action_iframe_id(url_for_options)}' style='display:none'></iframe>").html_safe
@@ -87,13 +107,13 @@ module ActiveScaffold
           ActiveScaffold::Config::Core.asset_path(name, frontend)
         end
       end
-      
+
       # Provides stylesheets to include with +stylesheet_link_tag+
       def active_scaffold_stylesheets(frontend = :default)
         [ActiveScaffold::Config::Core.asset_path("stylesheet.css", frontend)]
       end
 
-      # Provides stylesheets for IE to include with +stylesheet_link_tag+ 
+      # Provides stylesheets for IE to include with +stylesheet_link_tag+
       def active_scaffold_ie_stylesheets(frontend = :default)
         [ActiveScaffold::Config::Core.asset_path("stylesheet-ie.css", frontend)]
       end
@@ -122,7 +142,7 @@ module ActiveScaffold
       # You may also flag whether the other element is visible by default or not, and the initial text will adjust accordingly.
       def link_to_visibility_toggle(id, options = {})
         options[:default_visible] = true if options[:default_visible].nil?
-        options[:hide_label] = as_(:hide) 
+        options[:hide_label] = as_(:hide)
         options[:show_label] = as_(:show)
         javascript_tag("ActiveScaffold.create_visibility_toggle('#{id}', #{options.to_json});")
       end
@@ -144,7 +164,7 @@ module ActiveScaffold
           render_action_link(link, url_options, record)
         end
       end
-      
+
       def action_link_url_options(link, url_options, record, options = {})
         url_options = url_options.clone
         url_options[:action] = link.action
@@ -159,12 +179,12 @@ module ActiveScaffold
         url_options[:_method] = link.method if !link.confirm? && link.inline? && link.method != :get
         url_options
       end
-      
+
       def action_link_html_options(link, url_options, record, html_options)
         link_id = get_action_link_id(url_options, record, link.column)
         html_options.reverse_merge! link.html_options.merge(:class => link.action)
 
-        # Needs to be in html_options to as the adding _method to the url is no longer supported by Rails        
+        # Needs to be in html_options to as the adding _method to the url is no longer supported by Rails
         html_options[:method] = link.method if link.method != :get
 
         html_options['data-confirm'] = link.confirm(record.try(:to_label)) if link.confirm?
@@ -198,10 +218,10 @@ module ActiveScaffold
         action_id = "#{id_from_controller(url_options[:controller]) + '-' if url_options[:parent_controller]}#{url_options[:action].to_s}"
         action_link_id(action_id, id)
       end
-      
+
       def action_link_html(link, url, html_options, record)
         # issue 260, use url_options[:link] if it exists. This prevents DB data from being localized.
-        label = url.delete(:link) if url.is_a?(Hash) 
+        label = url.delete(:link) if url.is_a?(Hash)
         label ||= link.label
         if link.image.nil?
           html = link_to(label, url, html_options)
@@ -209,11 +229,11 @@ module ActiveScaffold
           html = link_to(image_tag(link.image[:name] , :size => link.image[:size], :alt => label), url, html_options)
         end
         # if url is nil we would like to generate an anchor without href attribute
-        url.nil? ? html.sub(/href=".*?"/, '') : html 
+        url.nil? ? html.sub(/href=".*?"/, '') : html
       end
-      
+
       def url_options_for_nested_link(column, record, link, url_options, options = {})
-        if column && column.association 
+        if column && column.association
           url_options[:assoc_id] = url_options.delete(:id)
           url_options[:id] = record.send(column.association.name).id if column.singular_association? && record.send(column.association.name).present?
           link.eid = "#{controller_id.from(3)}_#{record.id}_#{column.association.name}" unless options.has_key?(:reuse_eid)
@@ -249,13 +269,13 @@ module ActiveScaffold
         else
           classes << column.css_class
         end unless column.css_class.nil?
-         
+
         classes << 'empty' if column_empty? column_value
         classes << 'sorted' if active_scaffold_config.list.user.sorting.sorts_on?(column)
         classes << 'numeric' if column.column and [:decimal, :float, :integer].include?(column.column.type)
         classes.join(' ').rstrip
       end
-      
+
       def column_heading_class(column, sorting)
         classes = []
         classes << "#{column.name}-column_heading"
@@ -306,7 +326,7 @@ module ActiveScaffold
         value = false unless record.class.authorized_for?(:crud_type => :create)
         value
       end
-      
+
       def active_scaffold_error_messages_for(*params)
         options = params.extract_options!.symbolize_keys
         options.reverse_merge!(:container_tag => :div, :list_type => :ul)

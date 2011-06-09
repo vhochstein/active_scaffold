@@ -379,7 +379,7 @@ Rails::Application.initializer("active_scaffold.install_assets") do
   begin
     ActiveScaffoldAssets.copy_to_public(ActiveScaffold.root, {:clean_up_destination => true})
   rescue
-    raise $! unless Rails.env == 'production'
+    raise $! if Rails.env == 'development'
   end
 end if defined?(ACTIVE_SCAFFOLD_GEM)
 

@@ -6,7 +6,7 @@ $(document).ready(function() {
     }
     return true;
   });
-  
+
   $('form.as_form').live('ajax:complete', function(event) {
     var as_form = $(this).closest("form");
     if (as_form && as_form.attr('data-loading') == 'true') {
@@ -57,7 +57,7 @@ $(document).ready(function() {
   $('a.as_action').live('ajax:complete', function(event) {
     var action_link = ActiveScaffold.ActionLink.get($(this));
     if (action_link) {
-      if (action_link.loading_indicator) action_link.loading_indicator.css('visibility','hidden');  
+      if (action_link.loading_indicator) action_link.loading_indicator.css('visibility','hidden');
     }
     return true;
   });
@@ -71,14 +71,14 @@ $(document).ready(function() {
   });
   $('a.as_cancel').live('ajax:before', function(event) {
     var as_cancel = $(this);
-    var action_link = ActiveScaffold.find_action_link(as_cancel);  
-    
+    var action_link = ActiveScaffold.find_action_link(as_cancel);
+
     if (action_link) {
       var cancel_url = as_cancel.attr('href');
       var refresh_data = as_cancel.attr('data-refresh');
       if (refresh_data === 'true' && action_link.refresh_url) {
         event.data_url = action_link.refresh_url;
-        if (action_link.position) event.data_type = 'html' 
+        if (action_link.position) event.data_type = 'html'
       } else if (refresh_data === 'false' || typeof(cancel_url) == 'undefined' || cancel_url.length == 0) {
         action_link.close();
         return false;
@@ -93,7 +93,7 @@ $(document).ready(function() {
       if (action_link.position) {
         action_link.close(response);
       } else {
-        response.evalResponse(); 
+        response.evalResponse();
       }
     }
     return true;
@@ -151,6 +151,18 @@ $(document).ready(function() {
     event.data_url = url;
     return true;
   });
+  $('select[data_as_filter_column]').live('change', function(event) {
+      var url = window.location.href.replace(new RegExp(this.name + '=[^&]*'),'');
+      if(this.value){
+        var additional_param = this.name + '=' + encodeURIComponent(this.value);
+        var q_pos = url.indexOf('?');
+        if(q_pos + 1 == url.length)
+          url = url + additional_param;
+        else
+          url = url + ((q_pos == -1) ? '?' :'&') + additional_param;
+      }
+      window.location.href = url;
+  });
   $('input.update_form, select.update_form').live('change', function(event) {
       var element = $(this);
       var as_form = element.closest('form.as_form');
@@ -188,12 +200,12 @@ $(document).ready(function() {
       });
     return true;
   });
-  
+
   $('select.as_search_range_option').live('change', function(event) {
     ActiveScaffold[$(this).val() == 'BETWEEN' ? 'show' : 'hide']($(this).parent().find('.as_search_range_between'));
     return true;
   });
-  
+
   $('select.as_search_range_option').live('change', function(event) {
     var element = $(this);
     ActiveScaffold[!(element.val() == 'PAST' || element.val() == 'FUTURE' || element.val() == 'RANGE') ? 'show' : 'hide'](element.attr('id').replace(/_opt/, '_numeric'));
@@ -240,17 +252,17 @@ $(document).ready(function() {
 
   // The base Class implementation (does nothing)
   this.Class = function(){};
- 
+
   // Create a new Class that inherits from this class
   Class.extend = function(prop) {
     var _super = this.prototype;
-   
+
     // Instantiate a base class (but only create the instance,
     // don't run the init constructor)
     initializing = true;
     var prototype = new this();
     initializing = false;
-   
+
     // Copy the properties over onto the new prototype
     for (var name in prop) {
       // Check if we're overwriting an existing function
@@ -259,38 +271,38 @@ $(document).ready(function() {
         (function(name, fn){
           return function() {
             var tmp = this._super;
-           
+
             // Add a new ._super() method that is the same method
             // but on the super-class
             this._super = _super[name];
-           
+
             // The method only need to be bound temporarily, so we
             // remove it when we're done executing
-            var ret = fn.apply(this, arguments);       
+            var ret = fn.apply(this, arguments);
             this._super = tmp;
-           
+
             return ret;
           };
         })(name, prop[name]) :
         prop[name];
     }
-   
+
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
       if ( !initializing && this.init )
         this.init.apply(this, arguments);
     }
-   
+
     // Populate our constructed prototype object
     Class.prototype = prototype;
-   
+
     // Enforce the constructor to be what we expect
     Class.constructor = Class;
 
     // And make this class extendable
     Class.extend = arguments.callee;
-   
+
     return Class;
   };
 })();
@@ -298,29 +310,29 @@ $(document).ready(function() {
 /*
  jQuery delayed observer
  (c) 2007 - Maxime Haineault (max@centdessin.com)
- 
+
  Special thanks to Stephen Goguen & Tane Piper.
- 
+
  Slight modifications by Elliot Winkler
 */
 
-if (typeof(jQuery.fn.delayedObserver) === 'undefined') { 
+if (typeof(jQuery.fn.delayedObserver) === 'undefined') {
   (function() {
     var delayedObserverStack = [];
     var observed;
-   
+
     function delayedObserverCallback(stackPos) {
       observed = delayedObserverStack[stackPos];
       if (observed.timer) return;
-     
+
       observed.timer = setTimeout(function(){
         observed.timer = null;
         observed.callback(observed.obj.val(), observed.obj);
       }, observed.delay * 1000);
-  
+
       observed.oldVal = observed.obj.val();
-    } 
-    
+    }
+
     // going by
     // <http://www.cambiaresearch.com/c4/702b8cd1-e5b0-42e6-83ac-25f0306e3e25/Javascript-Char-Codes-Key-Codes.aspx>
     // I think these codes only work when using keyup or keydown
@@ -331,18 +343,18 @@ if (typeof(jQuery.fn.delayedObserver) === 'undefined') {
         (code >= 9 && code <= 16) || (code >= 27 && code <= 40) || (code >= 91 && code <= 93) || (code >= 112 && code <= 145)
       );
     }
-   
+
     jQuery.fn.extend({
       delayedObserver:function(delay, callback){
         $this = $(this);
-       
+
         delayedObserverStack.push({
           obj: $this, timer: null, delay: delay,
           oldVal: $this.val(), callback: callback
         });
-         
+
         stackPos = delayedObserverStack.length-1;
-       
+
         $this.keyup(function(event) {
           if (isNonPrintableKey(event)) return;
           observed = delayedObserverStack[stackPos];
@@ -367,7 +379,7 @@ var ActiveScaffold = {
   stripe: function(tbody_id) {
     var even = false;
     var rows = this.records_for(tbody_id);
-    
+
     rows.each(function (index, row_node) {
       row = $(row_node);
       if (row_node.tagName != 'SCRIPT'
@@ -380,7 +392,7 @@ var ActiveScaffold = {
         else row.removeClass("even-record");
 
         even = !even;
-      }  
+      }
     });
   },
   hide_empty_message: function(tbody) {
@@ -408,7 +420,7 @@ var ActiveScaffold = {
   },
   decrement_record_count: function(scaffold) {
     // decrement the last record count, firsts record count are in nested lists
-    if (typeof(scaffold) == 'string') scaffold = '#' + scaffold; 
+    if (typeof(scaffold) == 'string') scaffold = '#' + scaffold;
     scaffold = $(scaffold)
     count = scaffold.find('span.active-scaffold-records').last();
     if (count) count.html(parseInt(count.html(), 10) - 1);
@@ -423,7 +435,7 @@ var ActiveScaffold = {
   update_row: function(row, html) {
     var even_row = false;
     var replaced = null;
-    if (typeof(row) == 'string') row = '#' + row; 
+    if (typeof(row) == 'string') row = '#' + row;
     row = $(row);
     if (row.hasClass('even-record')) even_row = true;
 
@@ -431,9 +443,9 @@ var ActiveScaffold = {
     if (even_row === true) replaced.addClass('even-record');
     ActiveScaffold.highlight(replaced);
   },
-  
+
   replace: function(element, html) {
-    if (typeof(element) == 'string') element = '#' + element; 
+    if (typeof(element) == 'string') element = '#' + element;
     element = $(element);
     element.replaceWith(html);
     if (element.attr('id')) {
@@ -441,34 +453,34 @@ var ActiveScaffold = {
     }
     return element;
   },
-  
+
   replace_html: function(element, html) {
-    if (typeof(element) == 'string') element = '#' + element; 
+    if (typeof(element) == 'string') element = '#' + element;
     element = $(element);
     element.html(html);
     return element;
   },
-  
+
   remove: function(element) {
-    if (typeof(element) == 'string') element = '#' + element; 
+    if (typeof(element) == 'string') element = '#' + element;
     $(element).remove();
   },
-  
+
   hide: function(element) {
     if (typeof(element) == 'string') element = '#' + element;
     $(element).hide();
   },
-  
+
   show: function(element) {
     if (typeof(element) == 'string') element = '#' + element;
     $(element).show();
   },
-  
+
   reset_form: function(element) {
     if (typeof(element) == 'string') element = '#' + element;
     $(element).get(0).reset();
   },
-  
+
   disable_form: function(as_form) {
     if (typeof(as_form) == 'string') as_form = '#' + as_form;
     as_form = $(as_form)
@@ -477,7 +489,7 @@ var ActiveScaffold = {
     $('input[type=submit]', as_form).attr('disabled', 'disabled');
     $("input:enabled,select:enabled,textarea:enabled", as_form).attr('disabled', 'disabled');
   },
-  
+
   enable_form: function(as_form) {
     if (typeof(as_form) == 'string') as_form = '#' + as_form;
     as_form = $(as_form)
@@ -485,17 +497,17 @@ var ActiveScaffold = {
     if (loading_indicator) loading_indicator.css('visibility','hidden');
     $('input[type=submit]', as_form).attr('disabled', '');
     $("input:disabled,select:disabled,textarea:disabled", as_form).attr('disabled', '');
-  },  
-  
+  },
+
   focus_first_element_of_form: function(form_element) {
     if (typeof(form_element) == 'string') form_element = '#' + form_element;
     $(form_element + ":first *:input[type!=hidden]:first").focus();
   },
-    
+
   create_record_row: function(active_scaffold_id, html, options) {
     if (typeof(active_scaffold_id) == 'string') active_scaffold_id = '#' + active_scaffold_id;
     tbody = $(active_scaffold_id).find('tbody.records');
-    
+
     if (options.insert_at == 'top') {
       tbody.prepend(html);
       var new_row = tbody.children('tr.record:first-child');
@@ -513,12 +525,12 @@ var ActiveScaffold = {
     this.increment_record_count(tbody.closest('div.active-scaffold'));
     ActiveScaffold.highlight(new_row);
   },
-  
+
   delete_record_row: function(row, page_reload_url) {
     if (typeof(row) == 'string') row = '#' + row;
     row = $(row);
     var tbody = row.closest('tbody.records');
-    
+
     var current_action_node = row.find('td.actions a.disabled').first();
     if (current_action_node) {
       var action_link = ActiveScaffold.ActionLink.get(current_action_node);
@@ -526,7 +538,7 @@ var ActiveScaffold = {
         action_link.close_previous_adapter();
       }
     }
-    
+
     row.remove();
     this.stripe(tbody);
     this.decrement_record_count(tbody.closest('div.active-scaffold'));
@@ -549,20 +561,20 @@ var ActiveScaffold = {
       server_error.show();
     }
   },
-  
+
   find_action_link: function(element) {
     if (typeof(element) == 'string') element = '#' + element;
     var as_adapter = $(element).closest('.as_adapter');
     return ActiveScaffold.ActionLink.get(as_adapter);
   },
-  
+
   scroll_to: function(element) {
     if (typeof(element) == 'string') element = '#' + element;
     var form_offset = $(element).offset(),
         destination = form_offset.top;
-    $(document).scrollTop(destination);    
+    $(document).scrollTop(destination);
   },
-  
+
   process_checkbox_inplace_edit: function(checkbox, options) {
     var checked = checkbox.is(':checked');
     if (checked === true) options['params'] += '&value=1';
@@ -579,7 +591,7 @@ var ActiveScaffold = {
       }
     });
   },
-  
+
   read_inplace_edit_heading_attributes: function(column_heading, options) {
     if (column_heading.attr('data-ie_cancel_text')) options.cancel_button = '<button class="inplace_cancel">' + column_heading.attr('data-ie_cancel_text') + "</button>";
     if (column_heading.attr('data-ie_loading_text')) options.loading_text = column_heading.attr('data-ie_loading_text');
@@ -588,35 +600,35 @@ var ActiveScaffold = {
     if (column_heading.attr('data-ie_rows')) options.textarea_rows = column_heading.attr('data-ie_rows');
     if (column_heading.attr('data-ie_cols')) options.textarea_cols = column_heading.attr('data-ie_cols');
     if (column_heading.attr('data-ie_size')) options.text_size = column_heading.attr('data-ie_size');
-  }, 
-  
+  },
+
   create_inplace_editor: function(span, options) {
     span.removeClass('hover');
     span.editInPlace(options);
     span.trigger('click.editInPlace');
   },
-  
+
   highlight: function(element) {
     if (typeof(element) == 'string') element = $('#' + element);
     if (typeof(element.effect) == 'function') {
       element.effect("highlight", {}, 3000);
     }
   },
-  
+
   create_visibility_toggle: function(element, options) {
     if (typeof(element) == 'string') element = '#' + element;
     var toggable = $(element);
     var toggler = toggable.prev();
     var initial_label = (options.default_visible === true) ? options.hide_label : options.show_label;
-    
+
     toggler.append(' (<a class="visibility-toggle" href="#">' + initial_label + '</a>)');
     toggler.children('a').click(function() {
-      toggable.toggle(); 
+      toggable.toggle();
       $(this).html((toggable.is(':hidden')) ? options.show_label : options.hide_label);
       return false;
     });
   },
-  
+
   create_associated_record_form: function(element, content, options) {
     if (typeof(element) == 'string') element = '#' + element;
     var element = $(element);
@@ -633,7 +645,7 @@ var ActiveScaffold = {
       }
     }
   },
-  
+
   render_form_field: function(source, content, options) {
     if (typeof(source) == 'string') source = '#' + source;
     var source = $(source);
@@ -651,7 +663,7 @@ var ActiveScaffold = {
       }
     }
   },
-  
+
   sortable: function(element, controller, options, url_params) {
     if (typeof(element) == 'string') element = '#' + element;
     var element = $(element);
@@ -792,8 +804,8 @@ String.prototype.append_params = function(params) {
   for(var key in params) {
     if (key) url += (key + '=' + params[key] + '&');
   }
-  
-  // the loop leaves a comma dangling at the end of string, chop it off 
+
+  // the loop leaves a comma dangling at the end of string, chop it off
   url = url.substring(0, url.length-1);
   return url;
 };
@@ -808,7 +820,7 @@ ActiveScaffold.Actions.Abstract = Class.extend({
     this.target = $(target);
     this.loading_indicator = $(loading_indicator);
     this.options = options;
-    var _this = this; 
+    var _this = this;
     this.links = $.map(links, function(link) {
       var my_link = _this.instantiate_link(link);
       return my_link;
@@ -863,14 +875,14 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
     this.loading_indicator = loading_indicator;
     this.hide_target = false;
     this.position = this.tag.attr('data-position');
-		
+
     this.tag.data('action_link', this);
     return this;
   },
 
   open: function(event) {
   },
-  
+
   insert: function(content) {
     throw 'unimplemented'
   },
@@ -912,7 +924,7 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
   scaffold: function() {
     return this.tag.closest('div.active-scaffold');
   },
-  
+
   update_flash_messages: function(messages) {
     message_node = $(this.scaffold_id().replace(/-active-scaffold/, '-messages'));
     if (message_node) message_node.html(messages);
@@ -932,7 +944,7 @@ ActiveScaffold.Actions.Record = ActiveScaffold.Actions.Abstract.extend({
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     var refresh = this.target.attr('data-refresh');
     if (refresh) l.refresh_url = refresh;
-    
+
     if (l.position) {
       l.url = l.url.append_params({adapter: '_list_inline_adapter'});
       l.tag.attr('href', l.url);
@@ -997,7 +1009,7 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
       item.tag.addClass('disabled');
     });
   },
-  
+
   set_opened: function() {
     if (this.position == 'after') {
       this.set_adapter(this.target.next());
