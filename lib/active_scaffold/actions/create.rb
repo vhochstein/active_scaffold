@@ -134,16 +134,19 @@ module ActiveScaffold::Actions
     def create_authorized?
       (!nested? || !nested.readonly?) && authorized_for?(:crud_type => :create)
     end
-    private
-    def create_authorized_filter
-      link = active_scaffold_config.create.link || active_scaffold_config.create.class.link
-      raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
-    end
+
     def new_formats
       (default_formats + active_scaffold_config.formats).uniq
     end
     def create_formats
       (default_formats + active_scaffold_config.formats + active_scaffold_config.create.formats).uniq
     end
+    
+    private
+    def create_authorized_filter
+      link = active_scaffold_config.create.link || active_scaffold_config.create.class.link
+      raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
+    end
+    
   end
 end

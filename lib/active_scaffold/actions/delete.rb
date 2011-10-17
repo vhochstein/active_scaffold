@@ -63,13 +63,15 @@ module ActiveScaffold::Actions
     def delete_authorized?(record = nil)
       (!nested? || !nested.readonly?) && authorized_for?(:crud_type => :delete)
     end
+
+    def destroy_formats
+      (default_formats + active_scaffold_config.formats + active_scaffold_config.delete.formats).uniq
+    end
     private
     def delete_authorized_filter
       link = active_scaffold_config.delete.link || active_scaffold_config.delete.class.link
       raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
     end
-    def destroy_formats
-      (default_formats + active_scaffold_config.formats + active_scaffold_config.delete.formats).uniq
-    end
+    
   end
 end

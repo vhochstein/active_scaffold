@@ -162,11 +162,6 @@ module ActiveScaffold::Actions
     def action_update_respond_to_yaml
       render :text => successful? ? "" : Hash.from_xml(response_object.to_xml(:only => list_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status
     end
-     
-    private
-    def list_authorized_filter
-      raise ActiveScaffold::ActionNotAllowed unless list_authorized?
-    end
 
     def list_formats
       (default_formats + active_scaffold_config.formats + active_scaffold_config.list.formats).uniq
@@ -179,6 +174,11 @@ module ActiveScaffold::Actions
 
     def action_confirmation_formats
       (default_formats + active_scaffold_config.formats).uniq
+    end
+
+    private
+    def list_authorized_filter
+      raise ActiveScaffold::ActionNotAllowed unless list_authorized?
     end
 
     def list_columns

@@ -136,16 +136,19 @@ module ActiveScaffold::Actions
     def update_authorized?(record = nil)
       (!nested? || !nested.readonly?) && authorized_for?(:crud_type => :update)
     end
+
+    def edit_formats
+      (default_formats + active_scaffold_config.formats).uniq
+    end
+    
+    def update_formats
+      (default_formats + active_scaffold_config.formats + active_scaffold_config.update.formats).uniq
+    end
+    
     private
     def update_authorized_filter
       link = active_scaffold_config.update.link || active_scaffold_config.update.class.link
       raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
-    end
-    def edit_formats
-      (default_formats + active_scaffold_config.formats).uniq
-    end
-    def update_formats
-      (default_formats + active_scaffold_config.formats + active_scaffold_config.update.formats).uniq
     end
   end
 end
