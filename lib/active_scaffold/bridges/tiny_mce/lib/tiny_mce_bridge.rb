@@ -5,7 +5,7 @@ module ActiveScaffold
 
     module FormColumnHelpers
       def active_scaffold_input_text_editor(column, options)
-        options[:class] = "#{options[:class]} mceEditor #{column.options[:class]}".strip
+        options[:class] = "#{options[:class]} as_mceEditor #{column.options[:class]}".strip
         html = []
         html << send(override_input(:textarea), column, options)
         html.join "\n"
