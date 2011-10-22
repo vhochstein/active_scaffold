@@ -3,6 +3,7 @@ module ActiveScaffold::Actions
     def self.included(base)
       base.before_filter :update_authorized_filter, :only => [:edit, :update]
       base.helper_method :update_refresh_list?
+      base.helper_method :update_columns
     end
 
     def edit
@@ -54,13 +55,13 @@ module ActiveScaffold::Actions
       render :action => 'on_update'
     end
     def update_respond_to_xml
-      render :xml => response_object.to_xml(:only => active_scaffold_config.update.columns.names), :content_type => Mime::XML, :status => response_status
+      render :xml => response_object.to_xml(:only => update_columns_names), :content_type => Mime::XML, :status => response_status
     end
     def update_respond_to_json
-      render :text => response_object.to_json(:only => active_scaffold_config.update.columns.names), :content_type => Mime::JSON, :status => response_status
+      render :text => response_object.to_json(:only => update_columns_names), :content_type => Mime::JSON, :status => response_status
     end
     def update_respond_to_yaml
-      render :text => Hash.from_xml(response_object.to_xml(:only => active_scaffold_config.update.columns.names)).to_yaml, :content_type => Mime::YAML, :status => response_status
+      render :text => Hash.from_xml(response_object.to_xml(:only => update_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status
     end
     # A simple method to find and prepare a record for editing
     # May be overridden to customize the record (set default values, etc.)
@@ -79,7 +80,7 @@ module ActiveScaffold::Actions
     def update_save(options = {})
       begin
         active_scaffold_config.model.transaction do
-          @record = update_record_from_params(@record, active_scaffold_config.update.columns, params[:record]) unless options[:no_record_param_update]
+          @record = update_record_from_params(@record, update_columns, params[:record]) unless options[:no_record_param_update]
           before_update_save(@record)
           self.successful = [@record.valid?, @record.associated_valid?].all? {|v| v == true} # this syntax avoids a short-circuit
           if successful?
@@ -133,16 +134,28 @@ module ActiveScaffold::Actions
     def update_authorized?(record = nil)
       (!nested? || !nested.readonly?) && authorized_for?(:crud_type => :update)
     end
+
+    def edit_formats
+      (default_formats + active_scaffold_config.formats).uniq
+    end
+    
+    def update_formats
+      (default_formats + active_scaffold_config.formats + active_scaffold_config.update.formats).uniq
+    end
+
+    def update_columns
+      active_scaffold_config.update.columns
+    end
+
+    def update_columns_names
+      update_columns.collect(&:name)
+    end
+    
     private
     def update_authorized_filter
       link = active_scaffold_config.update.link || active_scaffold_config.update.class.link
       raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
     end
-    def edit_formats
-      (default_formats + active_scaffold_config.formats).uniq
-    end
-    def update_formats
-      (default_formats + active_scaffold_config.formats + active_scaffold_config.update.formats).uniq
-    end
+
   end
 end

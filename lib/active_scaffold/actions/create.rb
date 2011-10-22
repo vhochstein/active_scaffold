@@ -2,6 +2,7 @@ module ActiveScaffold::Actions
   module Create
     def self.included(base)
       base.before_filter :create_authorized_filter, :only => [:new, :create]
+      base.helper_method :create_columns
     end
 
     def new
@@ -66,15 +67,15 @@ module ActiveScaffold::Actions
     end
 
     def create_respond_to_xml
-      render :xml => response_object.to_xml(:only => active_scaffold_config.create.columns.names), :content_type => Mime::XML, :status => response_status, :location => response_location
+      render :xml => response_object.to_xml(:only => create_columns_names), :content_type => Mime::XML, :status => response_status, :location => response_location
     end
 
     def create_respond_to_json
-      render :text => response_object.to_json(:only => active_scaffold_config.create.columns.names), :content_type => Mime::JSON, :status => response_status, :location => response_location
+      render :text => response_object.to_json(:only => create_columns_names), :content_type => Mime::JSON, :status => response_status, :location => response_location
     end
 
     def create_respond_to_yaml
-      render :text => Hash.from_xml(response_object.to_xml(:only => active_scaffold_config.create.columns.names)).to_yaml, :content_type => Mime::YAML, :status => response_status, :location => response_location
+      render :text => Hash.from_xml(response_object.to_xml(:only => create_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status, :location => response_location
     end
 
     # A simple method to find and prepare an example new record for the form
@@ -94,7 +95,7 @@ module ActiveScaffold::Actions
     def do_create
       begin
         active_scaffold_config.model.transaction do
-          @record = update_record_from_params(new_model, active_scaffold_config.create.columns, params[:record])
+          @record = update_record_from_params(new_model, create_columns, params[:record])
           apply_constraints_to_record(@record, :allow_autosave => true)
           if nested?
             create_association_with_parent(@record) 
@@ -131,16 +132,27 @@ module ActiveScaffold::Actions
     def create_authorized?
       (!nested? || !nested.readonly?) && authorized_for?(:crud_type => :create)
     end
-    private
-    def create_authorized_filter
-      link = active_scaffold_config.create.link || active_scaffold_config.create.class.link
-      raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
-    end
+
     def new_formats
       (default_formats + active_scaffold_config.formats).uniq
     end
     def create_formats
       (default_formats + active_scaffold_config.formats + active_scaffold_config.create.formats).uniq
     end
+
+    def create_columns
+      active_scaffold_config.create.columns
+    end
+
+    def create_columns_names
+      update_columns.collect(&:name)
+    end
+    
+    private
+    def create_authorized_filter
+      link = active_scaffold_config.create.link || active_scaffold_config.create.class.link
+      raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
+    end
+    
   end
 end
