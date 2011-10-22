@@ -27,11 +27,16 @@ module ActiveScaffold::DataStructures
     end
 
     def include?(item)
-      @set.each do |c|
-        return true if !c.is_a? Symbol and c.include? item
-        return true if c == item.to_sym
+      @set.any? do |c|
+        case c
+        when Symbol
+          c == item.to_sym
+        when ActiveScaffold::DataStructures::Column
+          c.name == item.to_sym
+        when ActiveScaffold::DataStructures::ActionColumns
+          !c.is_a? Symbol and c.include? item
+        end
       end
-      return false
     end
 
     def names
@@ -40,6 +45,20 @@ module ActiveScaffold::DataStructures
 
     def names_without_auth_check
       Array(@set)
+    end
+
+    def select(&block)
+      self.convert_to_columns unless columns_converted?
+      #columns = ActiveScaffold::DataStructures::ActionColumns.new
+      columns = self.clone
+      #ActiveScaffold::DataStructures::ActionColumns.class_eval {include ActiveScaffold::DataStructures::ActionColumns::AfterConfiguration}
+      #columns.label = self.label
+      #columns.action = self.action
+      columns.instance_variable_get('@set').clear
+      cols = @set.select &block
+
+      columns.add cols
+      columns
     end
 
     protected
@@ -53,6 +72,22 @@ module ActiveScaffold::DataStructures
       @set = from.instance_variable_get('@set').clone
     end
 
+    # at the beginning items are only symbolized column names to allow easy configuration
+    # later on we need ActiveScaffold::Datastructures:ActionColumn
+    def convert_to_columns
+      @set.collect! do|item|
+        unless item.is_a? ActiveScaffold::DataStructures::ActionColumns
+          item = (@columns[item] || ActiveScaffold::DataStructures::Column.new(item.to_sym, @columns.active_record_class))
+        end
+        item
+      end
+      @columns_converted = true
+    end
+
+    def columns_converted?
+      @columns_converted
+    end
+
     # A package of stuff to add after the configuration block. This is an attempt at making a certain level of functionality inaccessible during configuration, to reduce possible breakage from misuse.
     # The bulk of the package is a means of connecting the referential column set (ActionColumns) with the actual column objects (Columns). This lets us iterate over the set and yield real column objects.
     module AfterConfiguration
@@ -63,34 +98,30 @@ module ActiveScaffold::DataStructures
       #  * :flatten - whether to recursively iterate on nested sets. default is false.
       #  * :for - the record (or class) being iterated over. used for column-level security. default is the class.
       def each(options = {}, &proc)
+        self.convert_to_columns unless columns_converted?
         options[:for] ||= @columns.active_record_class
         self.unauthorized_columns = []
         @set.each do |item|
-          unless item.is_a? ActiveScaffold::DataStructures::ActionColumns
-            item = (@columns[item] || ActiveScaffold::DataStructures::Column.new(item.to_sym, @columns.active_record_class))
-            next if self.skip_column?(item, options)
-          end
-          if item.is_a? ActiveScaffold::DataStructures::ActionColumns and options.has_key?(:flatten) and options[:flatten]
-            item.each(options, &proc)
-          else
-            yield item
+          case item
+          when ActiveScaffold::DataStructures::Column 
+            self.skip_column?(item, options) ? next : (yield item)
+          when ActiveScaffold::DataStructures::ActionColumns
+            options[:flatten] ? item.each(options, &proc) : (yield item)
           end
         end
       end
       
       def collect_visible(options = {}, &proc)
+        self.convert_to_columns unless columns_converted?
         columns = []
         options[:for] ||= @columns.active_record_class
         self.unauthorized_columns = []
         @set.each do |item|
-          unless item.is_a? ActiveScaffold::DataStructures::ActionColumns
-            item = (@columns[item] || ActiveScaffold::DataStructures::Column.new(item.to_sym, @columns.active_record_class))
-            next if self.skip_column?(item, options)
-          end
-          if item.is_a? ActiveScaffold::DataStructures::ActionColumns and options.has_key?(:flatten) and options[:flatten]
-            columns = columns + item.collect(options, &proc)
-          else
-            columns << item
+          case item
+          when ActiveScaffold::DataStructures::Column
+            self.skip_column?(item, options) ? next : (columns << item)
+          when ActiveScaffold::DataStructures::ActionColumns
+            options[:flatten] ? item.collect(options, &proc) : (columns << item)
           end
         end
         columns
