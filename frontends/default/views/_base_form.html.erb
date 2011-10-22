@@ -2,7 +2,11 @@
    xhr = request.xhr? if xhr.nil?
    if active_scaffold_config.actions.include? form_action
      multipart ||= active_scaffold_config.send(form_action).multipart?
-     columns ||= active_scaffold_config.send(form_action).columns
+     columns ||= if respond_to?("#{form_action}_columns")
+         self.send("#{form_action}_columns")
+       else
+         active_scaffold_config.send(form_action).columns
+       end
    else
      multipart ||= false
      columns ||= nil
