@@ -2,6 +2,7 @@ module ActiveScaffold::Actions
   module Show
     def self.included(base)
       base.before_filter :show_authorized_filter, :only => :show
+      base.helper_method :show_columns
     end
 
     def show
@@ -20,15 +21,15 @@ module ActiveScaffold::Actions
     protected
     
     def show_respond_to_json
-      render :text => response_object.to_json(:only => active_scaffold_config.show.columns.names), :content_type => Mime::JSON, :status => response_status
+      render :text => response_object.to_json(:only => show_columns_names), :content_type => Mime::JSON, :status => response_status
     end
 
     def show_respond_to_yaml
-      render :text => Hash.from_xml(response_object.to_xml(:only => active_scaffold_config.show.columns.names)).to_yaml, :content_type => Mime::YAML, :status => response_status
+      render :text => Hash.from_xml(response_object.to_xml(:only => show_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status
     end
 
     def show_respond_to_xml
-      render :xml => response_object.to_xml(:only => active_scaffold_config.show.columns.names), :content_type => Mime::XML, :status => response_status
+      render :xml => response_object.to_xml(:only => show_columns_names), :content_type => Mime::XML, :status => response_status
     end
 
     def show_respond_to_js
@@ -49,13 +50,24 @@ module ActiveScaffold::Actions
     def show_authorized?(record = nil)
       authorized_for?(:crud_type => :read)
     end
+
+    def show_formats
+      (default_formats + active_scaffold_config.formats + active_scaffold_config.show.formats).uniq
+    end
+
+    def show_columns
+      active_scaffold_config.show.columns
+    end
+
+    def show_columns_names
+      show_columns.collect(&:name)
+    end
+    
     private 
     def show_authorized_filter
       link = active_scaffold_config.show.link || active_scaffold_config.show.class.link
       raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
     end
-    def show_formats
-      (default_formats + active_scaffold_config.formats + active_scaffold_config.show.formats).uniq
-    end
+    
   end
 end
