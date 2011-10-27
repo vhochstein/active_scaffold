@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_scaffold_vho}
-  s.version = "3.0.21"
+  s.version = "3.0.22"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Many, see README"]
-  s.date = %q{2011-09-23}
+  s.date = %q{2011-10-22}
   s.description = %q{Save time and headaches, and create a more easily maintainable set of pages, with ActiveScaffold. ActiveScaffold handles all your CRUD (create, read, update, delete) user interface needs, leaving you more time to focus on more challenging (and interesting!) problems.}
   s.email = %q{activescaffold@googlegroups.com}
   s.extra_rdoc_files = [
@@ -154,6 +154,8 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/bridges/shared/date_bridge.rb",
     "lib/active_scaffold/bridges/tiny_mce/bridge.rb",
     "lib/active_scaffold/bridges/tiny_mce/lib/tiny_mce_bridge.rb",
+    "lib/active_scaffold/bridges/tiny_mce/public/javascripts/jquery/tiny_mce_bridge.js",
+    "lib/active_scaffold/bridges/tiny_mce/public/javascripts/prototype/tiny_mce_bridge.js",
     "lib/active_scaffold/bridges/validation_reflection/bridge.rb",
     "lib/active_scaffold/bridges/validation_reflection/lib/validation_reflection_bridge.rb",
     "lib/active_scaffold/config/base.rb",
