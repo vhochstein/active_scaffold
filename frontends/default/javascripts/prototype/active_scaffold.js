@@ -411,12 +411,13 @@ var ActiveScaffold = {
     var elements = element.select('[data-as_load]');
     elements.unshift(element);
     ActiveScaffold.trigger_unload_events(elements);
-    Element.replace(element, html);
-    element = $(element.readAttribute('id'));
-    elements = element.select('[data-as_load]');
-    elements.unshift(element);
+    var new_element = new Element('div').update(html);
+    new_element = new_element.firstDescendant();
+    Element.replace(element, new_element);
+    elements = new_element.select('[data-as_load]');
+    elements.unshift(new_element);
     ActiveScaffold.trigger_load_events(elements);
-    return element;
+    return new_element;
   },
     
   replace_html: function(element, html) {
@@ -605,7 +606,7 @@ var ActiveScaffold = {
     if (element) {
       if (options.is_subform == false) {
         ActiveScaffold.trigger_unload_events(new Array(element.up('li.form-element')));
-        this.replace(element.up('dl'), content);
+        element = this.replace(element.up('dl'), content);
         ActiveScaffold.trigger_load_events(new Array(element.up('li.form-element')));
       } else {
         this.replace_html(element, content);
