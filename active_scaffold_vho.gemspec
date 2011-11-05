@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Many, see README"]
-  s.date = %q{2011-09-14}
+  s.date = %q{2011-11-05}
   s.description = %q{Save time and headaches, and create a more easily maintainable set of pages, with ActiveScaffold. ActiveScaffold handles all your CRUD (create, read, update, delete) user interface needs, leaving you more time to focus on more challenging (and interesting!) problems.}
   s.email = %q{activescaffold@googlegroups.com}
   s.extra_rdoc_files = [
@@ -39,13 +39,16 @@ Gem::Specification.new do |s|
     "app/assets/javascripts/active_scaffold.js.erb",
     "app/assets/javascripts/jquery/active_scaffold.js",
     "app/assets/javascripts/jquery/date_picker_bridge.js.erb",
+    "app/assets/javascripts/jquery/jquery-ui-timepicker-addon.js",
     "app/assets/javascripts/jquery/jquery.editinplace.js",
+    "app/assets/javascripts/jquery/tiny_mce_bridge.js",
     "app/assets/javascripts/prototype/active_scaffold.js",
     "app/assets/javascripts/prototype/dhtml_history.js",
     "app/assets/javascripts/prototype/form_enhancements.js",
     "app/assets/javascripts/prototype/rico_corner.js",
     "app/assets/stylesheets/active_scaffold-ie.css",
     "app/assets/stylesheets/active_scaffold.css.erb",
+    "app/assets/stylesheets/jquery-ui-timepicker-addon.css",
     "frontends/default/views/_action_group.html.erb",
     "frontends/default/views/_add_existing_form.html.erb",
     "frontends/default/views/_base_form.html.erb",
