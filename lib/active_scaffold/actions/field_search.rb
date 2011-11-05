@@ -6,6 +6,7 @@ module ActiveScaffold::Actions
       base.before_filter :store_search_params_into_session, :only => [:index]
       base.before_filter :do_search, :only => [:index]
       base.helper_method :field_search_params
+      base.helper_method :field_search_columns
     end
 
     # FieldSearch uses params[:search] and not @record because search conditions do not always pass the Model's validations.
@@ -46,7 +47,7 @@ module ActiveScaffold::Actions
         text_search = active_scaffold_config.field_search.text_search
         search_conditions = []
         human_condition_columns = [] if active_scaffold_config.field_search.human_conditions
-        columns = active_scaffold_config.field_search.columns
+        columns = field_search_columns
         search_params.each do |key, value|
           next unless columns.include? key
           search_condition = self.class.condition_for_column(active_scaffold_config.columns[key], value, text_search)
@@ -69,14 +70,24 @@ module ActiveScaffold::Actions
       end
     end
 
+    def field_search_formats
+      (default_formats + active_scaffold_config.formats + active_scaffold_config.field_search.formats).uniq
+    end
+
+    def field_search_columns
+      active_scaffold_config.field_search.columns
+    end
+
+    def field_search_names
+      field_search_columns.collect(&:name)
+    end
+
     private
     
     def search_authorized_filter
       link = active_scaffold_config.field_search.link || active_scaffold_config.field_search.class.link
       raise ActiveScaffold::ActionNotAllowed unless self.send(link.security_method)
     end
-    def field_search_formats
-      (default_formats + active_scaffold_config.formats + active_scaffold_config.field_search.formats).uniq
-    end
+    
   end
 end

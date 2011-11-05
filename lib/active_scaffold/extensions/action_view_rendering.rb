@@ -22,6 +22,7 @@ module ActionView #:nodoc:
   # Adds two rendering options.
   #
   # ==render :super
+  # ==render :partial => :super, :locals =>{:headline => 'formheadline'}
   #
   # This syntax skips all template overrides and goes directly to the provided ActiveScaffold templates.
   # Useful if you want to wrap an existing template. Just call super!
