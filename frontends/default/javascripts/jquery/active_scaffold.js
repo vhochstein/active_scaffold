@@ -457,12 +457,9 @@ var ActiveScaffold = {
     if (typeof(element) == 'string') element = '#' + element; 
     element = $(element);
     ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
-    element.replaceWith(html);
-    if (element.attr('id')) {
-      element = $('#' + element.attr('id'));
-    }
-    ActiveScaffold.trigger_load_events(element.find('[data-as_load]').andSelf());
-    return element;
+    var new_element = $(html).replaceAll(element);
+    ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
+    return new_element;
   },
   
   replace_html: function(element, html) {
