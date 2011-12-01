@@ -409,9 +409,14 @@ var ActiveScaffold = {
   replace: function(element, html) {
     element = $(element);
     var elements = element.select('[data-as_load]');
+    var new_element = null;
     elements.unshift(element);
     ActiveScaffold.trigger_unload_events(elements);
-    var new_element = new Element('div').update(html);
+    if (html.startsWith('<tr')) {
+        new_element = new Element('tbody').update(html);
+    } else {
+        new_element = new Element('div').update(html);
+    }
     new_element = new_element.firstDescendant();
     Element.replace(element, new_element);
     elements = new_element.select('[data-as_load]');
