@@ -44,7 +44,7 @@ module ActionView #:nodoc:
     def render_with_active_scaffold(context, options, &block)
       if options && options[:partial] == :super
         render_as_super_view(context, options, &block)
-      elsif context.is_a?(Hash) and context[:active_scaffold]
+      elsif options[:active_scaffold]
         render_as_embedded_view(context, options, &block)
       else
         render_as_view(context, options, &block)
@@ -92,16 +92,17 @@ module ActionView #:nodoc:
       remote_controller = options[:active_scaffold]
       constraints = options[:constraints]
       conditions = options[:conditions]
-      eid = Digest::MD5.hexdigest(params[:controller] + remote_controller.to_s + constraints.to_s + conditions.to_s)
-      session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => args.first[:label]}}
+      eid = Digest::MD5.hexdigest(context.controller.controller_name + remote_controller.to_s + constraints.to_s + conditions.to_s)
+      #args.first[:label]
+      context.controller.session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => "testlabel"}}
       options[:params] ||= {}
       options[:params].merge! :eid => eid, :embedded => true
 
       id = "as_#{eid}-content"
       url_options = {:controller => remote_controller.to_s, :action => 'index'}.merge(options[:params])
 
-      if controller.respond_to?(:render_component_into_view)
-        controller.send(:render_component_into_view, url_options)
+      if context.controller.respond_to?(:render_component_into_view)
+        context.controller.send(:render_component_into_view, url_options)
       else
         content_tag(:div, {:id => id}) do
           url = url_for(url_options)
