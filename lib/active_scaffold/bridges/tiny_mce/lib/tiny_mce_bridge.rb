@@ -8,7 +8,7 @@ module ActiveScaffold
         options[:class] = "#{options[:class]} as_mceEditor #{column.options[:class]}".strip
         html = []
         html << send(override_input(:textarea), column, options)
-        html.join "\n"
+        html.join("\n").html_safe
       end
     end
 
