@@ -93,18 +93,18 @@ module ActionView #:nodoc:
       constraints = options[:constraints]
       conditions = options[:conditions]
       eid = Digest::MD5.hexdigest(context.controller.controller_name + remote_controller.to_s + constraints.to_s + conditions.to_s)
-      #args.first[:label]
-      context.controller.session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => "testlabel"}}
       options[:params] ||= {}
       options[:params].merge! :eid => eid, :embedded => true
-
-      id = "as_#{eid}-content"
       url_options = {:controller => remote_controller.to_s, :action => 'index'}.merge(options[:params])
-
+      label = options[:label] || context.controller.active_scaffold_config_for(remote_controller.to_s.singularize).list.label
+      context.controller.session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => options[:label]}}
+      
+      id = "as_#{eid}-content"
+     
       if context.controller.respond_to?(:render_component_into_view)
         context.controller.send(:render_component_into_view, url_options)
       else
-        content_tag(:div, {:id => id}) do
+        content_tag(:div, {:id => id, :class => 'active-scaffold-component'}) do
           url = url_for(url_options)
           link_to(remote_controller.to_s, url, {:remote => true, :id => id}) <<
             if ActiveScaffold.js_framework == :prototype
