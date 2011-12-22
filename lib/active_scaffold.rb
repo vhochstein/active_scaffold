@@ -362,6 +362,17 @@ module ActiveScaffold
       raise ActiveScaffold::ControllerNotFound, "Could not find " + error_message.join(" or "), caller
     end
 
+    # tries to find activescaffoldcontroller by controllername eg. admin/teams, or teams
+    def active_scaffold_controller_by_controller_name(controller_name)
+      begin
+        controller = "#{controller_name.camelize}Controller".constantize
+      rescue NameError => error
+        raise ActiveScaffold::ControllerNotFound, "#{controller} not found", caller
+      end
+      raise ActiveScaffold::ControllerNotFound, "#{controller} missing ActiveScaffold", caller unless controller.uses_active_scaffold?
+      return controller
+    end
+
     def uses_active_scaffold?
       !active_scaffold_config.nil?
     end
