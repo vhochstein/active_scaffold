@@ -96,7 +96,8 @@ module ActionView #:nodoc:
       options[:params] ||= {}
       options[:params].merge! :eid => eid, :embedded => true
       url_options = {:controller => remote_controller.to_s, :action => 'index'}.merge(options[:params])
-      label = options[:label] || context.controller.active_scaffold_config_for(remote_controller.to_s.singularize).list.label
+
+      label = options[:label] || context.controller.class.active_scaffold_controller_by_controller_name(remote_controller.to_s).active_scaffold_config.list.label
       context.controller.session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => options[:label]}}
       
       id = "as_#{eid}-content"
