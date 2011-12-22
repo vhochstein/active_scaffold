@@ -225,13 +225,21 @@ module ActiveScaffold
         # issue 260, use url_options[:link] if it exists. This prevents DB data from being localized.
         label = url.delete(:link) if url.is_a?(Hash) 
         label ||= link.label
-        if link.image.nil?
-          html = link_to(label, url, html_options)
-        else
-          html = link_to(image_tag(link.image[:name] , :size => link.image[:size], :alt => label), url, html_options)
+        begin
+          if link.image.nil?
+            #http://www.continuousthinking.com/2011/09/22/rails-3-1-engine-namespaces-can-creep-into-urls-in-application-layout.html
+            #its not possible to link from a namespacedcontroller back to a non namespaced-controller anymore
+            # seems to be only working with named_routes...
+            html = link_to(label, url, html_options)
+          else
+            html = link_to(image_tag(link.image[:name] , :size => link.image[:size], :alt => label), url, html_options)
+          end
+          # if url is nil we would like to generate an anchor without href attribute
+          url.nil? ? html.sub(/href=".*?"/, '').html_safe : html.html_safe
+        rescue ActionController::RoutingError => e
+          Rails.logger.error("ActiveScaffold link_to routing Error: #{e.inspect}")
+          "Routing Error"
         end
-        # if url is nil we would like to generate an anchor without href attribute
-        url.nil? ? html.sub(/href=".*?"/, '').html_safe : html.html_safe
       end
       
       def url_options_for_nested_link(column, record, link, url_options, options = {})
