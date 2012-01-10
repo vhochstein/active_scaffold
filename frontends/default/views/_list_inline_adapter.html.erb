@@ -1,4 +1,5 @@
-<%# nested_id, allows us to remove a nested scaffold programmatically %>
+<%# nested_id, allows us to remove a nested scaffold programmatically
+  params[:associations] is nt specified anywhere...%>
 <tr class="inline-adapter" id="<%= element_row_id :action => :nested %>">
   <td colspan="99" class="inline-adapter-cell">
     <div class="<%= "#{params[:action]}-view" if params[:action] %> <%= "#{params[:associations] ? params[:associations] : params[:controller]}-view" %> view">

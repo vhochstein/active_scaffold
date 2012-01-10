@@ -32,9 +32,7 @@ module ActiveScaffold::Actions
       end
     end
     def list_respond_to_js
-      if params[:adapter]
-        render(:partial => 'list_with_header')
-      elsif params[:embedded]
+      if params[:embedded]
         params.delete(:embedded)
         render(:partial => 'list_with_header')
       else

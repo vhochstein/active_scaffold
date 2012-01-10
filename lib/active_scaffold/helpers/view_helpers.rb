@@ -168,6 +168,7 @@ module ActiveScaffold
 
         html_options['data-confirm'] = link.confirm(record.try(:to_label)) if link.confirm?
         html_options['data-position'] = link.position if link.position and link.inline?
+        html_options['data-controller'] = link.controller.to_s if link.controller
         html_options[:class] += ' as_action' if link.inline?
         html_options['data-action'] = link.action if link.inline?
         if link.popup?

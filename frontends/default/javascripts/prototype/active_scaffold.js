@@ -879,6 +879,25 @@ ActiveScaffold.ActionLink.Abstract = Class.create({
     this.adapter = element;
     this.adapter.addClassName('as_adapter');
     this.adapter.store('action_link', this);
+  },
+
+  wrap_with_adapter_html: function(content) {
+    // players_view class missing
+    var id_string = null;
+    var close_label = this.scaffold().readAttribute('data-closelabel');
+    var controller = this.scaffold().readAttribute('data-controller');
+
+    if (this.tag.readAttribute('data-controller')) {
+        controller = this.tag.readAttribute('data-controller');
+    }
+
+    if(this.target.hasClassName('before-header')) {
+        id_string = this.target.readAttribute('id').replace('search', 'nested');
+    } else {
+        id_string = this.target.readAttribute('id').replace('list', 'nested');
+    }
+
+    return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="false" href="">' + close_label +'</a>' + content + '</div></td></tr>'
   }
 });
 
@@ -890,10 +909,6 @@ ActiveScaffold.Actions.Record = Class.create(ActiveScaffold.Actions.Abstract, {
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     if (this.target.hasAttribute('data-refresh') && !this.target.readAttribute('data-refresh').blank()) l.refresh_url = this.target.readAttribute('data-refresh');
     
-    if (l.position) {
-      l.url = l.url.append_params({adapter: '_list_inline_adapter'});
-      l.tag.href = l.url;
-    }
     l.set = this;
     return l;
   }
@@ -919,18 +934,19 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
     }
 
     if (this.position == 'after') {
-      this.target.insert({after:content});
+      this.target.insert({after:this.wrap_with_adapter_html(content)});
       ActiveScaffold.trigger_load_events(this.target.next().select('[data-as_load]'));
       this.set_adapter(this.target.next());
     }
     else if (this.position == 'before') {
-      this.target.insert({before:content});
+      this.target.insert({before:this.wrap_with_adapter_html(content)});
       ActiveScaffold.trigger_load_events(this.target.previous().select('[data-as_load]'));
       this.set_adapter(this.target.previous());
     }
     else {
       return false;
     }
+    this.update_flash_messages();
     this.adapter.down('td').down().highlight();
   },
 
@@ -957,6 +973,7 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
 
   set_opened: function() {
     if (this.position == 'after') {
+      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().childElements().first().innerHTML));
       this.set_adapter(this.target.next());
     }
     else if (this.position == 'before') {
@@ -972,10 +989,7 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
 ActiveScaffold.Actions.Table = Class.create(ActiveScaffold.Actions.Abstract, {
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Table(link, this.target, this.loading_indicator);
-    if (l.position) {
-      l.url = l.url.append_params({adapter: '_list_inline_adapter'});
-      l.tag.href = l.url;
-    }
+    
     return l;
   }
 });
@@ -983,13 +997,14 @@ ActiveScaffold.Actions.Table = Class.create(ActiveScaffold.Actions.Abstract, {
 ActiveScaffold.ActionLink.Table = Class.create(ActiveScaffold.ActionLink.Abstract, {
   insert: function(content) {
     if (this.position == 'top') {
-      this.target.insert({top:content});
+      this.target.insert({top:this.wrap_with_adapter_html(content)});
       ActiveScaffold.trigger_load_events(this.target.immediateDescendants().first().select('[data-as_load]'));
       this.set_adapter(this.target.immediateDescendants().first());
     }
     else {
       throw 'Unknown position "' + this.position + '"'
     }
+    this.update_flash_messages();
     this.adapter.down('td').down().highlight();
   }
 });
