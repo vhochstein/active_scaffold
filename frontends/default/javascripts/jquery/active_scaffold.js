@@ -239,6 +239,16 @@ $(document).ready(function() {
     });
     return true;
   });
+  $('tr.inline-adapter-autoopen').live('as:list_row_loaded', function(event) {
+    var actionlink_id = $(event.target).attr('data-actionlinkid');
+    if(actionlink_id) {
+      var action_link = ActiveScaffold.ActionLink.get(actionlink_id);
+      if (action_link) {
+        action_link.set_opened();
+      }
+    }
+    return true;
+  });
   $('form.as_form').live('ajax:before', function(event) {
     var as_form = $(this).closest("form");
     $(this).trigger('as:form_submit');
@@ -453,12 +463,17 @@ var ActiveScaffold = {
     ActiveScaffold.highlight(replaced);
   },
   
-  replace: function(element, html) {
+  replace: function(element, html, disable_event_trigger) {
     if (typeof(element) == 'string') element = '#' + element; 
     element = $(element);
-    ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
-    var new_element = $(html).replaceAll(element);
-    ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
+    var new_element = null;
+    if((typeof(disable_event_trigger) == 'boolean') && disable_event_trigger == true) {
+      new_element = $(html).replaceAll(element);
+    } else {
+      ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
+      new_element = $(html).replaceAll(element);
+      ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
+    }
     return new_element;
   },
   
@@ -1074,11 +1089,11 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
   
   set_opened: function() {
     if (this.position == 'after') {
-      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().children(':first-child').html()));
+      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().children(':first-child').html()), true);
       this.set_adapter(new_adapter);
     }
     else if (this.position == 'before') {
-      var new_adapter = ActiveScaffold.replace(this.target.prev(), this.wrap_with_adapter_html(this.target.prev().children(':first-child').html()));
+      var new_adapter = ActiveScaffold.replace(this.target.prev(), this.wrap_with_adapter_html(this.target.prev().children(':first-child').html()), true);
       this.set_adapter(new_adapter);
     }
     this.disable();

@@ -314,6 +314,16 @@ document.observe("dom:loaded", function() {
       ActiveScaffold.focus_first_element_of_form(as_form);
       return true;
   });
+  document.on('as:list_row_loaded', 'tr.inline-adapter-autoopen', function(event, element) {
+    var actionlink_id = element.readAttribute('data-actionlinkid');
+    if(actionlink_id) {
+      var action_link = ActiveScaffold.ActionLink.get(actionlink_id);
+      if (action_link) {
+        action_link.set_opened();
+      }
+    }
+    return true;
+  });
   document.on('ajax:before', 'form.as_form', function(event) {
     var as_form = event.findElement('form');
     element.fire('as:form_submit');
@@ -406,12 +416,14 @@ var ActiveScaffold = {
     new_row.highlight();
   },
   
-  replace: function(element, html) {
+  replace: function(element, html, disable_event_trigger) {
     element = $(element);
     var elements = element.select('[data-as_load]');
     var new_element = null;
     elements.unshift(element);
-    ActiveScaffold.trigger_unload_events(elements);
+    if((typeof(disable_event_trigger) != 'boolean') || disable_event_trigger === false) {
+      ActiveScaffold.trigger_unload_events(elements);
+    }
     if (html.startsWith('<tr')) {
         new_element = new Element('tbody').update(html);
     } else {
@@ -421,7 +433,9 @@ var ActiveScaffold = {
     Element.replace(element, new_element);
     elements = new_element.select('[data-as_load]');
     elements.unshift(new_element);
-    ActiveScaffold.trigger_load_events(elements);
+    if((typeof(disable_event_trigger) != 'boolean') || disable_event_trigger === false) {
+      ActiveScaffold.trigger_load_events(elements);
+    }
     return new_element;
   },
     
@@ -973,11 +987,12 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
 
   set_opened: function() {
     if (this.position == 'after') {
-      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().childElements().first().innerHTML));
-      this.set_adapter(this.target.next());
+      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().childElements().first().innerHTML), true);
+      this.set_adapter(new_adapter);
     }
     else if (this.position == 'before') {
-      this.set_adapter(this.target.previous());
+      var new_adapter = ActiveScaffold.replace(this.target.previous(), this.wrap_with_adapter_html(this.target.previous().childElements().first().innerHTML), true);
+      this.set_adapter(new_adapter);
     }
     this.disable();
   }

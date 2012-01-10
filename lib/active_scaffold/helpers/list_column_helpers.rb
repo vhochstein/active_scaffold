@@ -360,7 +360,7 @@ module ActiveScaffold
             rendered << (controller.send(:render_component_into_view, link_url_options))
           end 
         end
-        content_tag(:tr, (content_tag(:td, rendered.join(' ').html_safe) + javascript_tag("ActiveScaffold.ActionLink.get('#{link_id}').set_opened();").html_safe))
+        content_tag(:tr, content_tag(:td, rendered.join(' ').html_safe), :class => "inline-adapter-autoopen", 'data-actionlinkid' => link_id, 'data-as_load'=>"tr");
       end  
       
     end
