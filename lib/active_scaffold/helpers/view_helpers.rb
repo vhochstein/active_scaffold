@@ -397,6 +397,15 @@ module ActiveScaffold
           ''
         end
       end
+
+      def clean_column_name(name)
+        # parse out any question marks (see issue 227)
+        name.to_s.gsub('?', '')
+      end
+
+      def clean_class_name(name)
+        name.underscore.gsub('/', '_')
+      end
     end
   end
 end

@@ -211,13 +211,17 @@ module ActiveScaffold
       ## Search column override signatures
       ##
 
-      def override_search_field?(column)
-        respond_to?(override_search_field(column))
+      def override_search_field(column)
+        method = override_search_field_name(column)
+        return method if respond_to?(method)
+        old_method = override_search_field_name(column, true)
+        respond_to?(old_method) ? old_method : nil
       end
+      alias_method :override_search_field?, :override_search_field
 
       # the naming convention for overriding form fields with helpers
-      def override_search_field(column)
-        "#{column.name}_search_column"
+      def override_search_field_name(column, old = false)
+        "#{clean_class_name(column.active_record_class.name) + '_' unless old}#{clean_column_name(column.name)}_search_column"
       end
 
       def override_search?(search_ui)

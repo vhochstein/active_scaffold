@@ -259,16 +259,26 @@ module ActiveScaffold
 
       # the naming convention for overriding form fields with partials
       def override_form_field_partial(column)
-        "#{column.name}_form_column"
+        path = active_scaffold_controller_for(column.active_record_class).controller_path
+        partial_name = "#{clean_column_name(column.name)}_form_column"
+        if template_exists?(partial_name, path, true)
+          File.join(path, partial_name)
+        else
+          partial_name
+        end
       end
 
-      def override_form_field?(column)
-        respond_to?(override_form_field(column))
+      def override_form_field(column)
+        method = override_form_field_name(column)
+        return method if respond_to?(method)
+        old_method = override_form_field_name(column, true)
+        respond_to?(old_method) ? old_method : nil
       end
+      alias_method :override_form_field?, :override_form_field
 
       # the naming convention for overriding form fields with helpers
-      def override_form_field(column)
-        "#{column.name}_form_column"
+      def override_form_field_name(column, old = false)
+        "#{clean_class_name(column.active_record_class.name) + '_' unless old}#{clean_column_name(column.name)}_form_column"
       end
 
       def override_input?(form_ui)
