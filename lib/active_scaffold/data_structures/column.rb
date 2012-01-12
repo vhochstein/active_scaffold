@@ -295,7 +295,7 @@ module ActiveScaffold::DataStructures
     # just the field (not table.field)
     def field_name
       return nil if virtual?
-      column ? @active_record_class.connection.quote_column_name(column.name) : association.primary_key_name
+      column ? @active_record_class.connection.quote_column_name(column.name) : association.foreign_key
     end
 
     def <=>(other_column)
@@ -337,7 +337,7 @@ module ActiveScaffold::DataStructures
 
     # the table.field name for this column, if applicable
     def field
-      @field ||= [@active_record_class.connection.quote_column_name(@table), field_name].join('.')
+      @field ||= [@active_record_class.connection.quote_table_name(@table), field_name].join('.')
     end
     
     def estimate_weight

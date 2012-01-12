@@ -10,7 +10,7 @@ module ActiveScaffold
             # we only pass the record as the argument. we previously also passed the formatted_value,
             # but mike perham pointed out that prohibited the usage of overrides to improve on the
             # performance of our default formatting. see issue #138.
-            send(column_override(column), record)
+            send(column_override(column), column, record)
           # second, check if the dev has specified a valid list_ui for this column
           elsif column.list_ui and override_column_ui?(column.list_ui)
             send(override_column_ui(column.list_ui), column, record)
@@ -42,6 +42,7 @@ module ActiveScaffold
             return text if link.crud_type.nil?
             url_options[:link] = as_(:create_new) if link.crud_type == :create
           end
+          url_options[:embedded] = true if link.action == 'index'
 
           if column_link_authorized?(link, column, record, associated)
             render_action_link(link, url_options, record)
@@ -229,15 +230,16 @@ module ActiveScaffold
       end
 
       def cache_association(value, column)
+        # loaded? and target seems to be gone in rails 3.1
         # we are not using eager loading, cache firsts records in order not to query the database in a future
-        unless value.loaded?
+        #unless value.loaded?
           # load at least one record, is needed for column_empty? and checking permissions
-          if column.associated_limit.nil?
-            Rails.logger.warn "ActiveScaffold: Enable eager loading for #{column.name} association to reduce SQL queries"
-          else
-            value.target = value.find(:all, :limit => column.associated_limit + 1, :select => column.select_columns)
-          end
-        end
+        #  if column.associated_limit.nil?
+        #    Rails.logger.warn "ActiveScaffold: Enable eager loading for #{column.name} association to reduce SQL queries"
+        #  else
+        #    value.target = value.find(:all, :limit => column.associated_limit + 1, :select => column.select_columns)
+        #  end
+        #end
       end
 
       # ==========
@@ -269,7 +271,7 @@ module ActiveScaffold
         id_options = {:id => record.id.to_s, :action => 'update_column', :name => column.name.to_s}
         tag_options = {:id => element_cell_id(id_options), :class => "in_place_editor_field",
                        :title => as_(:click_to_edit), 'data-ie_id' => record.id.to_s}
-
+        tag_options['data-ie_mode'] = :inline_checkbox if column.list_ui == :checkbox
         content_tag(:span, formatted_column, tag_options)
       end
 
@@ -349,19 +351,19 @@ module ActiveScaffold
           end
         end
       end
-      
+
       def render_nested_view(action_links, url_options, record)
         rendered = []
+        link_id = nil
         action_links.member.each do |link|
           if link.nested_link? && link.column && @nested_auto_open[link.column.name] && @records.length <= @nested_auto_open[link.column.name] && controller.respond_to?(:render_component_into_view)
-            link_url_options = {:adapter => '_list_inline_adapter', :format => :js}.merge(action_link_url_options(link, url_options, record, options = {:reuse_eid => true})) 
+            link_url_options = {:embedded => true, :format => :js}.merge(action_link_url_options(link, url_options, record, options = {:reuse_eid => true}))
             link_id = get_action_link_id(link_url_options, record, link.column)
-            rendered << (controller.send(:render_component_into_view, link_url_options) + javascript_tag("ActiveScaffold.ActionLink.get('#{link_id}').set_opened();"))
-          end 
+            rendered << (controller.send(:render_component_into_view, link_url_options))
+          end
         end
-        rendered.join(' ').html_safe
-      end  
-      
+        content_tag(:tr, content_tag(:td, rendered.join(' ').html_safe), :class => "inline-adapter-autoopen", 'data-actionlinkid' => link_id, 'data-as_load'=>"tr");
+      end
     end
   end
 end

@@ -11,7 +11,6 @@ begin
 rescue LoadError
 end
 
-require 'active_scaffold_assets'
 require 'active_scaffold/active_record_permissions'
 require 'active_scaffold/paginator'
 require 'active_scaffold/responds_to_parent'
@@ -363,6 +362,17 @@ module ActiveScaffold
       raise ActiveScaffold::ControllerNotFound, "Could not find " + error_message.join(" or "), caller
     end
 
+    # tries to find activescaffoldcontroller by controllername eg. admin/teams, or teams
+    def active_scaffold_controller_by_controller_name(controller_name)
+      begin
+        controller = "#{controller_name.camelize}Controller".constantize
+      rescue NameError => error
+        raise ActiveScaffold::ControllerNotFound, "#{controller} not found", caller
+      end
+      raise ActiveScaffold::ControllerNotFound, "#{controller} missing ActiveScaffold", caller unless controller.uses_active_scaffold?
+      return controller
+    end
+
     def uses_active_scaffold?
       !active_scaffold_config.nil?
     end
@@ -370,17 +380,3 @@ module ActiveScaffold
 end
 
 require 'active_scaffold_env'
-
-##
-## Run the install assets script, too, just to make sure
-## But at least rescue the action in production
-##
-
-Rails::Application.initializer("active_scaffold.install_assets") do
-  begin
-    ActiveScaffoldAssets.copy_to_public(ActiveScaffold.root, {:clean_up_destination => true})
-  rescue
-    raise $! unless Rails.env == 'production'
-  end
-end if defined?(ACTIVE_SCAFFOLD_GEM)
-

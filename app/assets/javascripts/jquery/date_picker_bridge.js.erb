@@ -1,3 +1,6 @@
+<% ActiveScaffold::Bridges::Bridge.run_all unless defined?(ActiveScaffold::Bridges::DatePickerBridge) %>
+<%= ActiveScaffold::Bridges::DatePickerBridge.localization %>
+
 $(document).ready(function() {
   $('input.date_picker').live('focus', function(event) {
     var date_picker = $(this);

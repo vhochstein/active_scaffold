@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_scaffold_vho}
-  s.version = "3.1.0"
+  s.version = "3.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Many, see README"]
-  s.date = %q{2011-05-27}
+  s.date = %q{2011-12-22}
   s.description = %q{Save time and headaches, and create a more easily maintainable set of pages, with ActiveScaffold. ActiveScaffold handles all your CRUD (create, read, update, delete) user interface needs, leaving you more time to focus on more challenging (and interesting!) problems.}
   s.email = %q{activescaffold@googlegroups.com}
   s.extra_rdoc_files = [
@@ -25,25 +25,30 @@ Gem::Specification.new do |s|
     "README",
     "Rakefile",
     "active_scaffold_vho.gemspec",
-    "frontends/default/images/add.gif",
-    "frontends/default/images/arrow_down.gif",
-    "frontends/default/images/arrow_up.gif",
-    "frontends/default/images/close.gif",
-    "frontends/default/images/close_touch.png",
-    "frontends/default/images/config.png",
-    "frontends/default/images/cross.png",
-    "frontends/default/images/gears.png",
-    "frontends/default/images/indicator-small.gif",
-    "frontends/default/images/indicator.gif",
-    "frontends/default/images/magnifier.png",
-    "frontends/default/javascripts/jquery/active_scaffold.js",
-    "frontends/default/javascripts/jquery/jquery.editinplace.js",
-    "frontends/default/javascripts/prototype/active_scaffold.js",
-    "frontends/default/javascripts/prototype/dhtml_history.js",
-    "frontends/default/javascripts/prototype/form_enhancements.js",
-    "frontends/default/javascripts/prototype/rico_corner.js",
-    "frontends/default/stylesheets/stylesheet-ie.css",
-    "frontends/default/stylesheets/stylesheet.css",
+    "app/assets/images/add.gif",
+    "app/assets/images/arrow_down.gif",
+    "app/assets/images/arrow_up.gif",
+    "app/assets/images/close.gif",
+    "app/assets/images/close_touch.png",
+    "app/assets/images/config.png",
+    "app/assets/images/cross.png",
+    "app/assets/images/gears.png",
+    "app/assets/images/indicator-small.gif",
+    "app/assets/images/indicator.gif",
+    "app/assets/images/magnifier.png",
+    "app/assets/javascripts/active_scaffold.js.erb",
+    "app/assets/javascripts/jquery/active_scaffold.js",
+    "app/assets/javascripts/jquery/date_picker_bridge.js.erb",
+    "app/assets/javascripts/jquery/jquery-ui-timepicker-addon.js",
+    "app/assets/javascripts/jquery/jquery.editinplace.js",
+    "app/assets/javascripts/jquery/tiny_mce_bridge.js",
+    "app/assets/javascripts/prototype/active_scaffold.js",
+    "app/assets/javascripts/prototype/dhtml_history.js",
+    "app/assets/javascripts/prototype/form_enhancements.js",
+    "app/assets/javascripts/prototype/rico_corner.js",
+    "app/assets/stylesheets/active_scaffold-ie.css",
+    "app/assets/stylesheets/active_scaffold.css.erb",
+    "app/assets/stylesheets/jquery-ui-timepicker-addon.css",
     "frontends/default/views/_action_group.html.erb",
     "frontends/default/views/_add_existing_form.html.erb",
     "frontends/default/views/_base_form.html.erb",
@@ -73,7 +78,7 @@ Gem::Specification.new do |s|
     "frontends/default/views/_list_record_columns.html.erb",
     "frontends/default/views/_list_with_header.html.erb",
     "frontends/default/views/_messages.html.erb",
-    "frontends/default/views/_render_field.js.rjs",
+    "frontends/default/views/_render_field.js.erb",
     "frontends/default/views/_row.html.erb",
     "frontends/default/views/_search.html.erb",
     "frontends/default/views/_search_attribute.html.erb",
@@ -84,25 +89,25 @@ Gem::Specification.new do |s|
     "frontends/default/views/_vertical_subform.html.erb",
     "frontends/default/views/_vertical_subform_record.html.erb",
     "frontends/default/views/action_confirmation.html.erb",
-    "frontends/default/views/add_existing.js.rjs",
+    "frontends/default/views/add_existing.js.erb",
     "frontends/default/views/add_existing_form.html.erb",
     "frontends/default/views/create.html.erb",
     "frontends/default/views/delete.html.erb",
-    "frontends/default/views/destroy.js.rjs",
-    "frontends/default/views/edit_associated.js.rjs",
+    "frontends/default/views/destroy.js.erb",
+    "frontends/default/views/edit_associated.js.erb",
     "frontends/default/views/field_search.html.erb",
-    "frontends/default/views/form_messages.js.rjs",
+    "frontends/default/views/form_messages.js.erb",
     "frontends/default/views/list.html.erb",
-    "frontends/default/views/list.js.rjs",
-    "frontends/default/views/on_action_update.js.rjs",
-    "frontends/default/views/on_create.js.rjs",
-    "frontends/default/views/on_mark_all.js.rjs",
-    "frontends/default/views/on_update.js.rjs",
+    "frontends/default/views/list.js.erb",
+    "frontends/default/views/on_action_update.js.erb",
+    "frontends/default/views/on_create.js.erb",
+    "frontends/default/views/on_mark_all.js.erb",
+    "frontends/default/views/on_update.js.erb",
     "frontends/default/views/search.html.erb",
     "frontends/default/views/show.html.erb",
     "frontends/default/views/update.html.erb",
-    "frontends/default/views/update_column.js.rjs",
-    "frontends/default/views/update_row.js.rjs",
+    "frontends/default/views/update_column.js.erb",
+    "frontends/default/views/update_row.js.erb",
     "init.rb",
     "lib/active_scaffold.rb",
     "lib/active_scaffold/actions/common_search.rb",
@@ -131,9 +136,10 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/bridges/carrierwave/lib/carrierwave_bridge_helpers.rb",
     "lib/active_scaffold/bridges/carrierwave/lib/form_ui.rb",
     "lib/active_scaffold/bridges/carrierwave/lib/list_ui.rb",
+    "lib/active_scaffold/bridges/country_helper/bridge.rb",
+    "lib/active_scaffold/bridges/country_helper/lib/country_helper_bridge.rb",
     "lib/active_scaffold/bridges/date_picker/bridge.rb",
     "lib/active_scaffold/bridges/date_picker/lib/datepicker_bridge.rb",
-    "lib/active_scaffold/bridges/date_picker/public/javascripts/date_picker_bridge.js",
     "lib/active_scaffold/bridges/file_column/bridge.rb",
     "lib/active_scaffold/bridges/file_column/lib/as_file_column_bridge.rb",
     "lib/active_scaffold/bridges/file_column/lib/file_column_helpers.rb",
@@ -179,6 +185,7 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/data_structures/nested_info.rb",
     "lib/active_scaffold/data_structures/set.rb",
     "lib/active_scaffold/data_structures/sorting.rb",
+    "lib/active_scaffold/engine.rb",
     "lib/active_scaffold/extensions/action_controller_rendering.rb",
     "lib/active_scaffold/extensions/action_view_rendering.rb",
     "lib/active_scaffold/extensions/action_view_resolver.rb",
@@ -198,7 +205,6 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/finder.rb",
     "lib/active_scaffold/helpers/association_helpers.rb",
     "lib/active_scaffold/helpers/controller_helpers.rb",
-    "lib/active_scaffold/helpers/country_helpers.rb",
     "lib/active_scaffold/helpers/form_column_helpers.rb",
     "lib/active_scaffold/helpers/human_condition_helpers.rb",
     "lib/active_scaffold/helpers/id_helpers.rb",
@@ -218,7 +224,6 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/paginator.rb",
     "lib/active_scaffold/responds_to_parent.rb",
     "lib/active_scaffold/version.rb",
-    "lib/active_scaffold_assets.rb",
     "lib/active_scaffold_env.rb",
     "lib/active_scaffold_vho.rb",
     "lib/generators/active_scaffold/USAGE",
@@ -365,7 +370,6 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_runtime_dependency(%q<render_component_vho>, [">= 0"])
-      s.add_runtime_dependency(%q<verification>, [">= 0"])
       s.add_runtime_dependency(%q<rails>, ["~> 3.1.0"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
@@ -373,7 +377,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<render_component_vho>, [">= 0"])
-      s.add_dependency(%q<verification>, [">= 0"])
       s.add_dependency(%q<rails>, ["~> 3.1.0"])
     end
   else
@@ -382,7 +385,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<render_component_vho>, [">= 0"])
-    s.add_dependency(%q<verification>, [">= 0"])
     s.add_dependency(%q<rails>, ["~> 3.1.0"])
   end
 end

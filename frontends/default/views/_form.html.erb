@@ -4,7 +4,7 @@
   <% renders_as = column_renders_as(column) %>
   <% if renders_as == :subsection -%>
     <% subsection_id = sub_section_id(:sub_section => column.label) %>
-  <li class="sub-section">
+  <li class="sub-section" data-as_load="form-element">
     <h5><%= column.label %></h5>
     <%= render :partial => 'form', :locals => { :columns => column, :subsection_id => subsection_id} %>
     <%= link_to_visibility_toggle(subsection_id, {:default_visible => !column.collapsed}) -%>
@@ -12,11 +12,11 @@
   <% elsif column.readonly_association?
     next %>
   <% elsif renders_as == :subform and !override_form_field?(column) -%>
-  <li class="sub-form <%= active_scaffold_config_for(column.association.klass).subform.layout %>-sub-form <%= column.css_class unless column.css_class.nil? || column.css_class.is_a?(Proc) %>" id="<%= sub_form_id(:association => column.name) %>">
+  <li class="sub-form <%= active_scaffold_config_for(column.association.klass).subform.layout %>-sub-form <%= column.css_class unless column.css_class.nil? || column.css_class.is_a?(Proc) %>" id="<%= sub_form_id(:association => column.name) %>" data-as_load="form-element">
     <%=raw render :partial => form_partial_for_column(column, renders_as), :locals => { :column => column } -%>
   </li>
   <% else -%>
-  <li class="form-element <%= 'required' if column.required? %> <%= column.css_class unless column.css_class.nil? || column.css_class.is_a?(Proc) %>">
+  <li class="form-element <%= 'required' if column.required? %> <%= column.css_class unless column.css_class.nil? || column.css_class.is_a?(Proc) %>" data-as_load="form-element">
     <%=raw render :partial => form_partial_for_column(column, renders_as), :locals => { :column => column } -%>
   </li>
   <% end -%>

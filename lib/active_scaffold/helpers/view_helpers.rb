@@ -10,7 +10,6 @@ module ActiveScaffold
       include ActiveScaffold::Helpers::ShowColumnHelpers
       include ActiveScaffold::Helpers::FormColumnHelpers
       include ActiveScaffold::Helpers::SearchColumnHelpers
-      include ActiveScaffold::Helpers::CountryHelpers
       include ActiveScaffold::Helpers::HumanConditionHelpers
 
       ##
@@ -150,7 +149,7 @@ module ActiveScaffold
       end
 
       def skip_action_link(link, *args)
-        (!link.ignore_method.nil? and controller.try(link.ignore_method, *args)) || ((link.security_method_set? or controller.respond_to? link.security_method) and !controller.send(link.security_method, *args))
+        (!link.ignore_method.nil? && controller.respond_to?(link.ignore_method) && controller.send(link.ignore_method, *args)) || ((link.security_method_set? or controller.respond_to? link.security_method) and !controller.send(link.security_method, *args))
       end
 
       def render_action_link(link, url_options, record = nil, html_options = {})
@@ -191,7 +190,9 @@ module ActiveScaffold
 
         html_options['data-confirm'] = link.confirm(record.try(:to_label)) if link.confirm?
         html_options['data-position'] = link.position if link.position and link.inline?
+        html_options['data-controller'] = link.controller.to_s if link.controller
         html_options[:class] += ' as_action' if link.inline?
+        html_options['data-action'] = link.action if link.inline?
         if link.popup?
           html_options['data-popup'] = true
           html_options[:target] = '_blank'
@@ -225,10 +226,20 @@ module ActiveScaffold
         # issue 260, use url_options[:link] if it exists. This prevents DB data from being localized.
         label = url.delete(:link) if url.is_a?(Hash) 
         label ||= link.label
-        if link.image.nil?
-          html = link_to(label, url, html_options)
-        else
-          html = link_to(image_tag(link.image[:name] , :size => link.image[:size], :alt => label), url, html_options)
+        begin
+          if link.image.nil?
+            #http://www.continuousthinking.com/2011/09/22/rails-3-1-engine-namespaces-can-creep-into-urls-in-application-layout.html
+            #its not possible to link from a namespacedcontroller back to a non namespaced-controller anymore
+            # seems to be only working with named_routes...
+            html = link_to(label, url, html_options)
+          else
+            html = link_to(image_tag(link.image[:name] , :size => link.image[:size], :alt => label), url, html_options)
+          end
+          # if url is nil we would like to generate an anchor without href attribute
+          url.nil? ? html.sub(/href=".*?"/, '').html_safe : html.html_safe
+        rescue ActionController::RoutingError => e
+          Rails.logger.error("ActiveScaffold link_to routing Error: #{e.inspect}")
+          "Routing Error"
         end
         # if url is nil we would like to generate an anchor without href attribute
         url.nil? ? html.sub(/href=".*?"/, '').html_safe : html.html_safe
@@ -324,7 +335,7 @@ module ActiveScaffold
       end
 
       def column_show_add_new(column, associated, record)
-        value = column.plural_association? || (column.singular_association? and not associated.empty?)
+        value = (column.plural_association? && !column.readonly_association?) || (column.singular_association? and not associated.empty?)
         value = false unless record.class.authorized_for?(:crud_type => :create)
         value
       end

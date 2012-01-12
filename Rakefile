@@ -27,7 +27,6 @@ Jeweler::Tasks.new do |gem|
   gem.email = "activescaffold@googlegroups.com"
   gem.authors = ["Many, see README"]
   gem.add_runtime_dependency 'render_component_vho'
-  gem.add_runtime_dependency 'verification'
   gem.add_runtime_dependency 'rails', '~> 3.1.0'
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
