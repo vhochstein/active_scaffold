@@ -42,26 +42,10 @@ module ActiveScaffold
         end
       end
 
-      def partial_pieces(partial_path)
-        if partial_path.include?('/')
-          return File.dirname(partial_path), File.basename(partial_path)
-        else
-          return controller.class.controller_path, partial_path
-        end
-      end
-
       # This is the template finder logic, keep it updated with however we find stuff in rails
       # currently this very similar to the logic in ActionBase::Base.render for options file
-      # TODO: Work with rails core team to find a better way to check for this.
-      # Not working so far for rais 3.1
-      def template_exists?(template_name, path)
-        begin
-          method = 'find_template'
-          #self.view_paths.send(method, template_name)
-          return false
-        rescue ActionView::MissingTemplate => e
-          return false
-        end
+      def template_exists?(template_name, partial = false)
+        lookup_context.exists? template_name, '', partial
       end
 
       def generate_temporary_id
@@ -338,6 +322,14 @@ module ActiveScaffold
         value
       end
       
+      def clean_column_name(name)
+        name.to_s.gsub('?', '')
+      end
+
+      def clean_class_name(name)
+        name.underscore.gsub('/', '_')
+      end
+
       def active_scaffold_error_messages_for(*params)
         options = params.extract_options!.symbolize_keys
         options.reverse_merge!(:container_tag => :div, :list_type => :ul)
