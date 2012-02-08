@@ -311,7 +311,7 @@ module ActiveScaffold::DataStructures
         self.sort = false
       else
         if self.singular_association?
-          self.sort = {:method => "#{self.name}.to_s"}
+          self.sort = {:method => "#{self.name}.to_label"}
         elsif self.plural_association?
           self.sort = {:method => "#{self.name}.join(',')"}
         else
