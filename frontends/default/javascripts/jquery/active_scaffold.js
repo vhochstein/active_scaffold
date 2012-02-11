@@ -1020,7 +1020,14 @@ ActiveScaffold.Actions.Record = ActiveScaffold.Actions.Abstract.extend({
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     var refresh = this.target.attr('data-refresh');
-    if (refresh) l.refresh_url = refresh;
+    if (refresh) {
+        l.refresh_url = refresh;
+    }
+
+    if (l.position && l.tag.attr('data-action') == 'index') {
+        l.url = l.url.append_params({embedded: true});
+        l.tag.attr('href', l.url);
+    }
     
     l.set = this;
     return l;

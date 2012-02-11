@@ -788,9 +788,11 @@ ActiveScaffold.Actions.Abstract = Class.create({
     this.target = $(target);
     this.loading_indicator = $(loading_indicator);
     this.options = options;
+    var _this = this;
     this.links = links.collect(function(link) {
-      return this.instantiate_link(link);
-    }.bind(this));
+      var my_link = _this.instantiate_link(link);
+      return my_link;
+    });
   },
 
   instantiate_link: function(link) {
@@ -922,7 +924,11 @@ ActiveScaffold.Actions.Record = Class.create(ActiveScaffold.Actions.Abstract, {
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     if (this.target.hasAttribute('data-refresh') && !this.target.readAttribute('data-refresh').blank()) l.refresh_url = this.target.readAttribute('data-refresh');
-    
+
+    if (l.position && l.tag.hasAttribute('data-action') && l.tag.readAttribute('data-action') == "index") {
+        l.url = l.url.append_params({embedded: true});
+        l.tag.href = l.url;
+    }
     l.set = this;
     return l;
   }
