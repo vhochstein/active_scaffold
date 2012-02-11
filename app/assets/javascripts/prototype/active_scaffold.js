@@ -922,7 +922,11 @@ ActiveScaffold.Actions.Record = Class.create(ActiveScaffold.Actions.Abstract, {
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     if (this.target.hasAttribute('data-refresh') && !this.target.readAttribute('data-refresh').blank()) l.refresh_url = this.target.readAttribute('data-refresh');
-    
+
+    if (l.position && l.tag.hasAttribute('data-action') && l.tag.readAttribute('data-action') == "index") {
+        l.url = l.url.append_params({embedded: true});
+        l.tag.href = l.url;
+    }
     l.set = this;
     return l;
   }

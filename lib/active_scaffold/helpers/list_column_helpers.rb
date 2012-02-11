@@ -42,7 +42,6 @@ module ActiveScaffold
             return text if link.crud_type.nil?
             url_options[:link] = as_(:create_new) if link.crud_type == :create
           end
-          url_options[:embedded] = true if link.action == 'index'
 
           if column_link_authorized?(link, column, record, associated)
             render_action_link(link, url_options, record)
