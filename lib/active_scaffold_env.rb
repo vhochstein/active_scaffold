@@ -17,7 +17,7 @@ ActiveSupport.on_load(:action_view) do
 end
 
 ActiveSupport.on_load(:active_record) do
-  ['active_association_reflection', 'active_record_offset', 'reverse_associations', 'to_label', 'unsaved_record'].each do |extension|
+  ['active_association_reflection', 'reverse_associations', 'to_label', 'unsaved_record'].each do |extension|
     require "#{File.dirname __FILE__}/active_scaffold/extensions/#{extension}.rb"
   end
   class_eval {include ActiveRecordPermissions::ModelUserAccess::Model}
