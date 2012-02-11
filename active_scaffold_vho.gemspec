@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_scaffold_vho}
-  s.version = "3.1.1"
+  s.version = "3.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Many, see README"]
-  s.date = %q{2012-01-28}
+  s.date = %q{2012-02-11}
   s.description = %q{Save time and headaches, and create a more easily maintainable set of pages, with ActiveScaffold. ActiveScaffold handles all your CRUD (create, read, update, delete) user interface needs, leaving you more time to focus on more challenging (and interesting!) problems.}
   s.email = %q{activescaffold@googlegroups.com}
   s.extra_rdoc_files = [
@@ -188,7 +188,6 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/extensions/action_view_rendering.rb",
     "lib/active_scaffold/extensions/action_view_resolver.rb",
     "lib/active_scaffold/extensions/active_association_reflection.rb",
-    "lib/active_scaffold/extensions/active_record_offset.rb",
     "lib/active_scaffold/extensions/array.rb",
     "lib/active_scaffold/extensions/localize.rb",
     "lib/active_scaffold/extensions/name_option_for_datetime.rb",
