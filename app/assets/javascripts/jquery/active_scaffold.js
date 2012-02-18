@@ -748,7 +748,15 @@ var ActiveScaffold = {
                      hover_class: 'hover',
                      element_id: 'editor_id',
                      ajax_data_type: "script",
-                     update_value: 'value'},
+                     update_value: 'value',
+                     delegate: {didOpenEditInPlace: function(aDOMNode, aSettingsDict) {
+                                  ActiveScaffold.trigger_load_events(aDOMNode.find('[data-as_load]'));
+                                  return true;
+                                },
+                                shouldCloseEditInPlace: function(aDOMNode, aSettingsDict) {
+                                  ActiveScaffold.trigger_unload_events(aDOMNode.find('[data-as_load]'));
+                                  return true;
+                                }}},
           csrf_param = $('meta[name=csrf-param]').first(),
           csrf_token = $('meta[name=csrf-token]').first(),
           my_parent = span.parent(),
