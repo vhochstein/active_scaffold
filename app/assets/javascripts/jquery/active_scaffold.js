@@ -241,6 +241,16 @@ $(document).ready(function() {
     });
     return true;
   });
+  $('tr.inline-adapter-autoopen').live('as:list_row_loaded', function(event) {
+    var actionlink_id = $(event.target).attr('data-actionlinkid');
+    if(actionlink_id) {
+      var action_link = ActiveScaffold.ActionLink.get(actionlink_id);
+      if (action_link) {
+        action_link.set_opened();
+      }
+    }
+    return true;
+  });
   $('form.as_form').live('ajax:before', function(event) {
     var as_form = $(this).closest("form");
     $(this).trigger('as:form_submit');
@@ -455,12 +465,17 @@ var ActiveScaffold = {
     ActiveScaffold.highlight(replaced);
   },
   
-  replace: function(element, html) {
+  replace: function(element, html, disable_event_trigger) {
     if (typeof(element) == 'string') element = '#' + element; 
     element = $(element);
-    ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
-    var new_element = $(html).replaceAll(element);
-    ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
+    var new_element = null;
+    if((typeof(disable_event_trigger) == 'boolean') && disable_event_trigger == true) {
+      new_element = $(html).replaceAll(element);
+    } else {
+      ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
+      new_element = $(html).replaceAll(element);
+      ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
+    }
     return new_element;
   },
   
@@ -733,7 +748,15 @@ var ActiveScaffold = {
                      hover_class: 'hover',
                      element_id: 'editor_id',
                      ajax_data_type: "script",
-                     update_value: 'value'},
+                     update_value: 'value',
+                     delegate: {didOpenEditInPlace: function(aDOMNode, aSettingsDict) {
+                                  ActiveScaffold.trigger_load_events(aDOMNode.find('[data-as_load]'));
+                                  return true;
+                                },
+                                shouldCloseEditInPlace: function(aDOMNode, aSettingsDict) {
+                                  ActiveScaffold.trigger_unload_events(aDOMNode.find('[data-as_load]'));
+                                  return true;
+                                }}},
           csrf_param = $('meta[name=csrf-param]').first(),
           csrf_token = $('meta[name=csrf-token]').first(),
           my_parent = span.parent(),
@@ -920,7 +943,7 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
     this.hide_target = false;
     this.position = this.tag.attr('data-position');
     this.action = this.tag.attr('data-action');
-
+		
     this.tag.data('action_link', this);
     return this;
   },
@@ -979,6 +1002,24 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
     this.adapter = element;
     this.adapter.addClass('as_adapter');
     this.adapter.data('action_link', this);
+  },
+  wrap_with_adapter_html: function(content) {
+    // players_view class missing
+    var id_string = null;
+    var close_label = this.scaffold().attr('data-closelabel');
+    var controller = this.scaffold().attr('data-controller');
+
+    if (this.tag.attr('data-controller')) {
+        controller = this.tag.attr('data-controller');
+    }
+
+    if(this.target.hasClass('before-header')) {
+        id_string = this.target.attr('id').replace('search', 'nested');
+    } else {
+        id_string = this.target.attr('id').replace('list', 'nested');
+    }
+
+    return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="false" href="">' + close_label +'</a>' + content + '</div></td></tr>'
   }
 });
 
@@ -989,11 +1030,13 @@ ActiveScaffold.Actions.Record = ActiveScaffold.Actions.Abstract.extend({
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Record(link, this.target, this.loading_indicator);
     var refresh = this.target.attr('data-refresh');
-    if (refresh) l.refresh_url = refresh;
-    
-    if (l.position) {
-      l.url = l.url.append_params({adapter: '_list_inline_adapter'});
-      l.tag.attr('href', l.url);
+    if (refresh) {
+        l.refresh_url = refresh;
+    }
+
+    if (l.position && l.tag.attr('data-action') == 'index') {
+        l.url = l.url.append_params({embedded: true});
+        l.tag.attr('href', l.url);
     }
     l.set = this;
     return l;
@@ -1021,18 +1064,19 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
     }
 
     if (this.position == 'after') {
-      this.target.after(content);
+      this.target.after(this.wrap_with_adapter_html(content));
       ActiveScaffold.trigger_load_events(this.target.next().find('[data-as_load]'));
       this.set_adapter(this.target.next());
     }
     else if (this.position == 'before') {
-      this.target.before(content);
+      this.target.before(this.wrap_with_adapter_html(content));
       ActiveScaffold.trigger_load_events(this.target.prev().find('[data-as_load]'));
       this.set_adapter(this.target.prev());
     }
     else {
       return false;
     }
+    this.update_flash_messages('');
     ActiveScaffold.highlight(this.adapter.find('td'));
   },
 
@@ -1061,10 +1105,12 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
   
   set_opened: function() {
     if (this.position == 'after') {
-      this.set_adapter(this.target.next());
+      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().children(':first-child').html()), true);
+      this.set_adapter(new_adapter);
     }
     else if (this.position == 'before') {
-      this.set_adapter(this.target.prev());
+      var new_adapter = ActiveScaffold.replace(this.target.prev(), this.wrap_with_adapter_html(this.target.prev().children(':first-child').html()), true);
+      this.set_adapter(new_adapter);
     }
     this.disable();
   }
@@ -1076,10 +1122,7 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
 ActiveScaffold.Actions.Table = ActiveScaffold.Actions.Abstract.extend({
   instantiate_link: function(link) {
     var l = new ActiveScaffold.ActionLink.Table(link, this.target, this.loading_indicator);
-    if (l.position) {
-      l.url = l.url.append_params({adapter: '_list_inline_adapter'});
-      l.tag.attr('href', l.url);
-    }
+    
     return l;
   }
 });
@@ -1087,13 +1130,14 @@ ActiveScaffold.Actions.Table = ActiveScaffold.Actions.Abstract.extend({
 ActiveScaffold.ActionLink.Table = ActiveScaffold.ActionLink.Abstract.extend({
   insert: function(content) {
     if (this.position == 'top') {
-      this.target.prepend(content);
+      this.target.prepend(this.wrap_with_adapter_html(content));
       ActiveScaffold.trigger_load_events(this.target.children().first().find('[data-as_load]'));
       this.set_adapter(this.target.children().first());
     }
     else {
       throw 'Unknown position "' + this.position + '"'
     }
+    this.update_flash_messages('');
     ActiveScaffold.highlight(this.adapter.find('td').first().children());
   }
 });

@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_scaffold_vho}
-  s.version = "3.1.1"
+  s.version = "3.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Many, see README"]
-  s.date = %q{2011-12-22}
+  s.date = %q{2012-02-11}
   s.description = %q{Save time and headaches, and create a more easily maintainable set of pages, with ActiveScaffold. ActiveScaffold handles all your CRUD (create, read, update, delete) user interface needs, leaving you more time to focus on more challenging (and interesting!) problems.}
   s.email = %q{activescaffold@googlegroups.com}
   s.extra_rdoc_files = [
@@ -70,7 +70,6 @@ Gem::Specification.new do |s|
     "frontends/default/views/_list_calculations.html.erb",
     "frontends/default/views/_list_column_headings.html.erb",
     "frontends/default/views/_list_header.html.erb",
-    "frontends/default/views/_list_inline_adapter.html.erb",
     "frontends/default/views/_list_messages.html.erb",
     "frontends/default/views/_list_pagination.html.erb",
     "frontends/default/views/_list_pagination_links.html.erb",
@@ -186,11 +185,9 @@ Gem::Specification.new do |s|
     "lib/active_scaffold/data_structures/set.rb",
     "lib/active_scaffold/data_structures/sorting.rb",
     "lib/active_scaffold/engine.rb",
-    "lib/active_scaffold/extensions/action_controller_rendering.rb",
     "lib/active_scaffold/extensions/action_view_rendering.rb",
     "lib/active_scaffold/extensions/action_view_resolver.rb",
     "lib/active_scaffold/extensions/active_association_reflection.rb",
-    "lib/active_scaffold/extensions/active_record_offset.rb",
     "lib/active_scaffold/extensions/array.rb",
     "lib/active_scaffold/extensions/localize.rb",
     "lib/active_scaffold/extensions/name_option_for_datetime.rb",
@@ -370,14 +367,14 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_runtime_dependency(%q<render_component_vho>, [">= 0"])
-      s.add_runtime_dependency(%q<rails>, ["~> 3.1.0"])
+      s.add_runtime_dependency(%q<rails>, [">= 3.1.0"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<render_component_vho>, [">= 0"])
-      s.add_dependency(%q<rails>, ["~> 3.1.0"])
+      s.add_dependency(%q<rails>, [">= 3.1.0"])
     end
   else
     s.add_dependency(%q<shoulda>, [">= 0"])
@@ -385,7 +382,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<render_component_vho>, [">= 0"])
-    s.add_dependency(%q<rails>, ["~> 3.1.0"])
+    s.add_dependency(%q<rails>, [">= 3.1.0"])
   end
 end
 

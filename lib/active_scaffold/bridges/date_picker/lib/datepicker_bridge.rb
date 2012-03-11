@@ -34,7 +34,7 @@ module ActiveScaffold
         '%a' => 'D',
         '%A' => 'DD',
         '%b' => 'M',
-        '$B' => 'MM',
+        '%B' => 'MM',
         '%d' => 'dd',
         '%e' => 'd',
         '%j' => 'oo',

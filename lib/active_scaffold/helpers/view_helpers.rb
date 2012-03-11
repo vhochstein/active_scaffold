@@ -42,26 +42,10 @@ module ActiveScaffold
         end
       end
 
-      def partial_pieces(partial_path)
-        if partial_path.include?('/')
-          return File.dirname(partial_path), File.basename(partial_path)
-        else
-          return controller.class.controller_path, partial_path
-        end
-      end
-
       # This is the template finder logic, keep it updated with however we find stuff in rails
       # currently this very similar to the logic in ActionBase::Base.render for options file
-      # TODO: Work with rails core team to find a better way to check for this.
-      # Not working so far for rais 3.1
-      def template_exists?(template_name, path)
-        begin
-          method = 'find_template'
-          #self.view_paths.send(method, template_name)
-          return false
-        rescue ActionView::MissingTemplate => e
-          return false
-        end
+      def template_exists?(template_name, partial = false)
+        lookup_context.exists? template_name, '', partial
       end
 
       def generate_temporary_id
@@ -149,7 +133,7 @@ module ActiveScaffold
       end
 
       def skip_action_link(link, *args)
-        (!link.ignore_method.nil? and controller.try(link.ignore_method, *args)) || ((link.security_method_set? or controller.respond_to? link.security_method) and !controller.send(link.security_method, *args))
+        (!link.ignore_method.nil? && controller.respond_to?(link.ignore_method) && controller.send(link.ignore_method, *args)) || ((link.security_method_set? or controller.respond_to? link.security_method) and !controller.send(link.security_method, *args))
       end
 
       def render_action_link(link, url_options, record = nil, html_options = {})
@@ -190,6 +174,7 @@ module ActiveScaffold
 
         html_options['data-confirm'] = link.confirm(record.try(:to_label)) if link.confirm?
         html_options['data-position'] = link.position if link.position and link.inline?
+        html_options['data-controller'] = link.controller.to_s if link.controller
         html_options[:class] += ' as_action' if link.inline?
         html_options['data-action'] = link.action if link.inline?
         if link.popup?
@@ -337,6 +322,14 @@ module ActiveScaffold
         value
       end
       
+      def clean_column_name(name)
+        name.to_s.gsub('?', '')
+      end
+
+      def clean_class_name(name)
+        name.underscore.gsub('/', '_')
+      end
+
       def active_scaffold_error_messages_for(*params)
         options = params.extract_options!.symbolize_keys
         options.reverse_merge!(:container_tag => :div, :list_type => :ul)
