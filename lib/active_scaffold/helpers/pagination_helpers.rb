@@ -24,7 +24,7 @@ module ActiveScaffold
               page = current_page.number - offset
               if page < start_number && page > 1
                 html << '..' if page > last_page + 1
-                html << pagination_ajax_link(page, params)
+                html << pagination_ajax_link(page, params, options)
                 last_page = page
               end
             end
