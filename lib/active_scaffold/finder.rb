@@ -265,7 +265,8 @@ module ActiveScaffold
                          :where => search_conditions,
                          :joins => joins_for_finder,
                          :includes => options[:count_includes]}
-                         
+
+
       finder_options.merge! custom_finder_options
 
       # NOTE: we must use :include in the count query, because some conditions may reference other tables
@@ -275,6 +276,9 @@ module ActiveScaffold
       # Converts count to an integer if ActiveRecord returned an OrderedHash
       # that happens when finder_options contains a :group key
       count = count.length if count.is_a? ActiveSupport::OrderedHash
+
+      full_includes = add_association_to_includes_for_sorting(options[:sorting], full_includes)
+
       finder_options.merge! :includes => full_includes
 
       # we build the paginator differently for method- and sql-based sorting
@@ -291,6 +295,21 @@ module ActiveScaffold
         end
       end
       pager.page(options[:page])
+    end
+
+    # if someone excludes association from includes in configuration
+    # and sorts by that that column... database will not be happy about it :-)
+    # just a safety check to prevent many many database queries
+    def add_association_to_includes_for_sorting(sorting, full_includes)
+      if sorting && sorting.sorts_by_method?
+        sorting_column = sorting.first.first
+        #wants to sort by assocation which is not included bad performance...
+        if sorting_column.association && !sorting_column.polymorphic_association? &&
+           sorting_column.includes.empty? && !full_includes.include?(sorting_column.association.name)
+           full_includes << sorting_column.association.name
+        end
+      end
+      full_includes
     end
     
     def append_to_query(query, options)
@@ -330,6 +349,7 @@ module ActiveScaffold
 
     # TODO: this should reside on the column, not the controller
     def sort_collection_by_column(collection, column, order)
+      Rails.logger.info("das hier ja was bin im sort_collection")
       sorter = column.sort[:method]
       collection = collection.sort_by { |record|
         value = (sorter.is_a? Proc) ? record.instance_eval(&sorter) : record.instance_eval(sorter)
