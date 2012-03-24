@@ -174,6 +174,13 @@ $(document).ready(function() {
     }
     
   });
+  $('a.as_destroy_existing').live('click', function(event) {
+    var associated_record = $(this).closest('tr.association-record');
+    ActiveScaffold.delete_subform_record(associated_record);
+    event.stopPropagation();
+    return false;
+  });
+
   $('input.update_form, textarea.update_form, select.update_form').live('change', function(event) {
       var element = $(this);
       var as_form = element.closest('form.as_form');
