@@ -230,11 +230,16 @@ document.observe("dom:loaded", function() {
     if(loading_indicator) loading_indicator.style.visibility = 'hidden';  
     return true;
   });
-  document.on('ajax:before', 'input[type=button].as_add_existing', function(event) {
+  document.on('ajax:before', 'a.as_add_existing', function(event) {
     var button = event.findElement();
-    var url =  button.readAttribute('href').sub('--ID--', button.previous().getValue());
-    event.memo.url = url;
-    return true;
+    var selected_id = button.previous().getValue();
+    if (selected_id) {
+      var url =  button.readAttribute('href').sub('--ID--', selected_id);
+      event.memo.url = url;
+      return true;
+    } else {
+      return false;
+    }
   });
   document.on('change', 'input.update_form, textarea.update_form, select.update_form', function(event) {
     var element = event.findElement();
@@ -312,6 +317,12 @@ document.observe("dom:loaded", function() {
   document.on('as:form_loaded', 'form.as_form', function(event) {
       var as_form = event.findElement('form');
       ActiveScaffold.focus_first_element_of_form(as_form);
+      return true;
+  });
+  document.on('as:form_element_loaded', 'li.horizontal-sub-form', function(event, element) {
+      element.select('a.as_associated_form_link').each(function(element) {
+        ActiveScaffold.show(element);
+      });
       return true;
   });
   document.on('as:list_row_loaded', 'tr.inline-adapter-autoopen', function(event, element) {
