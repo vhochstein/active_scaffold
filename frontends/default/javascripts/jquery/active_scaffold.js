@@ -163,10 +163,16 @@ $(document).ready(function() {
     return true;
   });
   $('a.as_add_existing').live('ajax:before', function(event) {
-    var url = $(this).attr('href').replace('--ID--', $(this).prev().val());
-    $(this).attr('href', url);
-    event.data_url = url;
-    return true;
+    var selected_id = $(this).prev().val();
+    if (selected_id) {
+      var url = $(this).attr('href').replace('--ID--', $(this).prev().val());
+      $(this).attr('href', url);
+      event.data_url = url;
+      return true;
+    } else {
+      return false;
+    }
+    
   });
   $('input.update_form, textarea.update_form, select.update_form').live('change', function(event) {
       var element = $(this);
@@ -250,6 +256,12 @@ $(document).ready(function() {
   $('form.as_form').live('as:form_loaded', function(event) {
     var as_form = $(this).closest("form");
     ActiveScaffold.focus_first_element_of_form(as_form);
+    return true;
+  });
+  $('li.horizontal-sub-form').live('as:form_element_loaded', function(event) {
+    $(this).find('a.as_associated_form_link').each(function(index) {
+        ActiveScaffold.show($(this));
+    })
     return true;
   });
   $('span.mark_heading, span.in_place_editor_field[data-ie_mode="inline_checkbox"]').live('click', function(event) {
