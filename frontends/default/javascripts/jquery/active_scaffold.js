@@ -34,6 +34,7 @@ $(document).ready(function() {
       } else {
         // hack: jquery requires if you request for javascript that javascript
         // is coming back, however rails has a different mantra
+        // Not needed anymore just included for backwards compatibility with jquery_vho
         if (action_link.position) {
           if (parseFloat($.fn.jquery) >= 1.5) {
             event.data_type = 'text';
@@ -45,6 +46,15 @@ $(document).ready(function() {
         if (action_link.loading_indicator) action_link.loading_indicator.css('visibility','visible');
         action_link.disable();
       }
+    }
+    return true;
+  });
+  $('a.as_action').live('ajax:beforeSend', function(event, xhr, settings) {
+    xhr.setRequestHeader('accept', '*/*;q=0.5, ' + settings.accepts.script);
+    var action_link = ActiveScaffold.ActionLink.get($(this));
+    if (action_link && action_link.position) {
+      settings.dataType = 'text';
+      settings.dataTypes = ['text'];
     }
     return true;
   });
@@ -85,11 +95,23 @@ $(document).ready(function() {
       var refresh_data = as_cancel.attr('data-refresh');
       if (refresh_data === 'true' && action_link.refresh_url) {
         event.data_url = action_link.refresh_url;
+        as_cancel.attr('href', action_link.refresh_url);
         if (action_link.position) event.data_type = 'html' 
       } else if (refresh_data === 'false' || typeof(cancel_url) == 'undefined' || cancel_url.length == 0) {
         action_link.close();
         return false;
       }
+    }
+    return true;
+  });
+  $('a.as_cancel').live('ajax:beforeSend', function(event, xhr, settings) {
+    var as_cancel = $(this);
+    var action_link = ActiveScaffold.ActionLink.get($(this));
+    var refresh_data = as_cancel.attr('data-refresh');
+
+    if (action_link && action_link.position && refresh_data === 'true' && action_link.refresh_url) {
+      settings.dataType = 'html';
+      settings.dataTypes = ['html'];
     }
     return true;
   });
@@ -140,8 +162,9 @@ $(document).ready(function() {
     $(this).prevAll('img.loading-indicator').css('visibility','hidden');
     return true;
   });
-  $('input[type=button].as_add_existing').live('ajax:before', function(event) {
+  $('a.as_add_existing').live('ajax:before', function(event) {
     var url = $(this).attr('href').replace('--ID--', $(this).prev().val());
+    $(this).attr('href', url);
     event.data_url = url;
     return true;
   });
