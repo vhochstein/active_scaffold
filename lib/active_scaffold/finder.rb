@@ -275,6 +275,8 @@ module ActiveScaffold
       # Converts count to an integer if ActiveRecord returned an OrderedHash
       # that happens when finder_options contains a :group key
       count = count.length if count.is_a? ActiveSupport::OrderedHash
+
+      full_includes = add_association_to_includes_for_sorting(options[:sorting], full_includes)
       finder_options.merge! :includes => full_includes
 
       # we build the paginator differently for method- and sql-based sorting
@@ -291,6 +293,21 @@ module ActiveScaffold
         end
       end
       pager.page(options[:page])
+    end
+
+    # if someone excludes association from includes in configuration
+    # and sorts by that that column... database will not be happy about it :-)
+    # just a safety check to prevent many many database queries
+    def add_association_to_includes_for_sorting(sorting, full_includes)
+      if sorting && sorting.sorts_by_method?
+        sorting_column = sorting.first.first
+        #wants to sort by assocation which is not included bad performance...
+        if sorting_column.association && !sorting_column.polymorphic_association? &&
+           sorting_column.includes.empty? && !full_includes.include?(sorting_column.association.name)
+           full_includes << sorting_column.association.name
+        end
+      end
+      full_includes
     end
     
     def append_to_query(query, options)
