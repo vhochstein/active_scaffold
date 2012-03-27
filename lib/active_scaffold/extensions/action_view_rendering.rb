@@ -46,6 +46,7 @@ module ActionView #:nodoc:
   # Defining options[:label] lets you completely customize the list title for the embedded scaffold.
   #
     def render_with_active_scaffold(context, options, &block)
+      Rails.logger.info("render_with_active_scaffold: options: #{options.inspect}")
       if options && options[:partial] == :super
         render_as_super_view(context, options, &block)
       elsif options[:active_scaffold]
@@ -109,15 +110,19 @@ module ActionView #:nodoc:
       if context.controller.respond_to?(:render_component_into_view)
         context.controller.send(:render_component_into_view, url_options)
       else
-        content_tag(:div, {:id => id, :class => 'active-scaffold-component'}) do
-          url = url_for(url_options)
-          link_to(remote_controller.to_s, url, {:remote => true, :id => id}) <<
-            if ActiveScaffold.js_framework == :prototype
-            javascript_tag("new Ajax.Updater('#{id}', '#{url}', {method: 'get', evalScripts: true});")
-          elsif ActiveScaffold.js_framework == :jquery
-            javascript_tag("$('##{id}').load('#{url}');")
+        if !context.controller.respond_to?(:uses_active_scaffold?) || context.controller.send(:uses_active_scaffold?) == false
+          # have to add activescaffold view path cause parentcontroller is not activescaffold enabled
+          ActiveScaffold.default_view_paths.each do |path|
+            context.controller.append_view_path(ActionView::ActiveScaffoldResolver.new(path))
           end
         end
+        url_options.delete(:embedded)
+        options[:locals] ||= {}
+        options[:locals].merge!({:url_options => url_options, :id=> id, :remote_controller => remote_controller})
+        options[:partial] = 'embedded_controller'
+        options.delete(:active_scaffold)
+        options.delete(:params)
+        render(context, options)
       end
     end
 
