@@ -149,6 +149,19 @@ module ActiveScaffold
     File.dirname(__FILE__) + "/.."
   end
 
+  def self.default_view_paths
+    default_paths = []
+    ActionController::Base.view_paths.each do |dir|
+        active_scaffold_override_dir = File.join(dir.to_s,"active_scaffold_overrides")
+        default_paths << active_scaffold_override_dir if File.exists?(active_scaffold_override_dir)
+    end
+    default_paths.uniq!
+
+    active_scaffold_default_frontend_path = File.join(ActiveScaffold::Config::Core.plugin_directory, 'frontends', 'default' , 'views')
+    default_paths << active_scaffold_default_frontend_path
+    default_paths
+  end
+
   module ClassMethods
     def active_scaffold(model_id = nil, &block)
       # initialize bridges here
@@ -162,20 +175,9 @@ module ActiveScaffold
       @active_scaffold_config_block = block
       self.links_for_associations
 
-      @active_scaffold_overrides = []
-      ActionController::Base.view_paths.each do |dir|
-        active_scaffold_overrides_dir = File.join(dir.to_s,"active_scaffold_overrides")
-        @active_scaffold_overrides << active_scaffold_overrides_dir if File.exists?(active_scaffold_overrides_dir)
-      end
-      @active_scaffold_overrides.uniq! # Fix rails duplicating some view_paths
-      @active_scaffold_frontends = []
       if active_scaffold_config.frontend.to_sym != :default
-        active_scaffold_custom_frontend_path = File.join(ActiveScaffold::Config::Core.plugin_directory, 'frontends', active_scaffold_config.frontend.to_s , 'views')
-        @active_scaffold_frontends << active_scaffold_custom_frontend_path
+        self.add_active_scaffold_view_path(File.join(ActiveScaffold::Config::Core.plugin_directory, 'frontends', active_scaffold_config.frontend.to_s , 'views'))
       end
-      active_scaffold_default_frontend_path = File.join(ActiveScaffold::Config::Core.plugin_directory, 'frontends', 'default' , 'views')
-      @active_scaffold_frontends << active_scaffold_default_frontend_path
-      @active_scaffold_custom_paths = []
 
       self.active_scaffold_superclasses_blocks.each {|superblock| self.active_scaffold_config.configure &superblock}
       self.active_scaffold_config.sti_children = nil # reset sti_children if set in parent block
@@ -206,7 +208,7 @@ module ActiveScaffold
           end
         end
       end
-      active_scaffold_paths.each do |path|
+      active_scaffold_view_paths.each do |path|
         self.append_view_path(ActionView::ActiveScaffoldResolver.new(path))
       end
       self._add_sti_create_links if self.active_scaffold_config.add_sti_create_links?
@@ -284,22 +286,15 @@ module ActiveScaffold
 
     def add_active_scaffold_path(path)
       @active_scaffold_paths = nil # Force active_scaffold_paths to rebuild
+      @active_scaffold_custom_paths ||= []
       @active_scaffold_custom_paths << path
     end
 
-    def add_active_scaffold_override_path(path)
-      @active_scaffold_paths = nil # Force active_scaffold_paths to rebuild
-      @active_scaffold_overrides.unshift path
-    end
-
-    def active_scaffold_paths
+    def active_scaffold_view_paths
       return @active_scaffold_paths unless @active_scaffold_paths.nil?
 
-      #@active_scaffold_paths = ActionView::PathSet.new
-      @active_scaffold_paths = []
-      @active_scaffold_paths.concat @active_scaffold_overrides unless @active_scaffold_overrides.nil?
+      @active_scaffold_paths = ActiveScaffold.default_view_paths
       @active_scaffold_paths.concat @active_scaffold_custom_paths unless @active_scaffold_custom_paths.nil?
-      @active_scaffold_paths.concat @active_scaffold_frontends unless @active_scaffold_frontends.nil?
       @active_scaffold_paths
     end
 
