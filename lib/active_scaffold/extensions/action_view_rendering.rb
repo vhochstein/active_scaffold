@@ -46,7 +46,6 @@ module ActionView #:nodoc:
   # Defining options[:label] lets you completely customize the list title for the embedded scaffold.
   #
     def render_with_active_scaffold(context, options, &block)
-      Rails.logger.info("render_with_active_scaffold: options: #{options.inspect}")
       if options && options[:partial] == :super
         render_as_super_view(context, options, &block)
       elsif options[:active_scaffold]
