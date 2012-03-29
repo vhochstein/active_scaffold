@@ -271,6 +271,10 @@ $(document).ready(function() {
   $('li.horizontal-sub-form').live('as:form_element_loaded', function(event) {
     $(this).find('a.as_associated_form_link').each(function(index) {
         ActiveScaffold.show($(this));
+        //Show select Box for add_existing as well
+        if($(this).has('as_add_existing')) {
+          ActiveScaffold.show($(this).prev());
+        }
     })
     return true;
   });
