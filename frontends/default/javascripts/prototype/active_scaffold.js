@@ -550,7 +550,8 @@ var ActiveScaffold = {
     if (errors.hasClassName('association-record-errors')) {
       this.replace_html(errors, '');
     }
-    this.remove(record);
+    record.down('input.associated_action').value('delete');
+    this.hide(record);
   },
 
   report_500_response: function(active_scaffold_id) {

@@ -626,7 +626,8 @@ var ActiveScaffold = {
     if (errors.hasClass('association-record-errors')) {
       this.replace_html(errors, '');
     }
-    this.remove(record);
+    record.find('input.associated_action').val('delete');
+    this.hide(record);
   },
 
   report_500_response: function(active_scaffold_id) {
