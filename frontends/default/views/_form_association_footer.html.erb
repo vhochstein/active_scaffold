@@ -28,7 +28,7 @@ add_new_url = url_for(:action => 'edit_associated', :id => parent_record.id, :as
         <%= link_to_record_select as_(:add_existing), remote_controller.controller_path, :onselect => "ActiveScaffold.record_select_onselect(#{edit_associated_url.to_json}, #{active_scaffold_id.to_json}, id);" -%>
       <% else -%>
         <% select_options = options_for_select(options_for_association(column.association))%>
-        <%= select_tag 'associated_id', '<option value="">'.html_safe + as_(:_select_) + '</option>'.html_safe + select_options %>
+        <%= select_tag 'associated_id', '<option value="">'.html_safe + as_(:_select_) + '</option>'.html_safe + select_options, :id => nil, :style => "display: none;" %>
         <%= link_to as_(:add_existing), edit_associated_url, :remote => true, :class => 'as_associated_form_link as_add_existing', :style => "display: none;" %>
       <% end -%>
     <% end -%>

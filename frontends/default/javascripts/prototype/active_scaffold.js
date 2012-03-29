@@ -328,6 +328,10 @@ document.observe("dom:loaded", function() {
   document.on('as:form_element_loaded', 'li.horizontal-sub-form', function(event, element) {
       element.select('a.as_associated_form_link').each(function(element) {
         ActiveScaffold.show(element);
+        //Show select Box for add_existing as well
+        if(element.hasClassName('as_add_existing')) {
+          ActiveScaffold.show(element.previous());
+        }
       });
       return true;
   });
