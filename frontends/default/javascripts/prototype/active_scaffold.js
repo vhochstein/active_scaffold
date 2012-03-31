@@ -352,6 +352,7 @@ document.observe("dom:loaded", function() {
     return true;
   });
   ActiveScaffold.trigger_load_events($$('[data-as_load]'));
+  ActiveScaffold.load_embedded_conrollers();
 });
 
 
@@ -714,6 +715,13 @@ var ActiveScaffold = {
        element.fire('as:form_element_unloaded');
        break;
       }
+    });
+  },
+
+  load_embedded_conrollers: function(){
+    $$('a.as_link_to_component').each(function(element) {
+      var div_element = element.up('div.active-scaffold-component');
+      new Ajax.Updater(div_element, element.readAttribute('href').append_params({embedded: true}), {method: 'get', evalScripts: true});
     });
   }
 

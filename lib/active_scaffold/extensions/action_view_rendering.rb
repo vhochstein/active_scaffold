@@ -67,17 +67,13 @@ module ActionView::Rendering #:nodoc:
       id = "as_#{eid}-content"
       url_options = {:controller => remote_controller.to_s, :action => 'index'}.merge(options[:params])
       
-      if controller.respond_to?(:render_component_into_view)
+      unless controller.respond_to?(:render_component_into_view)
         controller.send(:render_component_into_view, url_options)
       else
-        content_tag(:div, {:id => id}) do
+        url_options.delete(:embedded)
+        content_tag(:div, {:id => id, :class => 'active-scaffold-component'}) do
           url = url_for(url_options)
-          link_to(remote_controller.to_s, url, {:remote => true, :id => id}) <<
-            if ActiveScaffold.js_framework == :prototype
-            javascript_tag("new Ajax.Updater('#{id}', '#{url}', {method: 'get', evalScripts: true});")
-          elsif ActiveScaffold.js_framework == :jquery
-            javascript_tag("$('##{id}').load('#{url}');")
-          end
+          link_to(remote_controller.to_s, url, {:remote => true, :class => 'as_link_to_component'})
         end
       end
       

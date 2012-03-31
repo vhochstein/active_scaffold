@@ -302,6 +302,7 @@ $(document).ready(function() {
     return true;
   });
   ActiveScaffold.trigger_load_events($('[data-as_load]'));
+  ActiveScaffold.load_embedded_conrollers();
   
 });
 
@@ -882,6 +883,13 @@ var ActiveScaffold = {
        $(this).trigger('as:form_element_unloaded');
        break;
       }
+    });
+  },
+
+  load_embedded_conrollers: function(){
+    $.each($('a.as_link_to_component'), function(index) {
+      var div_element = $(this).closest('div.active-scaffold-component');
+      div_element.load($(this).attr('href').append_params({embedded: true}));
     });
   }
 }
