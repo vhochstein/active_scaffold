@@ -87,13 +87,30 @@ module ActiveScaffold
     end
     
     def manage_nested_record_from_params(parent_record, column, attributes)
-      record = find_or_create_for_params(attributes, column, parent_record)
+      record = nested_record_for_action(parent_record, column, attributes)
       if record
         record_columns = active_scaffold_config_for(column.association.klass).subform.columns
         update_record_from_params(record, record_columns, attributes)
         record.unsaved = true
       end
       record
+    end
+
+    def nested_record_for_action(parent_record, column, attributes)
+      associated_action = attributes.delete(:associated_action)
+
+      case associated_action.to_sym
+      when :create then create_nested_record(column, parent_record)
+      when :update then find_nested_record(attributes[:id], column, parent_record)
+      when :empty then nil
+      when :delete then nil
+      when :create_or_empty then
+        if column.show_blank_record && attributes_hash_is_empty?(attributes, column.association.klass)
+          nil
+        else
+          create_nested_record(column, parent_record)
+        end
+      end
     end
     
     def column_value_from_param_value(parent_record, column, value)
@@ -149,36 +166,35 @@ module ActiveScaffold
       end
     end
 
-    # Attempts to create or find an instance of klass (which must be an ActiveRecord object) from the
-    # request parameters given. If params[:id] exists it will attempt to find an existing object
-    # otherwise it will build a new one.
-    def find_or_create_for_params(params, parent_column, parent_record)
-      current = parent_record.send(parent_column.name)
+    def create_nested_record(parent_column, parent_record)
       klass = parent_column.association.klass
-      associated_action = params.delete(:associated_action)
+      
+      if klass.authorized_for?(:crud_type => :create)
+        if parent_column.singular_association?
+          return parent_record.send("build_#{parent_column.name}")
+        else
+          return parent_record.send(parent_column.name).build
+        end
+      end
+    end
 
-      return nil if parent_column.show_blank_record && attributes_hash_is_empty?(params, klass)
-      return nil if associated_action.to_sym == :delete
-
-      if params.has_key? :id
+    def find_nested_record(id, parent_column, parent_record)
+      klass = parent_column.association.klass
+      if id
+        current = parent_record.send(parent_column.name)
+        Rails.logger.info("find_nested_record: id: #{id}, curent: #{current.inspect}")
         # modifying the current object of a singular association
-        if current and current.is_a? ActiveRecord::Base and current.id.to_s == params[:id]
+        if current && current.is_a?(ActiveRecord::Base) && current.id.to_s == id
           return current
         # modifying one of the current objects in a plural association
-        elsif current and current.respond_to?(:any?) and current.any? {|o| o.id.to_s == params[:id]}
-          return current.detect {|o| o.id.to_s == params[:id]}
+        elsif current && current.respond_to?(:any?) && current.any? {|o| o.id.to_s == id}
+          return current.detect {|o| o.id.to_s == id}
         # attaching an existing but not-current object
         else
-          return klass.find(params[:id])
+          return klass.find(id)
         end
       else
-        if klass.authorized_for?(:crud_type => :create)
-          if parent_column.singular_association?
-            return parent_record.send("build_#{parent_column.name}")
-          else
-            return parent_record.send(parent_column.name).build
-          end
-        end
+        Rails.logger.info("Activescaffold find_nested_record missing id")
       end
     end
 
