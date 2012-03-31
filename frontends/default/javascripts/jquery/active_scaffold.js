@@ -1,4 +1,17 @@
 $(document).ready(function() {
+  $('form.as_form').live('ajax:before', function(event) {
+    var as_form = $(this).closest("form");
+    $(this).find('.association-record-new').each(function(index) {
+        var record_action = 'empty';
+
+        if(ActiveScaffold.form_elements_changed($(this).find('input, textarea, select'))) {
+          record_action = 'create';
+        }
+        $(this).find('input.associated_action').val(record_action);
+    });
+    return true;
+  });
+  
   $('form.as_form').live('ajax:loading', function(event) {
     var as_form = $(this).closest("form");
     if (as_form && as_form.attr('data-loading') == 'true') {
@@ -268,6 +281,18 @@ $(document).ready(function() {
   $('li.horizontal-sub-form').live('as:form_element_loaded', function(event) {
     $(this).find('a.as_associated_form_link').each(function(index) {
         ActiveScaffold.show($(this));
+        //Show select Box for add_existing as well
+        if($(this).has('as_add_existing')) {
+          ActiveScaffold.show($(this).prev());
+        }
+    })
+    return true;
+  });
+  $('li.sub-form').live('as:form_element_loaded', function(event) {
+    $(this).find('.association-record-new').each(function(index) {
+        $(this).find('input, textarea, select').each(function(index) {
+          $(this).data('value_was', $(this).val());
+        })
     })
     return true;
   });
@@ -623,7 +648,8 @@ var ActiveScaffold = {
     if (errors.hasClass('association-record-errors')) {
       this.replace_html(errors, '');
     }
-    this.remove(record);
+    record.find('input.associated_action').val('delete');
+    this.hide(record);
   },
 
   report_500_response: function(active_scaffold_id) {
@@ -891,6 +917,20 @@ var ActiveScaffold = {
       var div_element = $(this).closest('div.active-scaffold-component');
       div_element.load($(this).attr('href').append_params({embedded: true}));
     });
+  },
+
+  form_elements_changed: function(form_elements){
+    var form_elements_count = form_elements.length;
+    var i = 0;
+    var changed = false;
+
+    while(changed === false && i < form_elements_count) {
+      if($(form_elements[i]).val() != $(form_elements[i]).data('value_was')) {
+        changed = true;
+      }
+      i++;
+    }
+    return changed;
   }
 }
 

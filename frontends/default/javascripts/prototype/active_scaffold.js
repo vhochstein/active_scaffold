@@ -328,6 +328,10 @@ document.observe("dom:loaded", function() {
   document.on('as:form_element_loaded', 'li.horizontal-sub-form', function(event, element) {
       element.select('a.as_associated_form_link').each(function(element) {
         ActiveScaffold.show(element);
+        //Show select Box for add_existing as well
+        if(element.hasClassName('as_add_existing')) {
+          ActiveScaffold.show(element.previous());
+        }
       });
       return true;
   });
@@ -547,7 +551,8 @@ var ActiveScaffold = {
     if (errors.hasClassName('association-record-errors')) {
       this.replace_html(errors, '');
     }
-    this.remove(record);
+    record.down('input.associated_action').value('delete');
+    this.hide(record);
   },
 
   report_500_response: function(active_scaffold_id) {
