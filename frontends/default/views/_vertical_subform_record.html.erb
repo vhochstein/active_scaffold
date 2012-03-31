@@ -6,7 +6,7 @@
   config = active_scaffold_config_for(@record.class)
   options = active_scaffold_input_options(config.columns[@record.class.primary_key], scope)
   tr_id = "association-#{options[:id]}"
-  associated_action = :update
+  associated_action = @record.new_record? ? :create_or_empty : :update
 -%>
 <ol id="<%= tr_id %>" class="association-record <%= 'association-record-new' if @record.new_record? -%> <%= 'locked' if locked -%>">
 <% config.subform.columns.each :for => @record, :crud_type => crud_type, :flatten => true do |column| %>
@@ -35,7 +35,6 @@
 <% end -%>
   <li>
     <% unless @record.new_record? %>
-      <% associated_action = :create %>
     <input type="hidden" name="<%= options[:name] -%>" id="<%= options[:id] -%>" value="<%= @record.id -%>" />
     <% end -%>
     <input type="hidden" name="<%= scope ? "record#{scope}[associated_action]" : "record[associated_action]" -%>" class="associated_action" value="<%= associated_action -%>" />
