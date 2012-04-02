@@ -182,7 +182,6 @@ module ActiveScaffold
       klass = parent_column.association.klass
       if id
         current = parent_record.send(parent_column.name)
-        Rails.logger.info("find_nested_record: id: #{id}, curent: #{current.inspect}")
         # modifying the current object of a singular association
         if current && current.is_a?(ActiveRecord::Base) && current.id.to_s == id
           return current
