@@ -286,9 +286,10 @@ module ActiveScaffold
       end
 
       def column_empty?(column_value)
+        @empty_column_strings ||= ['&nbsp;', active_scaffold_config.list.empty_field_text]
         empty = column_value.nil?
         empty ||= column_value.empty? if column_value.respond_to? :empty?
-        empty ||= ['&nbsp;', active_scaffold_config.list.empty_field_text].include? column_value if String === column_value
+        empty ||= @empty_column_strings.include?(column_value) if String === column_value
         return empty
       end
 
