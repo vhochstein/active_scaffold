@@ -256,6 +256,7 @@ module ActiveScaffold
       end
 
       def column_class(column, column_value, record)
+        @numeric_classes ||= [:decimal, :float, :integer]
         classes = []
         classes << "#{column.name}-column"
         if column.css_class.is_a?(Proc)
@@ -267,7 +268,7 @@ module ActiveScaffold
          
         classes << 'empty' if column_empty? column_value
         classes << 'sorted' if active_scaffold_config.list.user.sorting.sorts_on?(column)
-        classes << 'numeric' if column.column and [:decimal, :float, :integer].include?(column.column.type)
+        classes << 'numeric' if column.column && @numeric_classes.include?(column.column.type)
         classes.join(' ').rstrip
       end
       
