@@ -38,7 +38,8 @@ module ActionView::Rendering #:nodoc:
   # Defining options[:label] lets you completely customize the list title for the embedded scaffold.
   #
   def render_with_active_scaffold(*args, &block)
-    if args.first == :super
+    options = args.first
+    if options == :super
       last_view = @view_stack.last
       options = args[1] || {}
       options[:locals] ||= {}
@@ -52,15 +53,14 @@ module ActionView::Rendering #:nodoc:
       result = render_without_active_scaffold options
       @view_stack.pop
       result
-    elsif args.first.is_a?(Hash) and args.first[:active_scaffold]
+    elsif options.is_a?(Hash) && options[:active_scaffold]
       require 'digest/md5'
-      options = args.first
 
       remote_controller = options[:active_scaffold]
       constraints = options[:constraints]
       conditions = options[:conditions]
       eid = Digest::MD5.hexdigest(params[:controller] + remote_controller.to_s + constraints.to_s + conditions.to_s)
-      session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => args.first[:label]}}
+      session["as:#{eid}"] = {:constraints => constraints, :conditions => conditions, :list => {:label => options[:label]}}
       options[:params] ||= {}
       options[:params].merge! :eid => eid, :embedded => true
       
@@ -78,7 +78,6 @@ module ActionView::Rendering #:nodoc:
       end
       
     else
-      options = args.first
       if options.is_a?(Hash)
         current_view = {:view => options[:partial], :is_template => false} if options[:partial]
         current_view = {:view => options[:template], :is_template => !!options[:template]} if current_view.nil? && options[:template]
