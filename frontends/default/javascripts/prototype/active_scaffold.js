@@ -336,12 +336,19 @@ document.observe("dom:loaded", function() {
       return true;
   });
   document.on('as:list_row_loaded', 'tr.inline-adapter-autoopen', function(event, element) {
-    var actionlink_id = element.readAttribute('data-actionlinkid');
-    if(actionlink_id) {
-      var action_link = ActiveScaffold.ActionLink.get(actionlink_id);
-      if (action_link) {
-        action_link.set_opened();
-      }
+    var actionlink_controllers = event.element().readAttribute('data-actionlink-controllers');
+    if(actionlink_controllers) {
+      actionlink_controllers = actionlink_controllers.split('::');
+      element.previous('tr').select('a.index').each(function(action_link) {
+        for (var i = 0; i < actionlink_controllers.length; i++) {
+          if (actionlink_controllers[i] === action_link.readAttribute('data-controller')) {
+            var as_action_link = ActiveScaffold.ActionLink.get(action_link);
+            if (as_action_link) {
+              as_action_link.set_opened();  
+            }
+          }
+        }
+      });
     }
     return true;
   });
