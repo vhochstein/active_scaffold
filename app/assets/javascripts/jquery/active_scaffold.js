@@ -309,12 +309,20 @@ $(document).ready(function() {
     return true;
   });
   $('tr.inline-adapter-autoopen').live('as:list_row_loaded', function(event) {
-    var actionlink_id = $(event.target).attr('data-actionlinkid');
-    if(actionlink_id) {
-      var action_link = ActiveScaffold.ActionLink.get(actionlink_id);
-      if (action_link) {
-        action_link.set_opened();
-      }
+    var actionlink_controllers = $(event.target).attr('data-actionlink-controllers');
+    if(actionlink_controllers) {
+      actionlink_controllers = actionlink_controllers.split('::');
+      $(this).prev('tr').find('a.index').each(function(index) {
+        var action_link = $(this);
+        for (var i = 0; i < actionlink_controllers.length; i++) {
+          if (actionlink_controllers[i] === action_link.attr('data-controller')) {
+            var as_action_link = ActiveScaffold.ActionLink.get(action_link);
+            if (as_action_link) {
+              as_action_link.set_opened();
+            }
+          }
+        }
+      });
     }
     return true;
   });

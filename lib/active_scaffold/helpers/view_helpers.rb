@@ -166,7 +166,6 @@ module ActiveScaffold
       end
       
       def action_link_html_options(link, url_options, record, html_options)
-        link_id = get_action_link_id(url_options, record, link.column)
         html_options.reverse_merge! link.html_options.merge(:class => link.action)
 
         # Needs to be in html_options to as the adding _method to the url is no longer supported by Rails        
@@ -181,14 +180,7 @@ module ActiveScaffold
           html_options['data-popup'] = true
           html_options[:target] = '_blank'
         end
-        html_options[:id] = link_id
         html_options[:remote] = true unless link.page? || link.popup?
-        if link.dhtml_confirm?
-          html_options[:class] += ' as_action' if !link.inline?
-          html_options[:page_link] = 'true' if !link.inline?
-          html_options[:dhtml_confirm] = link.dhtml_confirm.value
-          html_options[:onclick] = link.dhtml_confirm.onclick_function(controller, link_id)
-        end
         html_options[:class] += " #{link.html_options[:class]}" unless link.html_options[:class].blank?
         html_options
       end
@@ -256,6 +248,7 @@ module ActiveScaffold
       end
 
       def column_class(column, column_value, record)
+        @numeric_classes ||= [:decimal, :float, :integer]
         classes = []
         classes << "#{column.name}-column"
         if column.css_class.is_a?(Proc)
@@ -267,7 +260,7 @@ module ActiveScaffold
          
         classes << 'empty' if column_empty? column_value
         classes << 'sorted' if active_scaffold_config.list.user.sorting.sorts_on?(column)
-        classes << 'numeric' if column.column and [:decimal, :float, :integer].include?(column.column.type)
+        classes << 'numeric' if column.column && @numeric_classes.include?(column.column.type)
         classes.join(' ').rstrip
       end
       
@@ -286,9 +279,10 @@ module ActiveScaffold
       end
 
       def column_empty?(column_value)
+        @empty_column_strings ||= ['&nbsp;', active_scaffold_config.list.empty_field_text]
         empty = column_value.nil?
         empty ||= column_value.empty? if column_value.respond_to? :empty?
-        empty ||= ['&nbsp;', active_scaffold_config.list.empty_field_text].include? column_value if String === column_value
+        empty ||= @empty_column_strings.include?(column_value) if String === column_value
         return empty
       end
 
