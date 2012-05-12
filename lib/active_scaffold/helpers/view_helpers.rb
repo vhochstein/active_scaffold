@@ -166,7 +166,6 @@ module ActiveScaffold
       end
       
       def action_link_html_options(link, url_options, record, html_options)
-        link_id = get_action_link_id(url_options, record, link.column)
         html_options.reverse_merge! link.html_options.merge(:class => link.action)
 
         # Needs to be in html_options to as the adding _method to the url is no longer supported by Rails        
@@ -181,7 +180,6 @@ module ActiveScaffold
           html_options['data-popup'] = true
           html_options[:target] = '_blank'
         end
-        html_options[:id] = link_id
         html_options[:remote] = true unless link.page? || link.popup?
         html_options[:class] += " #{link.html_options[:class]}" unless link.html_options[:class].blank?
         html_options
