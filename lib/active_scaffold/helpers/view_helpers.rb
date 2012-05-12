@@ -177,12 +177,6 @@ module ActiveScaffold
         end
         html_options[:id] = link_id
         html_options[:remote] = true unless link.page? || link.popup?
-        if link.dhtml_confirm?
-          html_options[:class] += ' as_action' if !link.inline?
-          html_options[:page_link] = 'true' if !link.inline?
-          html_options[:dhtml_confirm] = link.dhtml_confirm.value
-          html_options[:onclick] = link.dhtml_confirm.onclick_function(controller, link_id)
-        end
         html_options[:class] += " #{link.html_options[:class]}" unless link.html_options[:class].blank?
         html_options
       end
