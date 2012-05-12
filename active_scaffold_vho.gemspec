@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_scaffold_vho}
-  s.version = "3.1.3"
+  s.version = "3.1.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Many, see README"]
-  s.date = %q{2012-02-11}
+  s.date = %q{2012-05-12}
   s.description = %q{Save time and headaches, and create a more easily maintainable set of pages, with ActiveScaffold. ActiveScaffold handles all your CRUD (create, read, update, delete) user interface needs, leaving you more time to focus on more challenging (and interesting!) problems.}
   s.email = %q{activescaffold@googlegroups.com}
   s.extra_rdoc_files = [
@@ -48,12 +48,14 @@ Gem::Specification.new do |s|
     "app/assets/javascripts/prototype/rico_corner.js",
     "app/assets/stylesheets/active_scaffold-ie.css",
     "app/assets/stylesheets/active_scaffold.css.erb",
+    "app/assets/stylesheets/active_scaffold_core.css.erb",
     "app/assets/stylesheets/jquery-ui-timepicker-addon.css",
     "frontends/default/views/_action_group.html.erb",
     "frontends/default/views/_add_existing_form.html.erb",
     "frontends/default/views/_base_form.html.erb",
     "frontends/default/views/_create_form.html.erb",
     "frontends/default/views/_create_form_on_list.html.erb",
+    "frontends/default/views/_embedded_controller.html.erb",
     "frontends/default/views/_field_search.html.erb",
     "frontends/default/views/_form.html.erb",
     "frontends/default/views/_form_association.html.erb",
