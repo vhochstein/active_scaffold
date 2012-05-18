@@ -64,6 +64,7 @@ module ActiveRecordPermissions
     def self.included(base)
       base.extend SecurityMethods
       base.send :include, SecurityMethods
+      base.class_attribute :auth_column_read_methods
     end
 
     # Because any class-level queries get delegated to the instance level via a new record,
@@ -99,6 +100,30 @@ module ActiveRecordPermissions
           column_security_method(options[:column]),
           crud_type_security_method(options[:crud_type]),
         ].compact.select {|m| respond_to?(m)}
+
+        # if any method returns false, then return false
+        return false if methods.any? {|m| !send(m)}
+
+        # if any method actually exists then it must've returned true, so return true
+        return true unless methods.empty?
+
+        # if no method exists, return the default permission
+        return ActiveRecordPermissions.default_permission
+      end
+
+      def authorized_for_read_column?(column)
+        self.class.auth_column_read_methods ||= {}
+        methods = self.class.auth_column_read_methods[column]
+        if methods.nil?
+          method = column_and_crud_type_security_method(column, :read)
+          methods = if method && respond_to?(method)
+            [method]
+          else
+            [column_security_method(column),
+            crud_type_security_method(:read)].compact.select {|m| respond_to?(m)}
+          end
+          self.class.auth_column_read_methods[column] = methods
+        end
 
         # if any method returns false, then return false
         return false if methods.any? {|m| !send(m)}

@@ -1,5 +1,5 @@
 <% columns.each do |column| %>
-  <% authorized = record.authorized_for?(:crud_type => :read, :column => column.name) -%>
+  <% authorized = record.authorized_for_read_column?(column.name) -%>
   <% column_value = authorized ? get_column_value(record, column) : active_scaffold_config.list.empty_field_text -%>
 
   <td class="<%= column_class(column, column_value, record) %>" >
