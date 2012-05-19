@@ -136,6 +136,16 @@ module ActiveScaffold
         check_box(:record, column.name, options)
       end
 
+      # list_column override specific to this controller column combination
+      def column_controller_override(column)
+        "#{clean_class_name(column.active_record_class.name)}_#{clean_column_name(column.name)}_column"
+      end
+
+      def column_controller_override?(column)
+        respond_to?(column_controller_override(column))
+      end
+
+      # list_column overide for a specific column in all controllers
       def column_override(column)
         "#{column.name.to_s.gsub('?', '')}_column" # parse out any question marks (see issue 227)
       end
@@ -362,6 +372,52 @@ module ActiveScaffold
           end
         end
         content_tag(:tr, content_tag(:td, rendered.join(' ').html_safe), :class => "inline-adapter-autoopen", 'data-actionlink-controllers' => link_nested_controllers.join('::').html_safe, 'data-as_load'=>"tr");
+      end
+
+      def generate_list_column_helper_code(column)
+        method_name = column_controller_override(column)
+        if column_override? column
+          "def #{method_name}(column, record)\n  #{column_override(column)}(column, record)\nend"
+        elsif column.list_ui and override_column_ui?(column.list_ui)
+          "def #{method_name}(column, record)\n  #{override_column_ui(column.list_ui)}(column, record)\nend"
+        elsif column.column and override_column_ui?(column.column.type)
+          "def #{method_name}(column, record)\n  #{override_column_ui(column.column.type)}(column, record)\nend"
+        #associations and virtual columns will use default list_column helper methods..
+        elsif column.association || column.column.nil?
+          "def #{method_name}(record, column)\n get_column_value(column, record)\nend"
+        else
+          "def #{method_name}(column, record)\n value ||= record.send(column.name)\n value.nil? ? h(active_scaffold_config.list.empty_field_text) : h(#{list_column_helper_code_by_column_type(column)})\nend"
+        end
+      end
+
+      def list_column_helper_code_by_column_type(column)
+        case column.column.type
+        when :integer
+          "#{numeric_to_string_method_code(column.options[:format], true)}"
+        when :float, :decimal
+          "#{numeric_to_string_method_code(column.options[:format], false)}"
+        when :boolean
+          "as_(value.to_s.to_sym)"
+        when :datetime, :timestamp, :time, :date
+          "l(value, :format => :#{column.options[:format] || :default})"
+        else
+          "value.to_s"
+        end
+      end
+
+      def numeric_to_string_method_code(format, is_integer)
+        case format
+        when :size
+          "number_to_human_size(value, column.options[:i18n_options] || {})"
+        when :percentage
+          "number_to_percentage(value, column.options[:i18n_options] || {})"
+        when :currency
+          "number_to_currency(value, options[:i18n_options] || {})"
+        when :i18n_number
+          "number_with_#{is_integer ? 'delimiter' : 'precision'}(value, column.options[:i18n_options] || {})"
+        else
+          "value"
+        end
       end
     end
   end

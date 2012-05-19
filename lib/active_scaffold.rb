@@ -212,6 +212,16 @@ module ActiveScaffold
         self.append_view_path(ActionView::ActiveScaffoldResolver.new(path))
       end
       self._add_sti_create_links if self.active_scaffold_config.add_sti_create_links?
+      #self.create_list_column_helpers
+    end
+
+    def create_list_column_helpers
+      active_scaffold_config.list.columns.each do |column|
+         method_code = self.helpers.generate_list_column_helper_code(column)
+         helper do
+           eval(method_code)
+         end unless self.helpers.column_controller_override?(column)
+      end
     end
 
     # To be called after include action modules
