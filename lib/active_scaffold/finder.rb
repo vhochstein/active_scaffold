@@ -256,6 +256,7 @@ module ActiveScaffold
       full_includes = (active_scaffold_includes.blank? ? nil : active_scaffold_includes)
       options[:per_page] ||= 999999999
       options[:page] ||= 1
+      #TODO not supported by kaminary
       options[:count_includes] ||= full_includes unless search_conditions.nil?
 
       klass = beginning_of_chain
@@ -264,35 +265,18 @@ module ActiveScaffold
       finder_options = { :order => options[:sorting].try(:clause),
                          :where => search_conditions,
                          :joins => joins_for_finder,
-                         :includes => options[:count_includes]}
+                         :includes => add_association_to_includes_for_sorting(options[:sorting], full_includes)}
                          
       finder_options.merge! custom_finder_options
-
-      # NOTE: we must use :include in the count query, because some conditions may reference other tables
-      count_query = append_to_query(klass, finder_options.reject{|k, v| [:select, :order].include?(k)})
-      count = count_query.count unless options[:pagination] == :infinite
-  
-      # Converts count to an integer if ActiveRecord returned an OrderedHash
-      # that happens when finder_options contains a :group key
-      count = count.length if count.is_a? ActiveSupport::OrderedHash
-
-      full_includes = add_association_to_includes_for_sorting(options[:sorting], full_includes)
-      finder_options.merge! :includes => full_includes
-
+ 
       # we build the paginator differently for method- and sql-based sorting
-      if options[:sorting] and options[:sorting].sorts_by_method?
-        pager = ::Paginator.new(count, options[:per_page]) do |offset, per_page|
-          sorted_collection = sort_collection_by_column(append_to_query(klass, finder_options).all, *options[:sorting].first)
-          sorted_collection = sorted_collection.slice(offset, per_page) if options[:pagination]
-          sorted_collection
-        end
+      records = if options[:sorting] && options[:sorting].sorts_by_method?
+        Kaminari.paginate_array(sort_collection_by_column(append_to_query(klass, finder_options).all, *options[:sorting].first))
       else
-        pager = ::Paginator.new(count, options[:per_page]) do |offset, per_page|
-          finder_options.merge!(:offset => offset, :limit => per_page) if options[:pagination]
-          append_to_query(klass, finder_options).all
-        end
+        append_to_query(klass, finder_options)
       end
-      pager.page(options[:page])
+      records = records.page(options[:page]).per(options[:per_page]) if options[:pagination]
+      records
     end
 
     # if someone excludes association from includes in configuration

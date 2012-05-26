@@ -1,11 +1,8 @@
 <% if active_scaffold_config.list.pagination -%>
 <div class="active-scaffold-footer">
-<% unless @page.pager.infinite? -%>
-  <div class="active-scaffold-found"><span class="active-scaffold-records"><%= @page.pager.count -%></span> <%=as_(:found, :count => @page.pager.count) %></div>
+<% unless active_scaffold_config.list.pagination == :infinite -%>
+  <div class="active-scaffold-found"><span class="active-scaffold-records"><%= @records.total_count -%></span> <%=as_(:found, :count => @records.total_count) %></div>
 <% end -%>
-  <div class="active-scaffold-pagination">
-    <%= render :partial => 'list_pagination_links', :locals => { :current_page => @page } if @page.pager.infinite? || @page.pager.number_of_pages > 1 %>
-  </div>
-  <br clear="both" /><%# a hack for the Rico Corner problem %>
+  <%= paginate @records, :window => active_scaffold_config.list.page_links_window, :params => params_for(:action => :index), :remote => true %>
 </div>
 <% end -%>

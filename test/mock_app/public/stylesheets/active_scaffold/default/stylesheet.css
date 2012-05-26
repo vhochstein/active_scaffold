@@ -377,7 +377,7 @@ background-color: #005CB8;
 color: #ccc;
 }
 
-.active-scaffold-footer .active-scaffold-pagination {
+.active-scaffold-footer .pagination {
 float: right;
 white-space: nowrap;
 margin-right: 5px;
