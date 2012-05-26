@@ -3,6 +3,7 @@ module ActiveScaffold::Actions
     def self.included(base)
       base.before_filter :list_authorized_filter, :only => [:index, :row]
       base.helper_method :list_columns
+      base.helper_method :save_current_page_num
     end
 
     def index
@@ -73,12 +74,8 @@ module ActiveScaffold::Actions
           })
       end
 
-      page = find_page(options);
-      if page.items.blank? && !page.pager.infinite?
-        page = page.pager.last
-        active_scaffold_config.list.user.page = page.number
-      end
-      @page, @records = page, page.items
+      @records = find_page(options);
+      @records
     end
 
     def each_record_in_page
@@ -172,6 +169,12 @@ module ActiveScaffold::Actions
 
     def action_confirmation_formats
       (default_formats + active_scaffold_config.formats).uniq
+    end
+
+    def save_current_page_num
+      if !(active_scaffold_config.list.pagination == :infinite)
+        active_scaffold_config.list.user.page = @records.current_page
+      end
     end
 
     private

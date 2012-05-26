@@ -243,7 +243,7 @@ module ActiveScaffold
       return record
     end
 
-    # returns a Paginator::Page (not from ActiveRecord::Paginator) for the given parameters
+    # returns a records relation for the current page
     # options may include:
     # * :sorting - a Sorting DataStructure (basically an array of hashes of field => direction, e.g. [{:field1 => 'asc'}, {:field2 => 'desc'}]). please note that multi-column sorting has some limitations: if any column in a multi-field sort uses method-based sorting, it will be ignored. method sorting only works for single-column sorting.
     # * :per_page
@@ -256,6 +256,7 @@ module ActiveScaffold
       full_includes = (active_scaffold_includes.blank? ? nil : active_scaffold_includes)
       options[:per_page] ||= 999999999
       options[:page] ||= 1
+       #TODO not supported by kaminari
       options[:count_includes] ||= full_includes unless search_conditions.nil?
 
       klass = beginning_of_chain
@@ -264,37 +265,19 @@ module ActiveScaffold
       finder_options = { :order => options[:sorting].try(:clause),
                          :where => search_conditions,
                          :joins => joins_for_finder,
-                         :includes => options[:count_includes]}
+                         :includes => add_association_to_includes_for_sorting(options[:sorting], full_includes)}
 
 
       finder_options.merge! custom_finder_options
 
-      # NOTE: we must use :include in the count query, because some conditions may reference other tables
-      count_query = append_to_query(klass, finder_options.reject{|k, v| [:select, :order].include?(k)})
-      count = count_query.count unless options[:pagination] == :infinite
-  
-      # Converts count to an integer if ActiveRecord returned an OrderedHash
-      # that happens when finder_options contains a :group key
-      count = count.length if count.is_a? ActiveSupport::OrderedHash
-
-      full_includes = add_association_to_includes_for_sorting(options[:sorting], full_includes)
-
-      finder_options.merge! :includes => full_includes
-
       # we build the paginator differently for method- and sql-based sorting
-      if options[:sorting] and options[:sorting].sorts_by_method?
-        pager = ::Paginator.new(count, options[:per_page]) do |offset, per_page|
-          sorted_collection = sort_collection_by_column(append_to_query(klass, finder_options).all, *options[:sorting].first)
-          sorted_collection = sorted_collection.slice(offset, per_page) if options[:pagination]
-          sorted_collection
-        end
+      records = if options[:sorting] && options[:sorting].sorts_by_method?
+        Kaminari.paginate_array(sort_collection_by_column(append_to_query(klass, finder_options).all, *options[:sorting].first))
       else
-        pager = ::Paginator.new(count, options[:per_page]) do |offset, per_page|
-          finder_options.merge!(:offset => offset, :limit => per_page) if options[:pagination]
-          append_to_query(klass, finder_options).all
-        end
+        append_to_query(klass, finder_options)
       end
-      pager.page(options[:page])
+      records = records.page(options[:page]).per(options[:per_page]) if options[:pagination]
+      records
     end
 
     # if someone excludes association from includes in configuration
@@ -349,7 +332,6 @@ module ActiveScaffold
 
     # TODO: this should reside on the column, not the controller
     def sort_collection_by_column(collection, column, order)
-      Rails.logger.info("das hier ja was bin im sort_collection")
       sorter = column.sort[:method]
       collection = collection.sort_by { |record|
         value = (sorter.is_a? Proc) ? record.instance_eval(&sorter) : record.instance_eval(sorter)

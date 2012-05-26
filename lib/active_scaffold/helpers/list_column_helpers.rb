@@ -314,11 +314,11 @@ module ActiveScaffold
       def mark_column_heading
         if active_scaffold_config.mark.mark_all_mode == :page then
           all_marked = true
-          @page.items.each do |record|
+          @records.each do |record|
             all_marked = false if !marked_records.entries.include?(record.id)
           end
         else
-          all_marked = (marked_records.length >= @page.pager.count)
+          all_marked = (marked_records.length >= @records.total_count)
         end
         tag_options = {:id => "#{controller_id}_mark_heading", :class => "mark_heading in_place_editor_field"}
         tag_options['data-ie_url'] = url_for({:controller => params_for[:controller], :action => 'mark_all', :eid => params[:eid]})
