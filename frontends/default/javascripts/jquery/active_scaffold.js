@@ -159,19 +159,27 @@ $(document).ready(function() {
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
   });
-  $('a.as_paginate').live('ajax:before',function(event) {
+  $('nav.pagination a').live('ajax:before',function(event) {
     var as_paginate = $(this);
+    var loading_indicator = as_paginate.closest('nav.pagination').find('img.loading-indicator').first();
     var history_controller_id = as_paginate.attr('data-page-history');
     if (history_controller_id) addActiveScaffoldPageToHistory(as_paginate.attr('href'), history_controller_id);
-    as_paginate.prevAll('img.loading-indicator').css('visibility','visible');
+
+    if (loading_indicator == null || loading_indicator.length == 0) {
+      var table_loading_indicator = as_paginate.closest('div.active-scaffold').find('div.actions img.loading-indicator').first();
+      loading_indicator = table_loading_indicator.clone();
+      loading_indicator.attr('id', null);
+      as_paginate.closest('nav.pagination').prepend(loading_indicator);
+    }
+    loading_indicator.css('visibility','visible');
     return true;
   });
-  $('a.as_paginate').live('ajax:failure', function(event) {
+  $('nav.pagination a').live('ajax:failure', function(event) {
     var as_scaffold = $(this).closest('.active-scaffold');
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
   });
-  $('a.as_paginate').live('ajax:complete', function(event) {
+  $('nav.pagination a').live('ajax:complete', function(event) {
     $(this).prevAll('img.loading-indicator').css('visibility','hidden');
     return true;
   });
