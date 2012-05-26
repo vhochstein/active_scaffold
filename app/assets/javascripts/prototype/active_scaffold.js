@@ -209,21 +209,27 @@ document.observe("dom:loaded", function() {
     }
     return true;
   });
-  document.on('ajax:before', 'a.as_paginate', function(event) {
+  document.on('ajax:before', 'nav.pagination a', function(event) {
     var as_paginate = event.findElement();
-    var loading_indicator = as_paginate.up().down('img.loading-indicator');
+    var loading_indicator = as_paginate.up(1).down('img.loading-indicator');
     var history_controller_id = as_paginate.readAttribute('data-page-history');
-    
+
     if (history_controller_id) addActiveScaffoldPageToHistory(as_paginate.readAttribute('href'), history_controller_id);
-    if (loading_indicator) loading_indicator.style.visibility = 'visible';
+    if (loading_indicator == null) {
+      var table_loading_indicator = as_paginate.up('div.active-scaffold').down('div.actions').down('img.loading-indicator');
+      loading_indicator = table_loading_indicator.cloneNode(true);
+      loading_indicator.id = null;
+      as_paginate.up(1).insert({top: loading_indicator});
+    }
+    loading_indicator.style.visibility = 'visible';
     return true;
   });
-  document.on('ajax:failure', 'a.as_paginate', function(event) {
+  document.on('ajax:failure', 'nav.pagination a', function(event) {
     var as_scaffold = event.findElement('.active-scaffold');
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
   });
-  document.on('ajax:complete', 'a.as_paginate', function(event) {
+  document.on('ajax:complete', 'nav.pagination a', function(event) {
     var as_paginate = event.findElement();
     var loading_indicator = as_paginate.up().down('img.loading-indicator');
     
