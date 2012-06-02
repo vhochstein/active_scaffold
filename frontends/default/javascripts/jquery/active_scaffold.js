@@ -159,9 +159,9 @@ $(document).ready(function() {
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
   });
-  $('nav.pagination a').live('ajax:before',function(event) {
+  $('div.active-scaffold-footer .pagination a').live('ajax:before',function(event) {
     var as_paginate = $(this);
-    var loading_indicator = as_paginate.closest('nav.pagination').find('img.loading-indicator').first();
+    var loading_indicator = as_paginate.closest('.pagination').find('img.loading-indicator').first();
     var history_controller_id = as_paginate.attr('data-page-history');
     if (history_controller_id) addActiveScaffoldPageToHistory(as_paginate.attr('href'), history_controller_id);
 
@@ -169,17 +169,17 @@ $(document).ready(function() {
       var table_loading_indicator = as_paginate.closest('div.active-scaffold').find('div.actions img.loading-indicator').first();
       loading_indicator = table_loading_indicator.clone();
       loading_indicator.attr('id', null);
-      as_paginate.closest('nav.pagination').prepend(loading_indicator);
+      as_paginate.closest('.pagination').prepend(loading_indicator);
     }
     loading_indicator.css('visibility','visible');
     return true;
   });
-  $('nav.pagination a').live('ajax:failure', function(event) {
+  $('div.active-scaffold-footer .pagination a').live('ajax:failure', function(event) {
     var as_scaffold = $(this).closest('.active-scaffold');
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
   });
-  $('nav.pagination a').live('ajax:complete', function(event) {
+  $('div.active-scaffold-footer .pagination a').live('ajax:complete', function(event) {
     $(this).prevAll('img.loading-indicator').css('visibility','hidden');
     return true;
   });

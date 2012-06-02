@@ -209,7 +209,7 @@ document.observe("dom:loaded", function() {
     }
     return true;
   });
-  document.on('ajax:before', 'nav.pagination a', function(event) {
+  document.on('ajax:before', 'div.active-scaffold-footer .pagination a', function(event) {
     var as_paginate = event.findElement();
     var loading_indicator = as_paginate.up(1).down('img.loading-indicator');
     var history_controller_id = as_paginate.readAttribute('data-page-history');
@@ -224,12 +224,12 @@ document.observe("dom:loaded", function() {
     loading_indicator.style.visibility = 'visible';
     return true;
   });
-  document.on('ajax:failure', 'nav.pagination a', function(event) {
+  document.on('ajax:failure', 'div.active-scaffold-footer .pagination a', function(event) {
     var as_scaffold = event.findElement('.active-scaffold');
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
   });
-  document.on('ajax:complete', 'nav.pagination a', function(event) {
+  document.on('ajax:complete', 'div.active-scaffold-footer .pagination a', function(event) {
     var as_paginate = event.findElement();
     var loading_indicator = as_paginate.up().down('img.loading-indicator');
     
