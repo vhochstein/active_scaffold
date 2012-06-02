@@ -159,9 +159,7 @@ module ActiveScaffold::Actions
     end
 
     def save_current_page_num
-      if !(active_scaffold_config.list.pagination == :infinite)
-        active_scaffold_config.list.user.page = @records.current_page
-      end
+      active_scaffold_config.list.user.page = @records.current_page unless active_scaffold_config.list.pagination == false
     end
      
     private
