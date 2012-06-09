@@ -330,7 +330,13 @@ module ActiveScaffold
             all_marked = false if !marked_records.entries.include?(record.id)
           end
         else
-          all_marked = (marked_records.length >= @records.total_count)
+          # if relation does not respond to kaminari total_count...
+          # kaminari paging is nt active
+          if @records.respond_to?(:total_count)
+            all_marked = (marked_records.length >= @records.total_count)
+          else
+            all_marked = (marked_records.length >= @records.count)
+          end
         end
         tag_options = {:id => "#{controller_id}_mark_heading", :class => "mark_heading in_place_editor_field"}
         tag_options['data-ie_url'] = url_for({:controller => params_for[:controller], :action => 'mark_all', :eid => params[:eid]})
