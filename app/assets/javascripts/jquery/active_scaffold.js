@@ -118,7 +118,7 @@ $(document).ready(function() {
   });
   $('a.as_cancel').live('ajax:beforeSend', function(event, xhr, settings) {
     var as_cancel = $(this);
-    var action_link = ActiveScaffold.ActionLink.get($(this));
+    var action_link = ActiveScaffold.find_action_link($(this));
     var refresh_data = as_cancel.attr('data-refresh');
 
     if (action_link && action_link.position && refresh_data === 'true' && action_link.refresh_url) {
