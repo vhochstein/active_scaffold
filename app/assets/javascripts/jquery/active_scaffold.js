@@ -118,7 +118,7 @@ $(document).ready(function() {
   });
   $('a.as_cancel').live('ajax:beforeSend', function(event, xhr, settings) {
     var as_cancel = $(this);
-    var action_link = ActiveScaffold.find_action_link(as_cancel); 
+    var action_link = ActiveScaffold.ActionLink.get($(this));
     var refresh_data = as_cancel.attr('data-refresh');
 
     if (action_link && action_link.position && refresh_data === 'true' && action_link.refresh_url) {
@@ -671,7 +671,7 @@ var ActiveScaffold = {
   },
 
   report_500_response: function(active_scaffold_id) {
-    server_error = $(active_scaffold_id).find('td.messages-container p.server-error');
+    server_error = $(active_scaffold_id).find('td.messages-container p.server-error').filter(":first");
     if (!$(server_error).is(':visible')) {
       server_error.show();
     }
