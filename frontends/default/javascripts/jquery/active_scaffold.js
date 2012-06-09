@@ -669,7 +669,7 @@ var ActiveScaffold = {
   },
 
   report_500_response: function(active_scaffold_id) {
-    server_error = $(active_scaffold_id).find('td.messages-container p.server-error');
+    server_error = $(active_scaffold_id).find('td.messages-container p.server-error').filter(":first");
     if (!$(server_error).is(':visible')) {
       server_error.show();
     }
