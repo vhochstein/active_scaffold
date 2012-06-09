@@ -908,7 +908,7 @@ ActiveScaffold.ActionLink.Abstract = Class.create({
     this.adapter.store('action_link', this);
   },
 
-  wrap_with_adapter_html: function(content) {
+  wrap_with_adapter_html: function(content, should_refresh_data) {
     // players_view class missing
     var id_string = null;
     var close_label = this.scaffold().readAttribute('data-closelabel');
@@ -924,7 +924,7 @@ ActiveScaffold.ActionLink.Abstract = Class.create({
         id_string = this.target.readAttribute('id').replace('list', 'nested');
     }
 
-    return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="false" href="">' + close_label +'</a>' + content + '</div></td></tr>'
+    return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="' + should_refresh_data + '" href="">' + close_label +'</a>' + content + '</div></td></tr>'
   }
 });
 
@@ -957,6 +957,7 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
   },
 
   insert: function(content) {
+    var should_refresh_data = (typeof(this.refresh_ur)== 'undefined');
     this.close_previous_adapter();
 
     if (this.position == 'replace') {
@@ -965,12 +966,12 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
     }
 
     if (this.position == 'after') {
-      this.target.insert({after:this.wrap_with_adapter_html(content)});
+      this.target.insert({after:this.wrap_with_adapter_html(content, should_refresh_data)});
       ActiveScaffold.trigger_load_events(this.target.next().select('[data-as_load]'));
       this.set_adapter(this.target.next());
     }
     else if (this.position == 'before') {
-      this.target.insert({before:this.wrap_with_adapter_html(content)});
+      this.target.insert({before:this.wrap_with_adapter_html(content, should_refresh_data)});
       ActiveScaffold.trigger_load_events(this.target.previous().select('[data-as_load]'));
       this.set_adapter(this.target.previous());
     }
@@ -1003,12 +1004,13 @@ ActiveScaffold.ActionLink.Record = Class.create(ActiveScaffold.ActionLink.Abstra
   },
 
   set_opened: function() {
+    var should_refresh_data = (typeof(this.refresh_ur)== 'undefined');
     if (this.position == 'after') {
-      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().childElements().first().innerHTML), true);
+      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().childElements().first().innerHTML, should_refresh_data), true);
       this.set_adapter(new_adapter);
     }
     else if (this.position == 'before') {
-      var new_adapter = ActiveScaffold.replace(this.target.previous(), this.wrap_with_adapter_html(this.target.previous().childElements().first().innerHTML), true);
+      var new_adapter = ActiveScaffold.replace(this.target.previous(), this.wrap_with_adapter_html(this.target.previous().childElements().first().innerHTML, should_refresh_data), true);
       this.set_adapter(new_adapter);
     }
     this.disable();
@@ -1029,7 +1031,7 @@ ActiveScaffold.Actions.Table = Class.create(ActiveScaffold.Actions.Abstract, {
 ActiveScaffold.ActionLink.Table = Class.create(ActiveScaffold.ActionLink.Abstract, {
   insert: function(content) {
     if (this.position == 'top') {
-      this.target.insert({top:this.wrap_with_adapter_html(content)});
+      this.target.insert({top:this.wrap_with_adapter_html(content, false)});
       ActiveScaffold.trigger_load_events(this.target.immediateDescendants().first().select('[data-as_load]'));
       this.set_adapter(this.target.immediateDescendants().first());
     }

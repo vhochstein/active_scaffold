@@ -1109,7 +1109,7 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
     this.adapter.addClass('as_adapter');
     this.adapter.data('action_link', this);
   },
-  wrap_with_adapter_html: function(content) {
+  wrap_with_adapter_html: function(content, should_refresh_data) {
     // players_view class missing
     var id_string = null;
     var close_label = this.scaffold().attr('data-closelabel');
@@ -1125,7 +1125,7 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
         id_string = this.target.attr('id').replace('list', 'nested');
     }
 
-    return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="false" href="">' + close_label +'</a>' + content + '</div></td></tr>'
+    return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="' + should_refresh_data + '" href="">' + close_label +'</a>' + content + '</div></td></tr>'
   }
 });
 
@@ -1162,6 +1162,7 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
   },
 
   insert: function(content) {
+    var should_refresh_data = (typeof(this.refresh_ur)== 'undefined');
     this.close_previous_adapter();
 
     if (this.position == 'replace') {
@@ -1170,12 +1171,12 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
     }
 
     if (this.position == 'after') {
-      this.target.after(this.wrap_with_adapter_html(content));
+      this.target.after(this.wrap_with_adapter_html(content, should_refresh_data));
       ActiveScaffold.trigger_load_events(this.target.next().find('[data-as_load]'));
       this.set_adapter(this.target.next());
     }
     else if (this.position == 'before') {
-      this.target.before(this.wrap_with_adapter_html(content));
+      this.target.before(this.wrap_with_adapter_html(content, should_refresh_data));
       ActiveScaffold.trigger_load_events(this.target.prev().find('[data-as_load]'));
       this.set_adapter(this.target.prev());
     }
@@ -1210,12 +1211,13 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
   },
   
   set_opened: function() {
+    var should_refresh_data = (typeof(this.refresh_ur)== 'undefined');
     if (this.position == 'after') {
-      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().children(':first-child').html()), true);
+      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().children(':first-child').html(), should_refresh_data), true);
       this.set_adapter(new_adapter);
     }
     else if (this.position == 'before') {
-      var new_adapter = ActiveScaffold.replace(this.target.prev(), this.wrap_with_adapter_html(this.target.prev().children(':first-child').html()), true);
+      var new_adapter = ActiveScaffold.replace(this.target.prev(), this.wrap_with_adapter_html(this.target.prev().children(':first-child').html(), should_refresh_data), true);
       this.set_adapter(new_adapter);
     }
     this.disable();
@@ -1236,7 +1238,7 @@ ActiveScaffold.Actions.Table = ActiveScaffold.Actions.Abstract.extend({
 ActiveScaffold.ActionLink.Table = ActiveScaffold.ActionLink.Abstract.extend({
   insert: function(content) {
     if (this.position == 'top') {
-      this.target.prepend(this.wrap_with_adapter_html(content));
+      this.target.prepend(this.wrap_with_adapter_html(content, false));
       ActiveScaffold.trigger_load_events(this.target.children().first().find('[data-as_load]'));
       this.set_adapter(this.target.children().first());
     }
