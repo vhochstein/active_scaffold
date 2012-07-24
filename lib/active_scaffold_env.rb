@@ -11,4 +11,8 @@ ActiveRecord::Base.class_eval {include ActiveRecordPermissions::ModelUserAccess:
 ActiveRecord::Base.class_eval {include ActiveRecordPermissions::Permissions}
 
 I18n.load_path += Dir[File.join(File.dirname(__FILE__), 'active_scaffold', 'locale', '*.{rb,yml}')]
-#ActiveScaffold.js_framework = :jquery
+
+as_config="#{::Rails.root.to_s}/config/active_scaffold_config.rb"
+if File.stat(as_config).file?
+  require as_config
+end
