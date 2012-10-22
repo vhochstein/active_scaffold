@@ -228,6 +228,9 @@ module ActiveScaffold::DataStructures
     def plural_association?
       self.association and [:has_many, :has_and_belongs_to_many].include? self.association.macro
     end
+    def belongs_to_association?
+      self.association && self.association.macro == :belongs_to
+    end
     def through_association?
       self.association and self.association.options[:through]
     end
@@ -322,7 +325,7 @@ module ActiveScaffold::DataStructures
     
     def initialize_search_sql
       self.search_sql = unless self.virtual?
-        if association.nil?
+        if association.nil? || self.belongs_to_association?
           self.field.to_s
         elsif !self.polymorphic_association?
           [association.klass.table_name, association.klass.primary_key].collect! do |str|
