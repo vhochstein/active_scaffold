@@ -17,12 +17,14 @@ module ActiveScaffold
             "#{column.active_record_class.human_attribute_name(column.name)} #{as_(value[:opt].downcase).downcase} #{format_number_value(controller.class.condition_value_for_numeric(column, value[:from]), column.options)} #{value[:opt] == 'BETWEEN' ? '- ' + format_number_value(controller.class.condition_value_for_numeric(column, value[:to]), column.options).to_s : ''}"
           when :string
             opt = ActiveScaffold::Finder::StringComparators.index(value[:opt]) || value[:opt]
-            "#{column.active_record_class.human_attribute_name(column.name)} #{as_(opt).downcase} '#{value[:from]}' #{opt == 'BETWEEN' ? '- ' + value[:to].to_s : ''}"
+            "#{column.active_record_class.human_attribute_name(column.name)} #{as_(opt).downcase} '#{column.stripped_value(value[:from])}' #{opt == 'BETWEEN' ? '- ' + column.stripped_value(value[:to]).to_s : ''}"
           when :date, :time, :datetime, :timestamp
             conversion = column.column.type == :date ? :to_date : :to_time
             from = controller.condition_value_for_datetime(value[:from], conversion)
             to = controller.condition_value_for_datetime(value[:to], conversion)
-            "#{column.active_record_class.human_attribute_name(column.name)} #{as_(value[:opt])} #{I18n.l(from)} #{value[:opt] == 'BETWEEN' ? '- ' + I18n.l(to) : ''}"
+            unless from.nil? || (value[:opt] == 'BETWEEN' && to.nil?)
+              "#{column.active_record_class.human_attribute_name(column.name)} #{as_(value[:opt])} #{I18n.l(from)} #{value[:opt] == 'BETWEEN' ? '- ' + I18n.l(to) : ''}"
+            end
           when :select, :multi_select, :record_select
             associated = value
             associated = [associated].compact unless associated.is_a? Array

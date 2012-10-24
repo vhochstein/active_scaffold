@@ -86,18 +86,18 @@ module ActiveScaffold
       def condition_for_range(column, value, like_pattern = nil)
         if !value.is_a?(Hash)
           if column.column.nil? || column.column.text?
-            ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", like_pattern.sub('?', value)]
+            ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", like_pattern.sub('?', column.stripped_value(value))]
           else
             ["#{column.search_sql} = ?", column.column.type_cast(value)]
           end
         elsif value[:from].blank?
           nil
         elsif ActiveScaffold::Finder::StringComparators.values.include?(value[:opt])
-          ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", value[:opt].sub('?', value[:from])]
+          ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", value[:opt].sub('?', column.stripped_value(value[:from]))]
         elsif value[:opt] == 'BETWEEN'
-          ["#{column.search_sql} BETWEEN ? AND ?", value[:from], value[:to]]
+          ["#{column.search_sql} BETWEEN ? AND ?", column.stripped_value(value[:from]), column.stripped_value(value[:to])]
         elsif ActiveScaffold::Finder::NumericComparators.include?(value[:opt])
-          ["#{column.search_sql} #{value[:opt]} ?", value[:from]]
+          ["#{column.search_sql} #{value[:opt]} ?", column.stripped_value(value[:from])]
         else
           nil
         end

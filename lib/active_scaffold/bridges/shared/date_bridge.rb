@@ -73,13 +73,13 @@ module ActiveScaffold
               range_type, range = value[:range].downcase.split('_')
               format = active_scaffold_human_condition_date_bridge_range_format(range_type, range)
               from, to = controller.class.date_bridge_from_to(column, value)
-              "#{column.active_record_class.human_attribute_name(column.name)} = #{as_(value[:range].downcase).downcase} (#{I18n.l(from, :format => format)})"
+              "#{column.active_record_class.human_attribute_name(column.name)} = #{as_(value[:range].downcase).downcase} (#{I18n.l(from, :format => format)})" unless from.nil?
             when 'PAST', 'FUTURE'
               from, to = controller.class.date_bridge_from_to(column, value)
-              "#{column.active_record_class.human_attribute_name(column.name)} #{as_('BETWEEN'.downcase).downcase} #{I18n.l(from)} - #{I18n.l(to)}"
+              "#{column.active_record_class.human_attribute_name(column.name)} #{as_('BETWEEN'.downcase).downcase} #{I18n.l(from)} - #{I18n.l(to)}" unless from.nil? || to.nil?
             else
               from, to = controller.class.date_bridge_from_to(column, value)
-              "#{column.active_record_class.human_attribute_name(column.name)} #{as_(value[:opt].downcase).downcase} #{I18n.l(from)} #{value[:opt] == 'BETWEEN' ? '- ' + I18n.l(to) : ''}"
+              "#{column.active_record_class.human_attribute_name(column.name)} #{as_(value[:opt].downcase).downcase} #{I18n.l(from)} #{value[:opt] == 'BETWEEN' ? '- ' + I18n.l(to) : ''}" unless from.nil? || (value[:opt] == 'BETWEEN' && to.nil?)
             end
           end
 
