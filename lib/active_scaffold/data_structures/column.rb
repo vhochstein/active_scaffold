@@ -181,6 +181,17 @@ module ActiveScaffold::DataStructures
     # to modify the default order of columns
     attr_accessor :weight
 
+    # whether the field should be stripped when search values or form values are read for this value
+    attr_writer :stripable
+    def stripable?
+      @stripable
+    end
+
+    def stripped_value(value)
+      stripable? ? value.strip : value
+    end
+
+
     # to set how many associated records a column with plural association must show in list
     cattr_accessor :associated_limit
     @@associated_limit = 3
@@ -283,6 +294,7 @@ module ActiveScaffold::DataStructures
       @options = {:format => :i18n_number} if @column.try(:number?)
       @form_ui = :checkbox if @column and @column.type == :boolean
       @form_ui = :textarea if @column and @column.type == :text
+      @stripable = true if @column and @column.text?
       @allow_add_existing = true
       @form_ui = self.class.association_form_ui if @association && self.class.association_form_ui
       
