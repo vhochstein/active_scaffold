@@ -6,6 +6,7 @@ module ActiveScaffold::Config
       @core = core_config
 
       @text_search = self.class.text_search
+      @or_delimiter = self.class.or_delimiter
 
       # start with the ActionLink defined globally
       @link = self.class.link.clone
@@ -27,6 +28,11 @@ module ActiveScaffold::Config
     # Default is :full
     cattr_accessor :text_search
     @@text_search = :full
+
+    # delimiter to seperate or search string such us: name = Paul,Bernd,Klaus
+    # will search for Paul Or Bernd Or Klaus
+    cattr_accessor :or_delimiter
+    @@or_delimiter = ','
 
     # instance-level configuration
     # ----------------------------
@@ -50,17 +56,32 @@ module ActiveScaffold::Config
     # * false: LIKE ?
     # Default is :full
     attr_accessor :text_search
+
+    attr_accessor :or_delimiter
     
     # the ActionLink for this action
     attr_accessor :link
     
     # rarely searched columns may be placed in a hidden subgroup
-     def optional_columns=(optionals)
+    def optional_columns=(optionals)
       @optional_columns= Array(optionals)
     end
     
     def optional_columns
       @optional_columns ||= []
+    end
+
+    # columns which should support or searches
+    # eg like 'x' or ... like 'y'
+    def or_columns=(or_columns)
+      @or_columns = Array(or_columns)
+    end
+
+    def or_columns
+      unless @or_columns
+        self.or_columns = @core.columns.collect{|c| c.name if @core.columns._inheritable.include?(c.name) and c.searchable? and c.column and c.column.text?}.compact
+      end
+      @or_columns
     end
     
     # default search params
