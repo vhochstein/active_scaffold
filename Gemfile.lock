@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_scaffold_vho (3.0.26)
+    active_scaffold_vho (3.0.27)
       kaminari
       rails (~> 3.0.0)
 
