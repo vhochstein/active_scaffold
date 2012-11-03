@@ -93,7 +93,13 @@ module ActiveScaffold
         elsif value[:from].blank?
           nil
         elsif ActiveScaffold::Finder::StringComparators.values.include?(value[:opt])
-          ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", value[:opt].sub('?', column.stripped_value(value[:from]))]
+          if(active_scaffold_config.field_search.or_columns.include? column.name)
+            search_values = column.stripped_value(value[:from]).split(active_scaffold_config.field_search.or_delimiter).compact
+            sql_prepared_statement = search_values.collect {|search_value| "#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?"}.join(' OR ')
+            [sql_prepared_statement] + search_values.collect{|search_value| value[:opt].sub('?', column.stripped_value(search_value))}
+          else
+            ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", value[:opt].sub('?', column.stripped_value(value[:from]))]
+          end
         elsif value[:opt] == 'BETWEEN'
           ["#{column.search_sql} BETWEEN ? AND ?", column.stripped_value(value[:from]), column.stripped_value(value[:to])]
         elsif ActiveScaffold::Finder::NumericComparators.include?(value[:opt])
