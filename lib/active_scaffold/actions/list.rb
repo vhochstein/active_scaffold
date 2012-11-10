@@ -33,8 +33,7 @@ module ActiveScaffold::Actions
       end
     end
     def list_respond_to_js
-      if params[:embedded]
-        params.delete(:embedded)
+      if params.delete(:embedded)
         render(:partial => 'list_with_header')
       else
         render :action => 'list.js'
