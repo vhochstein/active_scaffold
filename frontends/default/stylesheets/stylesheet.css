@@ -1002,7 +1002,7 @@ height: 27px;
 background: url(../../../images/active_scaffold/default/close_touch.png) 0 0 no-repeat;
 }
 
-.as_touch .as_paginate {
+.as_touch .active-scaffold-pagination a {
 font-size: 20px;
 padding: 3px 10px;
 }
