@@ -609,8 +609,11 @@ var ActiveScaffold = {
   },  
   
   focus_first_element_of_form: function(form_element) {
-    if (typeof(form_element) == 'string') form_element = '#' + form_element;
-    $(form_element + ":first *:input[type!=hidden]:first").focus();
+    if (typeof(form_element) == 'string') {
+      form_element = '#' + form_element;
+      form_element = $(form_element);
+    }
+    form_element.find("input[type!=hidden]:first").focus();
   },
     
   create_record_row: function(active_scaffold_id, html, options) {
