@@ -240,7 +240,7 @@ $(document).ready(function() {
     return true;
   });
   
-  $(document).on('change', 'select.as_search_range_option'. function(event) {
+  $(document).on('change', 'select.as_search_range_option', function(event) {
     ActiveScaffold[$(this).val() == 'BETWEEN' ? 'show' : 'hide']($(this).parent().find('.as_search_range_between'));
     return true;
   });
