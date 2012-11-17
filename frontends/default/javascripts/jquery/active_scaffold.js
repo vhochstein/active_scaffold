@@ -12,7 +12,7 @@ $(document).ready(function() {
     return true;
   });
   
-  $('form.as_form').live('ajax:loading', function(event) {
+  $('form.as_form').live('ajax:beforeSend', function(event) {
     var as_form = $(this).closest("form");
     if (as_form && as_form.attr('data-loading') == 'true') {
       ActiveScaffold.disable_form(as_form);
@@ -595,8 +595,8 @@ var ActiveScaffold = {
     as_form = $(as_form)
     var loading_indicator = $('#' + as_form.attr('id').replace(/-form$/, '-loading-indicator'));
     if (loading_indicator) loading_indicator.css('visibility','visible');
-    $('input[type=submit]', as_form).attr('disabled', 'disabled');
-    $("input:enabled,select:enabled,textarea:enabled", as_form).attr('disabled', 'disabled');
+    $('input[type=submit]', as_form).prop('disabled', true);
+    $("input:enabled,select:enabled,textarea:enabled", as_form).prop('disabled', true);
   },
   
   enable_form: function(as_form) {
@@ -604,8 +604,8 @@ var ActiveScaffold = {
     as_form = $(as_form)
     var loading_indicator = $('#' + as_form.attr('id').replace(/-form$/, '-loading-indicator'));
     if (loading_indicator) loading_indicator.css('visibility','hidden');
-    $('input[type=submit]', as_form).attr('disabled', '');
-    $("input:disabled,select:disabled,textarea:disabled", as_form).attr('disabled', '');
+    $('input[type=submit]', as_form).prop('disabled', false);
+    $("input:disabled,select:disabled,textarea:disabled", as_form).prop('disabled', false);
   },  
   
   focus_first_element_of_form: function(form_element) {
@@ -700,10 +700,10 @@ var ActiveScaffold = {
       data: options['params'],
       dataType: options.ajax_data_type,
       after: function(request){
-        checkbox.attr('disabled', 'disabled');
+        checkbox.prop('disabled', true);
       },
       complete: function(request){
-        checkbox.attr('disabled', '');
+        checkbox.prop('disabled', false);
       }
     });
   },
