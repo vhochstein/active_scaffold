@@ -727,7 +727,7 @@ var ActiveScaffold = {
   highlight: function(element) {
     if (typeof(element) == 'string') element = $('#' + element);
     if (typeof(element.effect) == 'function') {
-      element.effect("highlight", {}, 3000);
+      element.effect("highlight", {}, 1000);
     }
   },
   
