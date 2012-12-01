@@ -108,7 +108,7 @@ $(document).ready(function() {
       if (refresh_data === 'true' && action_link.refresh_url) {
         event.data_url = action_link.refresh_url;
         as_cancel.attr('href', action_link.refresh_url);
-        if (action_link.position) event.data_type = 'html' 
+        if (action_link.position) event.data_type = 'rails';
       } else if (refresh_data === 'false' || typeof(cancel_url) == 'undefined' || cancel_url.length == 0) {
         action_link.close();
         return false;
@@ -122,8 +122,8 @@ $(document).ready(function() {
     var refresh_data = as_cancel.attr('data-refresh');
 
     if (action_link && action_link.position && refresh_data === 'true' && action_link.refresh_url) {
-      settings.dataType = 'html';
-      settings.dataTypes = ['html'];
+      settings.dataType = 'text';
+      settings.dataTypes = ['text'];
     }
     return true;
   });
@@ -553,11 +553,12 @@ var ActiveScaffold = {
     if (typeof(element) == 'string') element = '#' + element; 
     element = $(element);
     var new_element = null;
+    var new_fragment = $(html);
     if((typeof(disable_event_trigger) == 'boolean') && disable_event_trigger == true) {
-      new_element = $(html).replaceAll(element);
+      new_element = new_fragment.replaceAll(element).first();
     } else {
       ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
-      new_element = $(html).replaceAll(element);
+      new_element = new_fragment.replaceAll(element).first();
       ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
     }
     return new_element;
