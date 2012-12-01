@@ -551,11 +551,12 @@ var ActiveScaffold = {
     if (typeof(element) == 'string') element = '#' + element; 
     element = $(element);
     var new_element = null;
+    var new_fragment = $(html);
     if((typeof(disable_event_trigger) == 'boolean') && disable_event_trigger == true) {
-      new_element = $(html).replaceAll(element);
+      new_element = new_fragment.replaceAll(element).first();
     } else {
       ActiveScaffold.trigger_unload_events(element.find('[data-as_load]').andSelf());
-      new_element = $(html).replaceAll(element);
+      new_element = new_fragment.replaceAll(element).first();
       ActiveScaffold.trigger_load_events(new_element.find('[data-as_load]').andSelf());
     }
     return new_element;
