@@ -1215,14 +1215,16 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
   
   set_opened: function() {
     var should_refresh_data = (typeof(this.refresh_ur)== 'undefined');
+    var new_adapter = null;
     if (this.position == 'after') {
-      var new_adapter = ActiveScaffold.replace(this.target.next(), this.wrap_with_adapter_html(this.target.next().children(':first-child').html(), should_refresh_data), true);
-      this.set_adapter(new_adapter);
+      new_adapter = this.target.next();
+    } else if (this.position == 'before') {
+      new_adapter = this.target.prev();
     }
-    else if (this.position == 'before') {
-      var new_adapter = ActiveScaffold.replace(this.target.prev(), this.wrap_with_adapter_html(this.target.prev().children(':first-child').html(), should_refresh_data), true);
-      this.set_adapter(new_adapter);
+    if (!new_adapter.hasClass('as_adapter')) {
+      new_adapter = ActiveScaffold.replace(new_adapter, this.wrap_with_adapter_html(new_adapter.children(':first-child').html(), should_refresh_data), true);
     }
+    this.set_adapter(new_adapter);
     this.disable();
   }
 });
