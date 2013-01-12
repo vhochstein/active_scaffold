@@ -7,7 +7,7 @@ module ActiveScaffold
       end
 
       def association_options_count(association, conditions = nil)
-        association.klass.where(conditions).where(association.options[:conditions]).count
+        association_options_find(association, conditions).count
       end
 
       # returns options for the given association as a collection of [id, label] pairs intended for the +options_for_select+ helper.
