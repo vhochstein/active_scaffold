@@ -83,7 +83,7 @@ module ActiveScaffold::Actions
     
     def beginning_of_chain
       if nested? && nested.association && nested.association.collection?
-        nested.parent_scope.send(nested.association.name).where("")
+        nested.parent_scope.send(nested.association.name)
       elsif nested? && nested.scope
         nested.parent_scope.send(nested.scope)
       else

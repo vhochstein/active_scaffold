@@ -266,6 +266,7 @@ module ActiveScaffold
       options[:count_includes] ||= full_includes unless search_conditions.nil?
 
       klass = beginning_of_chain
+      klass = klass.where("") if klass.is_a?(Array)
       
       # create a general-use options array that's compatible with Rails finders
       finder_options = { :order => options[:sorting].try(:clause),
