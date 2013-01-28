@@ -1176,12 +1176,20 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
 
     if (this.position == 'after') {
       this.target.after(this.wrap_with_adapter_html(content, should_refresh_data));
-      ActiveScaffold.trigger_load_events(this.target.next().find('.records').first().find('> [data-as_load]'));
+      if(this.action == 'index') {
+        ActiveScaffold.trigger_load_events(this.target.next().find('.records').first().find('> [data-as_load]'));
+      } else {
+        ActiveScaffold.trigger_load_events(this.target.next().find('[data-as_load]'));
+      }
       this.set_adapter(this.target.next());
     }
     else if (this.position == 'before') {
       this.target.before(this.wrap_with_adapter_html(content, should_refresh_data));
-      ActiveScaffold.trigger_load_events(this.target.prev().find('.records').first().find('> [data-as_load]'));
+      if (this.action == 'index') {
+        ActiveScaffold.trigger_load_events(this.target.prev().find('.records').first().find('> [data-as_load]'));
+      } else {
+        ActiveScaffold.trigger_load_events(this.target.prev().find('[data-as_load]'));
+      }
       this.set_adapter(this.target.prev());
     }
     else {
@@ -1224,7 +1232,11 @@ ActiveScaffold.ActionLink.Record = ActiveScaffold.ActionLink.Abstract.extend({
     }
     if (!new_adapter.hasClass('as_adapter')) {
       new_adapter = ActiveScaffold.replace(new_adapter, this.wrap_with_adapter_html(new_adapter.children(':first-child').html(), should_refresh_data), true);
-      ActiveScaffold.trigger_load_events(new_adapter.find('.records').first().find('> [data-as_load]'));
+      if (this.action == 'index') {
+        ActiveScaffold.trigger_load_events(new_adapter.find('.records').first().find('> [data-as_load]'));
+      } else {
+        ActiveScaffold.trigger_load_events(new_adapter.find('[data-as_load]'));
+      }
     }
     this.set_adapter(new_adapter);
     this.disable();
