@@ -776,7 +776,7 @@ padding: 6px 0;
 }
 
 .active-scaffold li.form-element dd {
-float: left;
+float: none;
 }
 
 .active-scaffold li.form-element dd input[type="checkbox"] {
