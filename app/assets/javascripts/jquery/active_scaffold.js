@@ -937,7 +937,9 @@ var ActiveScaffold = {
   load_embedded_conrollers: function(){
     $.each($('a.as_link_to_component'), function(index) {
       var div_element = $(this).closest('div.active-scaffold-component');
-      div_element.load($(this).attr('href').append_params({embedded: true}));
+      div_element.load($(this).attr('href').append_params({embedded: true}), function() {
+        ActiveScaffold.trigger_load_events($(this).find('[data-as_load]'));
+      });
     });
   },
 
