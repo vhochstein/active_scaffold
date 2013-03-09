@@ -188,7 +188,16 @@ module ActiveScaffold::DataStructures
     end
 
     def stripped_value(value)
-      stripable? ? value.strip : value
+      if stripable?
+        begin
+          value.strip
+        rescue
+          Rails.logger.error("stripped_value: column #{self.name} is a db text column, but value is nt a string: #{value.inspect}. Please define column[:#{self.name}].stripable = false in config")
+          value
+        end
+      else
+        value
+      end
     end
 
     # to set how many associated records a column with plural association must show in list
