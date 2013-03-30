@@ -51,7 +51,7 @@ de:
     show: 'Anzeigen'
     show_model: 'Zeige %{model} an'
     _to_ : ' zu '
-    'true': 'Ja',
+    'true': 'Ja'
     update: 'Speichern'
     update_model: 'Editiere %{model}'
     updated_model: '%{model} aktualisiert'
