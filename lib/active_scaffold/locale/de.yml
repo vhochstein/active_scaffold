@@ -22,6 +22,7 @@ de:
     download: 'Download'
     edit: 'Bearbeiten'
     export: 'Exportieren'
+    'false': 'Nein'
     nested_for_model: '%{nested_model} für %{parent_model}'
     nested_of_model: '%{nested_model} von %{parent_model}'
     filtered: '(Gefiltert)'
@@ -50,6 +51,7 @@ de:
     show: 'Anzeigen'
     show_model: 'Zeige %{model} an'
     _to_ : ' zu '
+    'true': 'Ja',
     update: 'Speichern'
     update_model: 'Editiere %{model}'
     updated_model: '%{model} aktualisiert'
