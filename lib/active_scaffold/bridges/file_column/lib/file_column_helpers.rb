@@ -5,7 +5,7 @@ module ActiveScaffold
         module FileColumnHelpers
           class << self
             def file_column_fields(klass)
-              klass.instance_methods.grep(/_just_uploaded\?$/).collect{|m| m[0..-16].to_sym }
+              klass.instance_method_names.grep(/_just_uploaded\?$/).collect{|m| m[0..-16].to_sym }
             end
             
             def generate_delete_helpers(klass)
