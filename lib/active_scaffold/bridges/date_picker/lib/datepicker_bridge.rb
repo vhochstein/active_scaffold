@@ -41,7 +41,7 @@ module ActiveScaffold
         '%m' => 'mm',
         '%y' => 'y',
         '%Y' => 'yy',
-        '%H' => 'hh', # options ampm => false
+        '%H' => 'HH', # options ampm => false
         '%I' => 'hh', # options ampm => true
         '%M' => 'mm',
         '%p' => 'tt',
@@ -137,12 +137,13 @@ module ActiveScaffold
       def self.split_datetime_format(datetime_format)
         date_format = datetime_format
         time_format = nil
-        time_start_indicators = %w{hh mm tt ss}
+        time_start_indicators = %w{HH hh mm tt ss}
         unless datetime_format.nil?
           start_indicator = time_start_indicators.detect {|indicator| datetime_format.include?(indicator)}
           unless start_indicator.nil?
             pos_time_format = datetime_format.index(start_indicator)
             date_format = datetime_format.to(pos_time_format - 1)
+            date_format.strip!
             time_format = datetime_format.from(pos_time_format)
           end
         end
