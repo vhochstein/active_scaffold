@@ -146,7 +146,12 @@ module ActiveScaffold
         if link.type == :member && !options[:authorized]
           action_link_html(link, nil, {:class => "disabled #{link.action}#{link.html_options[:class].blank? ? '' : (' ' + link.html_options[:class])}"}, record)
         else
-          render_action_link(link, url_options, record)
+          begin
+            render_action_link(link, url_options, record)
+          rescue
+            Rails.logger.error("render_action_link: exception occured: #{$!} link: #{link.inspect}, url_options: #{url_options.inspect}, options: #{options.inspect}, record: #{record.inspect}")
+            action_link_html(link, nil, {:class => "disabled #{link.action}#{link.html_options[:class].blank? ? '' : (' ' + link.html_options[:class])}"}, record)
+          end
         end
       end
       
