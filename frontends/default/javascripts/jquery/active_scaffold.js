@@ -26,7 +26,7 @@ $(document).ready(function() {
       ActiveScaffold.enable_form(as_form);
     }
   });
-  $(document).on('ajax:failure', 'form.as_form', function(event) {
+  $(document).on('ajax:error', 'form.as_form', function(event) {
     var as_div = $(this).closest("div.active-scaffold");
     if (as_div) {
       ActiveScaffold.report_500_response(as_div)
@@ -91,7 +91,7 @@ $(document).ready(function() {
     }
     return true;
   });
-  $(document).on('ajax:failure', 'a.as_action', function(event) {
+  $(document).on('ajax:error', 'a.as_action', function(event) {
     var action_link = ActiveScaffold.ActionLink.get($(this));
     if (action_link) {
       ActiveScaffold.report_500_response(action_link.scaffold_id());
@@ -140,7 +140,7 @@ $(document).ready(function() {
     }
     return true;
   });
-  $(document).on('ajax:failure', 'a.as_cancel', function(event) {
+  $(document).on('ajax:error', 'a.as_cancel', function(event) {
     var action_link = ActiveScaffold.find_action_link($(this));
     if (action_link) {
       ActiveScaffold.report_500_response(action_link.scaffold_id());
@@ -154,7 +154,7 @@ $(document).ready(function() {
     as_sort.closest('th').addClass('loading');
     return true;
   });
-  $(document).on('ajax:failure', 'a.as_sort', function(event) {
+  $(document).on('ajax:error', 'a.as_sort', function(event) {
     var as_scaffold = $(this).closest('.active-scaffold');
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
@@ -174,7 +174,7 @@ $(document).ready(function() {
     loading_indicator.css('visibility','visible');
     return true;
   });
-  $(document).on('ajax:failure', 'div.active-scaffold-footer .pagination a', function(event) {
+  $(document).on('ajax:error', 'div.active-scaffold-footer .pagination a', function(event) {
     var as_scaffold = $(this).closest('.active-scaffold');
     ActiveScaffold.report_500_response(as_scaffold);
     return true;
