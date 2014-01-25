@@ -43,12 +43,16 @@ module ActiveScaffold::Actions
     end
 
     def do_search
-      unless search_params.nil?
+      prepare_search_conditions(search_params)
+    end
+
+    def prepare_search_conditions(params)
+      unless params.nil?
         text_search = active_scaffold_config.field_search.text_search
         search_conditions = []
         human_condition_columns = [] if active_scaffold_config.field_search.human_conditions
         columns = field_search_columns
-        search_params.each do |key, value|
+        params.each do |key, value|
           next unless columns.include? key
           search_condition = self.class.condition_for_column(active_scaffold_config.columns[key], value, text_search)
           unless search_condition.blank?
