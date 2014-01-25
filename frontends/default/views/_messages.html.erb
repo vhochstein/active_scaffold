@@ -5,6 +5,7 @@
       <% if request.xhr? %>
         <a href="#" onclick="ActiveScaffold.remove(this.parentNode); return false;" title="<%= as_(:close) %>"><%= as_(:close) %></a>
       <% end %>
+      <% flash[name] = nil %>
     </div>
   <% end %>
 <% end %>
