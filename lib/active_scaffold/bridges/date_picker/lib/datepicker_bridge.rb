@@ -1,3 +1,6 @@
+include Sprockets::Helpers::RailsHelper
+include Sprockets::Helpers::IsolatedHelper
+
 class File #:nodoc:
 
   unless File.respond_to?(:binread)
@@ -93,6 +96,10 @@ module ActiveScaffold
             date_picker_options.merge!(as_date_picker_options) if as_date_picker_options.is_a? Hash
           rescue
             Rails.logger.warn "ActiveScaffold: Missing date picker localization for your locale: #{locale}"
+          end
+
+          unless date_picker_options[:buttonImage].nil?
+            date_picker_options[:buttonImage] = asset_path(date_picker_options[:buttonImage])
           end
 
           js_format = self.to_datepicker_format(date_options[:formats][:default])
