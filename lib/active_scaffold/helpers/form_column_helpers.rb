@@ -257,8 +257,12 @@ module ActiveScaffold
 
       # the naming convention for overriding form fields with partials
       def override_form_field_partial(column)
-        path = active_scaffold_controller_for(column.active_record_class).controller_path
-        File.join(path, "#{clean_column_name(column.name)}_form_column")
+        begin
+          path = active_scaffold_controller_for(column.active_record_class).controller_path
+          File.join(path, "#{clean_column_name(column.name)}_form_column")
+        rescue ActiveScaffold::ControllerNotFound => e
+          nil
+        end
       end
 
       def override_form_field(column)
