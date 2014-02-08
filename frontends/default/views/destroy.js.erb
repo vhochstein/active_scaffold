@@ -7,7 +7,7 @@
       ActiveScaffold.delete_record_row('<%=element_row_id(:controller_id => "as_#{id_from_controller(params[:eid] || params[:parent_sti])}", :action => 'list', :id => params[:id])%>', '<%=url_for(params_for(:action => :index, :id => nil, :page => [active_scaffold_config.list.user.page.to_i - 1, 1].max, :escape => false))%>');
       <%messages_id = active_scaffold_messages_id(:controller_id => "as_#{id_from_controller(params[:eid] || params[:parent_sti])}")%>
     <%elsif render_parent_action == :index%>
-      <%= escape_javascript(controller.send(:render_component_into_view, render_parent_options))%>
+      <%= controller.send(:render_component_into_view, render_parent_options)%>
     <%end%>
     <%#page.call 'ActiveScaffold.replace', active_scaffold_calculations_id, render(:partial => 'list_calculations') if active_scaffold_config.list.columns.any? {|c| c.calculation?}%>
   <%elsif (active_scaffold_config.delete.refresh_list)%>
