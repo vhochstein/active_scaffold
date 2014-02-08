@@ -814,21 +814,13 @@ var ActiveScaffold = {
     var mark_checkboxes = $('#' + element.attr('id') + ' > tr.record td.marked-column input[type="checkbox"]');
     mark_checkboxes.each(function (index) {
       var item = $(this);
-     if(options.checked === true) {
-       item.attr('checked', 'checked');
-     } else {
-       item.removeAttr('checked');
-     }
-     item.attr('value', ('' + !options.checked));
+      item.prop('checked', (options.checked === true));
+      item.prop('value', ('' + !options.checked));
     });
     if(options.include_mark_all === true) {
       var mark_all_checkbox = element.prev('thead').find('th.marked-column_heading span input[type="checkbox"]');
-      if(options.checked === true) {
-        mark_all_checkbox.attr('checked', 'checked');
-      } else {
-        mark_all_checkbox.removeAttr('checked');
-      }
-      mark_all_checkbox.attr('value', ('' + !options.checked));
+      mark_all_checkbox.prop('checked', (options.checked === true));
+      mark_all_checkbox.prop('value', ('' + !options.checked));
     }
   },
 
