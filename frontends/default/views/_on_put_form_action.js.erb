@@ -1,5 +1,4 @@
 try {
-<% form_action %>
 <% form_selector = "#{element_form_id(:action => form_action)}" %>
 var action_link = ActiveScaffold.find_action_link('<%= form_selector%>');
 action_link.update_flash_messages('<%=escape_javascript(render(:partial => 'messages').strip)%>');
@@ -26,7 +25,7 @@ action_link.update_flash_messages('<%=escape_javascript(render(:partial => 'mess
     <% end %>
   <% end %>
 <% else %>
-  ActiveScaffold.replace('<%=form_selector%>','<%=escape_javascript(render(:partial => "#{form_action.to_s}_form", :locals => {:xhr => true}))%>');
+  ActiveScaffold.replace('<%=form_selector%>','<%=escape_javascript(render(:partial => "update_form", :locals => {:xhr => true, :form_action => form_action}))%>');
   ActiveScaffold.scroll_to('<%=form_selector%>');
 <% end %>
 } catch (e) { alert('RJS error:\n\n' + e.toString());}
