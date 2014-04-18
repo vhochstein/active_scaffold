@@ -2,7 +2,7 @@
 
 A jQuery edit in place plugin
 
-Version 2.2.0
+Version 2.3.0
 
 Authors:
 	Dave Hauenstein
@@ -11,7 +11,7 @@ Authors:
 Project home:
 	http://code.google.com/p/jquery-in-place-editor/
 
-Patches with tests welcomed! For guidance see the tests at </spec/unit/spec.js>. To submit, attach them to the bug tracker.
+Patches with tests welcomed! For guidance see the tests  </spec/unit/>. To submit, attach them to the bug tracker.
 
 License:
 This source file is subject to the BSD license bundled with this package.
@@ -179,14 +179,15 @@ $.extend(InlineEditor.prototype, {
 		if ( ! this.shouldOpenEditor(anEvent))
 			return;
 		
-		this.workAroundFirefoxBlurBug();
 		this.disconnectOpeningEvents();
 		this.removeHoverEffect();
 		this.removeInsertedDefaultTextIfNeccessary();
 		this.saveOriginalValue();
 		this.markEditorAsActive();
 		this.replaceContentWithEditor();
-		this.connectOpeningEventsToEditor();
+		this.setInitialValue();
+		this.workAroundMissingBlurBug();
+		this.connectClosingEventsToEditor();
 		this.triggerDelegateCall('didOpenEditInPlace');
 	},
 	
@@ -239,20 +240,16 @@ $.extend(InlineEditor.prototype, {
 			this.dom.text(aValue);
 	},
 	
-	workAroundFirefoxBlurBug: function() {
-		if ( ! $.browser.mozilla)
-			return;
-		
-		// TODO: Opera seems to also have this bug....
-		
-		// Firefox will forget to send a blur event to an input element when another one is
-		// created and selected programmatically. This means that if another inline editor is
-		// opened, existing inline editors will _not_ close if they are configured to submit when blurred.
-		// This is actually the first time I've written browser specific code for a browser different than IE! Wohoo!
+	workAroundMissingBlurBug: function() {
+		// Strangely, all browser will forget to send a blur event to an input element
+		// when another one is created and selected programmatically. (at least under some circumstances). 
+		// This means that if another inline editor is opened, existing inline editors will _not_ close 
+		// if they are configured to submit when blurred.
 		
 		// Using parents() instead document as base to workaround the fact that in the unittests
 		// the editor is not a child of window.document but of a document fragment
-		this.dom.parents(':last').find('.editInPlace-active :input').blur();
+		var ourInput = this.dom.find(':input');
+		this.dom.parents(':last').find('.editInPlace-active :input').not(ourInput).blur();
 	},
 	
 	replaceContentWithEditor: function() {
@@ -287,6 +284,17 @@ $.extend(InlineEditor.prototype, {
 		}
 		editor.val(this.triggerDelegateCall('willOpenEditInPlace', this.originalValue));
 		return editor;
+	},
+    
+    setInitialValue: function() {
+		var initialValue = this.triggerDelegateCall('willOpenEditInPlace', this.originalValue);
+		var editor = this.dom.find(':input');
+		editor.val(initialValue);
+		
+		// Workaround for select fields which don't contain the original value.
+		// Somehow the browsers don't like to select the instructional choice (disabled) in that case
+		if (editor.val() !== initialValue)
+			editor.val(''); // selects instructional choice
 	},
 	
 	createRemoteGeneratedEditor: function () {
@@ -371,9 +379,8 @@ $.extend(InlineEditor.prototype, {
 		var optionsArray = this.settings.select_options;
 		if ( ! $.isArray(optionsArray))
 			optionsArray = optionsArray.split(',');
-			
+		
 		for (var i=0; i<optionsArray.length; i++) {
-			
 			var currentTextAndValue = optionsArray[i];
 			if ( ! $.isArray(currentTextAndValue))
 				currentTextAndValue = currentTextAndValue.split(':');
@@ -385,12 +392,11 @@ $.extend(InlineEditor.prototype, {
 			var option = $('<option ' + selected + ' ></option>').val(value).text(text);
 			editor.append(option);
 		}
-		return editor;
 		
+		return editor;
 	},
 	
-	// REFACT: rename opening is not what it's about. Its about closing events really
-	connectOpeningEventsToEditor: function() {
+	connectClosingEventsToEditor: function() {
 		var that = this;
 		function cancelEditorAction(anEvent) {
 			that.handleCancelEditor(anEvent);
@@ -415,8 +421,8 @@ $.extend(InlineEditor.prototype, {
 			else
 				form.find(".inplace_field").blur(cancelEditorAction);
 			
-			// workaround for firefox bug where it won't submit on enter if no button is shown
-			if ($.browser.mozilla)
+			// workaround for msie & firefox bug where it won't submit on enter if no button is shown
+			if ($.browser.mozilla || $.browser.msie)
 				this.bindSubmitOnEnterInInput();
 		}
 		
@@ -609,7 +615,7 @@ $.extend(InlineEditor.prototype, {
 		if ( ! aCallback)
 			return; // callback wasn't specified after all
 		
-		var callbackArguments = Array.prototype.splice.call(arguments, 1);
+		var callbackArguments = Array.prototype.slice.call(arguments, 1);
 		return aCallback.apply(this.dom[0], callbackArguments);
 	},
 	
