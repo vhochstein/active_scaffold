@@ -142,9 +142,17 @@ module ActiveScaffold
           value
         end
       end
+
+      def datetime_conversion_for_condition(column)
+        if column.column
+          column.column.type == :date ? :to_date : :to_time
+        else
+          :to_time
+        end
+      end
             
       def condition_for_datetime(column, value, like_pattern = nil)
-        conversion = column.column.type == :date ? :to_date : :to_time
+        conversion = datetime_conversion_for_condition(column)
         from_value = condition_value_for_datetime(value[:from], conversion)
         to_value = condition_value_for_datetime(value[:to], conversion)
 

@@ -120,7 +120,7 @@ module ActiveScaffold
             end
             
             def date_bridge_from_to(column, value)
-              conversion = column.column.type == :date ? :to_date : :to_time
+              conversion = datetime_conversion_for_condition(column)
               case value[:opt]
               when 'RANGE'
                 date_bridge_from_to_for_range(column, value).collect(&conversion)
