@@ -171,7 +171,7 @@ module ActiveScaffold::DataStructures
     #   search = "CONCAT(a, b)" define your own sql for searching. this should be the "left-side" of a WHERE condition. the operator and value will be supplied by ActiveScaffold.
     attr_writer :search_sql
     def search_sql
-      self.initialize_search_sql if @search_sql === true
+      self.initialize_search_sql if !@search_sql.is_a?(Proc) && @search_sql === true
       @search_sql
     end
     def searchable?
