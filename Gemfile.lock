@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_scaffold_vho (3.2.2)
+    active_scaffold_vho (3.2.3)
       kaminari
       rails (>= 3.1.0)
 
@@ -42,14 +42,14 @@ GEM
     i18n (0.6.9)
     journey (1.0.4)
     json (1.8.1)
-    kaminari (0.14.1)
+    kaminari (0.15.1)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25.1)
-    multi_json (1.9.2)
+    multi_json (1.10.0)
     polyglot (0.3.4)
     rack (1.4.5)
     rack-cache (1.2)
