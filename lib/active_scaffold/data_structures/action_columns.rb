@@ -13,6 +13,8 @@ module ActiveScaffold::DataStructures
       as_(@label) if @label
     end
 
+    alias_method :name, :label
+
     # Whether this column set is collapsed by default in contexts where collapsing is supported
     attr_accessor :collapsed
     
