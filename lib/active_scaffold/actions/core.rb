@@ -88,7 +88,19 @@ module ActiveScaffold::Actions
 
     # API response object that will be converted to XML/YAML/JSON using to_xxx
     def response_object
-      @response_object = successful? ? (@record || @records) : @record.errors
+      @response_object = if successful?
+                           (@record || @records)
+                         else
+                           unless flash[:error].nil?
+                             @record.errors.add(:base, flash[:error])
+                             flash.discard(:error)
+                           end
+                           {:errors => @record.errors}
+                         end
+    end
+
+    def error_object_attributes
+      [:errors]
     end
 
     # Success is the existence of certain variables and the absence of errors (when applicable).
@@ -151,6 +163,10 @@ module ActiveScaffold::Actions
         model = params.delete(model.inheritance_column).camelize.constantize if params[model.inheritance_column]
       end
       model.respond_to?(:build) ? model.build(build_options || {}) : model.new
+    end
+
+    def virtual_columns(columns)
+      columns.reject {|col| active_scaffold_config.model.columns_hash[col] || active_scaffold_config.model.reflect_on_association(col)}
     end
 
     private

@@ -40,13 +40,16 @@ module ActiveScaffold::Actions
       end
     end
     def list_respond_to_xml
-      render :xml => response_object.to_xml(:only => list_columns_names), :content_type => Mime::XML, :status => response_status
+      column_names = successful? ? list_columns_names : error_object_attributes
+      render :xml => response_object.to_xml(:only => column_names, :methods => virtual_columns(column_names)), :content_type => Mime::XML, :status => response_status
     end
     def list_respond_to_json
-      render :text => response_object.to_json(:only => list_columns_names), :content_type => Mime::JSON, :status => response_status
+      column_names = successful? ? list_columns_names : error_object_attributes
+      render :text => response_object.to_json(:only => column_names, :methods => virtual_columns(column_names)), :content_type => Mime::JSON, :status => response_status
     end
     def list_respond_to_yaml
-      render :text => Hash.from_xml(response_object.to_xml(:only => list_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status
+      column_names = successful? ? list_columns_names : error_object_attributes
+      render :text => Hash.from_xml(response_object.to_xml(:only => column_names, :methods => virtual_columns(column_names))).to_yaml, :content_type => Mime::YAML, :status => response_status
     end
     
     def row_respond_to_html
@@ -115,16 +118,25 @@ module ActiveScaffold::Actions
         @record = find_if_allowed(params[:id], :read) if params[:id] && params[:id] && params[:id].to_i > 0
         respond_to_action(:action_confirmation)
       else
-        if params[:id] && params[:id] && params[:id].to_i > 0
-          @record = find_if_allowed(params[:id], (request.post? || request.put?) ? :update : :delete)
-          unless @record.nil?
-            yield @record
+        begin
+          if params[:id] && params[:id] && params[:id].to_i > 0
+            @record = find_if_allowed(params[:id], (request.post? || request.put?) ? :update : :delete)
+            unless @record.nil?
+              yield @record
+            else
+              self.successful = false
+              flash[:error] = as_(:no_authorization_for_action, :action => action_name)
+            end
           else
-            self.successful = false
-            flash[:error] = as_(:no_authorization_for_action, :action => action_name)
+            yield
           end
-        else
-          yield
+        rescue ActiveRecord::RecordInvalid
+        rescue ActiveRecord::StaleObjectError
+          @record.errors.add(:base, as_(:version_inconsistency)) unless @record.nil?
+          self.successful=false
+        rescue ActiveRecord::RecordNotSaved
+          @record.errors.add(:base, as_(:record_not_saved)) if !@record.nil? && @record.errors.empty?
+          self.successful = false
         end
         respond_to_action(render_action)
       end
@@ -146,15 +158,18 @@ module ActiveScaffold::Actions
     end
 
     def action_update_respond_to_xml
-      render :xml => successful? ? "" : response_object.to_xml(:only => list_columns_names), :content_type => Mime::XML, :status => response_status
+      column_names = successful? ? list_columns_names : error_object_attributes
+      render :xml => response_object.to_xml(:only => column_names, :methods => virtual_columns(column_names)), :content_type => Mime::XML, :status => response_status
     end
 
     def action_update_respond_to_json
-      render :text => successful? ? "" : response_object.to_json(:only => list_columns_names), :content_type => Mime::JSON, :status => response_status
+      column_names = successful? ? list_columns_names : error_object_attributes
+      render :text => response_object.to_json(:only => column_names, :methods => virtual_columns(column_names)), :content_type => Mime::JSON, :status => response_status
     end
 
     def action_update_respond_to_yaml
-      render :text => successful? ? "" : Hash.from_xml(response_object.to_xml(:only => list_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status
+      column_names = successful? ? list_columns_names : error_object_attributes
+      render :text => Hash.from_xml(response_object.to_xml(:only => column_names, :methods => virtual_columns(column_names))).to_yaml, :content_type => Mime::YAML, :status => response_status
     end
 
     def save_current_page_num
