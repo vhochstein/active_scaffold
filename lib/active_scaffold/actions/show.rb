@@ -21,15 +21,18 @@ module ActiveScaffold::Actions
     protected
     
     def show_respond_to_json
-      render :text => response_object.to_json(:only => show_columns_names), :content_type => Mime::JSON, :status => response_status
+      column_names = successful? ? show_columns_names : error_object_attributes
+      render :text => response_object.to_json(:only => show_columns_names, :methods => virtual_columns(column_names)), :content_type => Mime::JSON, :status => response_status
     end
 
     def show_respond_to_yaml
-      render :text => Hash.from_xml(response_object.to_xml(:only => show_columns_names)).to_yaml, :content_type => Mime::YAML, :status => response_status
+      column_names = successful? ? show_columns_names : error_object_attributes
+      render :text => Hash.from_xml(response_object.to_xml(:only => show_columns_names, :methods => virtual_columns(column_names))).to_yaml, :content_type => Mime::YAML, :status => response_status
     end
 
     def show_respond_to_xml
-      render :xml => response_object.to_xml(:only => show_columns_names), :content_type => Mime::XML, :status => response_status
+      column_names = successful? ? show_columns_names : error_object_attributes
+      render :xml => response_object.to_xml(:only => show_columns_names, :methods => virtual_columns(column_names)), :content_type => Mime::XML, :status => response_status
     end
 
     def show_respond_to_js
