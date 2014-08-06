@@ -76,7 +76,11 @@ module ActiveScaffold::Actions
           })
       end
 
-      @records = find_page(options);
+      if active_scaffold_config.model.respond_to?(:tableless?) && active_scaffold_config.model.tableless?
+        @records = active_scaffold_config.model.all
+      else
+        @records = find_page(options);
+      end
       @records
     end
 

@@ -317,7 +317,8 @@ module ActiveScaffold::DataStructures
 
     # just the field (not table.field)
     def field_name
-      return nil if virtual?
+      return nil if virtual? || column.nil?
+      return column.name if @active_record_class.respond_to?(:tableless?) && @active_record_class.tableless?
       column ? @active_record_class.connection.quote_column_name(column.name) : association.foreign_key
     end
 
@@ -360,7 +361,7 @@ module ActiveScaffold::DataStructures
 
     # the table.field name for this column, if applicable
     def field
-      @field ||= [@active_record_class.connection.quote_table_name(@table), field_name].join('.')
+      @field ||= (@active_record_class.respond_to?(:tableless?) && @active_record_class.tableless? ? "#{@table}.#{field_name}" : [@active_record_class.connection.quote_table_name(@table), field_name].join('.'))
     end
     
     def estimate_weight
