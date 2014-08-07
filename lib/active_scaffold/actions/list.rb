@@ -77,7 +77,8 @@ module ActiveScaffold::Actions
       end
 
       if active_scaffold_config.model.respond_to?(:tableless?) && active_scaffold_config.model.tableless?
-        @records = active_scaffold_config.model.all
+        @records = Kaminari.paginate_array(active_scaffold_config.model.all)
+        @records = @records.page(options[:page]).per(options[:per_page]) if options[:pagination]
       else
         @records = find_page(options);
       end
