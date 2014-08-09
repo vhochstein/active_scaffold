@@ -75,7 +75,7 @@ module ActiveScaffold
         if column.association
           associated = associated.is_a?(Array) ? associated.map(&:to_i) : associated.to_i unless associated.nil?
           method = column.association.macro == :belongs_to ? column.association.foreign_key : column.name
-          select_options = options_for_association(column.association, true)
+          select_options = options_for_association(column.association, false)
         else
           method = column.name
           select_options = Array(column.options[:options])
