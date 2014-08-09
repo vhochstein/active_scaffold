@@ -317,8 +317,8 @@ module ActiveScaffold::DataStructures
 
     # just the field (not table.field)
     def field_name
-      return nil if virtual? || column.nil?
-      return column.name if @active_record_class.respond_to?(:tableless?) && @active_record_class.tableless?
+      return nil if virtual?
+      return column.name if !column.nil? && @active_record_class.respond_to?(:tableless?) && @active_record_class.tableless?
       column ? @active_record_class.connection.quote_column_name(column.name) : association.foreign_key
     end
 
