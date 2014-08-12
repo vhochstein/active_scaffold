@@ -149,13 +149,15 @@ module ActiveScaffold
     File.dirname(__FILE__) + "/.."
   end
 
-  def self.default_view_paths
+  def self.default_view_paths(custom_paths = [])
     default_paths = []
     ActionController::Base.view_paths.each do |dir|
-        active_scaffold_override_dir = File.join(dir.to_s,"active_scaffold_overrides")
-        default_paths << active_scaffold_override_dir if File.exists?(active_scaffold_override_dir)
+      active_scaffold_override_dir = File.join(dir.to_s,"active_scaffold_overrides")
+      default_paths << active_scaffold_override_dir if File.exists?(active_scaffold_override_dir)
     end
     default_paths.uniq!
+
+    default_paths.concat(custom_paths) unless custom_paths.nil?
 
     active_scaffold_default_frontend_path = File.join(ActiveScaffold::Config::Core.plugin_directory, 'frontends', 'default' , 'views')
     default_paths << active_scaffold_default_frontend_path
@@ -303,8 +305,7 @@ module ActiveScaffold
     def active_scaffold_view_paths
       return @active_scaffold_paths unless @active_scaffold_paths.nil?
 
-      @active_scaffold_paths = ActiveScaffold.default_view_paths
-      @active_scaffold_paths.concat @active_scaffold_custom_paths unless @active_scaffold_custom_paths.nil?
+      @active_scaffold_paths = ActiveScaffold.default_view_paths(@active_scaffold_custom_paths)
       @active_scaffold_paths
     end
 
