@@ -124,7 +124,7 @@ module ActiveScaffold
           format_column_value(record, column)
         else
           value = record.send(column.name)
-          value = value.to_s unless value.nil?
+          value = value.to_s if !value.nil? && column.options[:options].keys.is_a?(String)
           text, val = column.options[:options].find {|text, val| (val || text).to_s == value}
           value = active_scaffold_translated_option(column, text, val).first if text
           format_column_value(record, column, value)
