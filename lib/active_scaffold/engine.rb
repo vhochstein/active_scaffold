@@ -16,7 +16,7 @@ module ActiveScaffold
         end
 
         ActiveSupport.on_load(:action_view) do
-          ['name_option_for_datetime', 'action_view_rendering', 'action_view_resolver', 'usa_state'].each do |extension|
+          ['name_option_for_datetime', 'action_view_rendering', 'action_view_resolver', 'usa_state', 'kaminari_first_page_patch'].each do |extension|
             require "#{File.dirname __FILE__}/extensions/#{extension}.rb"
           end
           include ActiveScaffold::Helpers::ViewHelpers
