@@ -785,10 +785,15 @@ var ActiveScaffold = {
     if (typeof(source) == 'string') source = '#' + source;
     var source = $(source);
     var element = source.closest('.association-record');
+
+    var element = source.closest('.sub-form-record'), selector = '';
     if (element.length == 0) {
-      element = source.closest('ol.form');
+      element = source.closest('form > ol.form');
+      selector = 'li';
     }
-    element = element.find('.' + options.field_class);
+    // find without entering new subforms
+    selector = options.is_subform ? '' : selector + ':not(.sub-form) ';
+    element = element.find(selector + '.' + options.field_class).first();
 
     if (element) {
       if (options.is_subform == false) {
