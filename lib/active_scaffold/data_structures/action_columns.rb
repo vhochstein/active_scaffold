@@ -19,13 +19,18 @@ module ActiveScaffold::DataStructures
     attr_accessor :collapsed
     
     # nests a subgroup in the column set
-    def add_subgroup(label, &proc)
+    def add_subgroup(label, insert_index = nil, &proc)
       columns = ActiveScaffold::DataStructures::ActionColumns.new
       columns.label = label
       columns.action = self.action
       columns.configure &proc
       self.exclude columns.collect_columns
-      self.add columns
+      if insert_index.nil?
+        self.add columns
+      else
+        self.add columns, insert_index
+      end
+
     end
 
     def include?(item)

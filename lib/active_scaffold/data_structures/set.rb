@@ -16,9 +16,19 @@ module ActiveScaffold::DataStructures
     # the way to add items to the set.
     def add(*args)
       args.flatten! # allow [] as a param
+
+      index = args.pop if args.last().is_a? Numeric
+
       args.each { |arg|
         arg = arg.to_sym if arg.is_a? String
-        @set << arg unless @set.include? arg # avoid duplicates
+        unless @set.include? arg # avoid duplicates
+          if index.nil?
+            @set << arg
+          else
+            @set.insert(index,arg)
+            index += 1
+          end
+        end
       }
     end
     alias_method :<<, :add
