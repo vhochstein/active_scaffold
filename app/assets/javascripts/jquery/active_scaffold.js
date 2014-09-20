@@ -201,44 +201,22 @@ $(document).ready(function() {
     return false;
   });
 
-  $(document).on('change', 'input.update_form, textarea.update_form, select.update_form', function(event) {
-      var element = $(this);
-      var as_form = element.closest('form.as_form');
-      var params = null;
+  $(document).on('change', 'input.update_form:not(.recordselect), input.update_form, textarea.update_form, select.update_form', function(event) {
+    var form_element = $(this);
+    var value, additional_params;
 
-      if (element.attr('data-update_send_form')) {
-        params = as_form.serialize();
-        params += '&' + $.param({source_id: element.attr('id')});
-      } else {
-        if (element.is("input:checkbox")) {
-          params = {value: element.is(":checked")};
-        } else {
-          params = {value: element.val()};
-        }
-        params.source_id = element.attr('id');
-      }
+    if (form_element.is("input:checkbox")) {
+       value = form_element.is(":checked");
+    } else {
+       value = form_element.val();
+    }
+    ActiveScaffold.update_column(form_element, form_element.data('update_url'), form_element.data('update_send_form'), form_element.attr('id'), value, additional_params);
+    return true;
+  });
 
-      $.ajax({
-        url: element.attr('data-update_url'),
-        data: params,
-        beforeSend: function(xhr, settings) {
-          element.nextAll('img.loading-indicator').css('visibility','visible');
-          ActiveScaffold.disable_form(as_form);
-          if (settings.dataType === undefined || settings.dataType === 'text') {
-            xhr.setRequestHeader('accept', '*/*;q=0.5, ' + settings.accepts.script);
-          }
-        },
-        complete: function(xhr, status) {
-          element.nextAll('img.loading-indicator').css('visibility','hidden');
-          ActiveScaffold.enable_form(as_form)
-        },
-        error: function (xhr, status, error) {
-          var as_div = element.closest("div.active-scaffold");
-          if (as_div) {
-            ActiveScaffold.report_500_response(as_div)
-          }
-        }
-      });
+  jQuery(document).on('recordselect:change', 'input.recordselect.update_form', function(event, id, label) {
+    var element = jQuery(this);
+    ActiveScaffold.update_column(element, element.data('update_url'), element.data('update_send_form'), element.attr('id'), id);
     return true;
   });
   
@@ -547,6 +525,46 @@ var ActiveScaffold = {
     replaced = this.replace(row, html);
     if (even_row === true) replaced.addClass('even-record');
     ActiveScaffold.highlight(replaced);
+  },
+
+  update_column: function(element, url, send_form, source_id, val, additional_params) {
+    if (!element) element = jQuery('#' + source_id);
+    var as_form = element.closest('form.as_form');
+    var params = null;
+
+    if (element.attr('data-update_send_form')) {
+      params = as_form.serialize();
+      params += '&' + $.param({source_id: source_id});
+    } else {
+      if (element.is("input:checkbox")) {
+        params = {value: element.is(":checked")};
+      } else {
+        params = {value: val};
+      }
+      params.source_id = source_id;
+    }
+
+    $.ajax({
+      url: url,
+      data: params,
+      beforeSend: function(xhr, settings) {
+        element.nextAll('img.loading-indicator').css('visibility','visible');
+        ActiveScaffold.disable_form(as_form);
+        if (settings.dataType === undefined || settings.dataType === 'text') {
+          xhr.setRequestHeader('accept', '*/*;q=0.5, ' + settings.accepts.script);
+        }
+      },
+      complete: function(xhr, status) {
+        element.nextAll('img.loading-indicator').css('visibility','hidden');
+        ActiveScaffold.enable_form(as_form)
+      },
+      error: function (xhr, status, error) {
+        var as_div = element.closest("div.active-scaffold");
+        if (as_div) {
+          ActiveScaffold.report_500_response(as_div)
+        }
+      }
+    });
   },
   
   replace: function(element, html, disable_event_trigger) {

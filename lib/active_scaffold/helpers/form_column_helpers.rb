@@ -196,6 +196,11 @@ module ActiveScaffold
         record_select_options = {:controller => remote_controller, :id => options[:id]}
         record_select_options.merge!(active_scaffold_input_text_options)
         record_select_options.merge!(column.options)
+        unless options['data-update_url'].nil?
+          record_select_options['data-update_url'] = options['data-update_url']
+          record_select_options['data-update_send_form'] = options['data-update_send_form']
+          record_select_options[:class] = options[:class]
+        end
 
         if multiple
           record_multi_select_field(options[:name], value || [], record_select_options)
