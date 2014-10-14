@@ -169,6 +169,10 @@ module ActiveScaffold::Actions
       columns.reject {|col| active_scaffold_config.model.columns_hash[col.to_s] || active_scaffold_config.model.reflect_on_association(col)}
     end
 
+    def association_columns(columns)
+      columns.select {|col| active_scaffold_config.model.reflect_on_association(col)}
+    end
+
     private
     def respond_to_action(action)
       respond_to do |type|

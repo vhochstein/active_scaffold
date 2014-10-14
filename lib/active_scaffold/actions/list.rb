@@ -45,7 +45,8 @@ module ActiveScaffold::Actions
     end
     def list_respond_to_json
       column_names = successful? ? list_columns_names : error_object_attributes
-      render :text => response_object.to_json(:only => column_names, :methods => virtual_columns(column_names)), :content_type => Mime::JSON, :status => response_status
+      response_text = response_object.to_json(:only => column_names + [active_scaffold_config.model.primary_key], :include => association_columns(column_names), :methods => virtual_columns(column_names))
+      render :text => response_text, :content_type => Mime::JSON, :status => response_status
     end
     def list_respond_to_yaml
       column_names = successful? ? list_columns_names : error_object_attributes
