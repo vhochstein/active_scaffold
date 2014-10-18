@@ -3,10 +3,7 @@ module ActiveScaffold::Config
     self.crud_type = :read
 
     def initialize(core_config)
-      @core = core_config
-      # start with the ActionLink defined globally
-      @link = self.class.link.clone
-      @action_group = self.class.action_group.clone if self.class.action_group
+      super
     end
 
     # global level configuration

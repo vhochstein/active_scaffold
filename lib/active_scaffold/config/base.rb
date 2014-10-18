@@ -3,6 +3,14 @@ module ActiveScaffold::Config
     include ActiveScaffold::Configurable
     extend ActiveScaffold::Configurable
 
+    def initialize(core_config)
+      @core = core_config
+      @action_group = self.class.action_group.clone if self.class.action_group
+      # start with the ActionLink defined globally
+      @link = self.class.link.clone if self.class.respond_to?(:link) && self.class.link
+    end
+    attr_reader :core
+
     def self.inherited(subclass)
       class << subclass
         # the crud type of the action. possible values are :create, :read, :update, :delete, and nil.

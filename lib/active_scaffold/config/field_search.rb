@@ -3,14 +3,10 @@ module ActiveScaffold::Config
     self.crud_type = :read
 
     def initialize(core_config)
-      @core = core_config
+      super
 
       @text_search = self.class.text_search
       @or_delimiter = self.class.or_delimiter
-
-      # start with the ActionLink defined globally
-      @link = self.class.link.clone
-      @action_group = self.class.action_group.clone if self.class.action_group
     end
 
 

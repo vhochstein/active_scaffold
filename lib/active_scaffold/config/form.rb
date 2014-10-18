@@ -1,12 +1,7 @@
 module ActiveScaffold::Config
   class Form < Base
     def initialize(core_config)
-      @core = core_config
-
-      # start with the ActionLink defined globally
-      @link = self.class.link.clone unless self.class.link.nil?
-      @action_group = self.class.action_group.clone if self.class.action_group
-
+      super
       # no global setting here because multipart should only be set for specific forms
       @multipart = false
     end
