@@ -30,25 +30,13 @@ module ActiveScaffold
                 # if we get here, it's because the column has a form_ui but not one ActiveScaffold knows about.
                 raise "Unknown form_ui `#{column.form_ui}' for column `#{column.name}'"
               end
-            elsif column.virtual?
-              active_scaffold_input_virtual(column, options)
-
             else # regular model attribute column
               # if we (or someone else) have created a custom render option for the column type, use that
-              if override_input?(column.column.type)
+              if !column.virtual? && override_input?(column.column.type)
                 send(override_input(column.column.type), column, options)
               # final ultimate fallback: use rails' generic input method
               else
-                # for textual fields we pass different options
-                text_types = [:text, :string, :integer, :float, :decimal, :date, :time, :datetime]
-                options = active_scaffold_input_text_options(options) if text_types.include?(column.column.type)
-                if column.column.type == :string && options[:maxlength].blank?
-                  options[:maxlength] = column.column.limit
-                  options[:size] ||= ActionView::Helpers::InstanceTag::DEFAULT_FIELD_OPTIONS["size"]
-                end
-                options[:include_blank] = true if column.column.null and [:date, :datetime, :time].include?(column.column.type)
-                options[:value] = format_number_value(@record.send(column.name), column.options) if column.column.number?
-                text_field(:record, column.name, options.merge(column.options))
+                active_scaffold_input_text_field(column, options)
               end
             end
           end
@@ -94,6 +82,26 @@ module ActiveScaffold
       ##
       ## Form input methods
       ##
+      def active_scaffold_input_text_field(column, options)
+        if column.column.nil?
+          options = active_scaffold_input_text_options(options)
+          if column.association
+            associated = @record.send(column.association.name)
+            options[:value] = associated.id
+          end
+        else
+          text_types = [:text, :string, :integer, :float, :decimal, :date, :time, :datetime]
+          options = active_scaffold_input_text_options(options) if text_types.include?(column.column.type)
+          if column.column.type == :string && options[:maxlength].blank?
+            options[:maxlength] = column.column.limit
+            options[:size] ||= ActionView::Helpers::InstanceTag::DEFAULT_FIELD_OPTIONS["size"]
+          end
+          options[:include_blank] = true if column.column.null and [:date, :datetime, :time].include?(column.column.type)
+          options[:value] = format_number_value(@record.send(column.name), column.options) if column.column.number?
+        end
+
+        text_field(:record, column.name, options.merge(column.options))
+      end
 
       def active_scaffold_input_singular_association(column, html_options)
         associated = @record.send(column.association.name)
@@ -222,11 +230,6 @@ module ActiveScaffold
 
       def active_scaffold_input_textarea(column, options)
         text_area(:record, column.name, options.merge(:cols => column.options[:cols], :rows => column.options[:rows], :size => column.options[:size]))
-      end
-      
-      def active_scaffold_input_virtual(column, options)
-        options = active_scaffold_input_text_options(options)
-        text_field :record, column.name, options.merge(column.options)
       end
 
       #
