@@ -103,6 +103,14 @@ module ActiveScaffold
         text_field(:record, column.name, options.merge(column.options))
       end
 
+      def active_scaffold_input_hidden(column, options)
+        if column.association
+          associated = @record.send(column.association.name)
+          options[:value] = associated.id
+        end
+        hidden_field(:record, column.name, options)
+      end
+
       def active_scaffold_input_singular_association(column, html_options)
         associated = @record.send(column.association.name)
 
