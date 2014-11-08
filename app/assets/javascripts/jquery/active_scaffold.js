@@ -100,8 +100,8 @@ $(document).ready(function() {
   });
   $(document).on('ajax:before', 'a.as_cancel', function(event) {
     var as_cancel = $(this);
-    var action_link = ActiveScaffold.find_action_link(as_cancel);  
-    
+    var action_link = ActiveScaffold.find_action_link(as_cancel);
+
     if (action_link) {
       var cancel_url = as_cancel.attr('href');
       var refresh_data = as_cancel.attr('data-refresh');
@@ -110,7 +110,7 @@ $(document).ready(function() {
         as_cancel.attr('href', action_link.refresh_url);
         if (action_link.position) event.data_type = 'rails';
       } else if (refresh_data === 'false' || typeof(cancel_url) == 'undefined' || cancel_url.length == 0) {
-        action_link.close();
+        action_link.force_close(true);
         return false;
       }
     }
@@ -324,6 +324,7 @@ $(document).ready(function() {
   });
   ActiveScaffold.trigger_load_events($('[data-as_load]'));
   ActiveScaffold.load_embedded_conrollers();
+  ActiveScaffold.keep_open_action_links();
   
 });
 
@@ -958,6 +959,16 @@ var ActiveScaffold = {
     });
   },
 
+  keep_open_action_links: function() {
+    $.each($('a.as_action[data-keep_open="true"]'), function(index) {
+       var action_link = ActiveScaffold.ActionLink.get($(this));
+
+       if (action_link) {
+         action_link.open();
+       }
+    });
+  },
+
   form_elements_changed: function(form_elements){
     var form_elements_count = form_elements.length;
     var i = 0;
@@ -1076,17 +1087,28 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
   },
 
   open: function(event) {
+    this.tag.click();
   },
   
   insert: function(content) {
     throw 'unimplemented'
   },
 
+  force_close: function(force_closing) {
+    if(!this.keep_open() || force_closing === true) {
+      this.enable();
+      ActiveScaffold.trigger_unload_events(this.adapter.find('[data-as_load]'));
+      this.adapter.remove();
+      if (this.hide_target) this.target.show();
+    } else {
+      var as_form = $(this.adapter).find("form").first();
+      if (as_form) {
+        ActiveScaffold.reset_form(as_form);
+      }
+    }
+ },
   close: function() {
-    this.enable();
-    ActiveScaffold.trigger_unload_events(this.adapter.find('[data-as_load]'));
-    this.adapter.remove();
-    if (this.hide_target) this.target.show();
+    this.force_close(false)
   },
 
   reload: function() {
@@ -1147,6 +1169,9 @@ ActiveScaffold.ActionLink.Abstract = Class.extend({
     }
 
     return '<tr class="inline-adapter" id="' + id_string + '"><td colspan="99" class="inline-adapter-cell"><div class="' + this.action + '-view ' + controller +  '-view view"><a class="inline-adapter-close as_cancel" title="' + close_label + '" data-remote="true" data-refresh="' + should_refresh_data + '" href="">' + close_label +'</a>' + content + '</div></td></tr>'
+  },
+  keep_open: function() {
+    return (this.tag.data('keep_open') === true);
   }
 });
 

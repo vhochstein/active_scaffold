@@ -152,6 +152,13 @@ module ActiveScaffold::DataStructures
     
     # nested action_links are referencing a column
     attr_accessor :column
+
+
+    # action link is open always, execept another actionlink is open
+    attr_writer :keep_open
+    def keep_open?
+      @keep_open
+    end
     
     # indicates that this a nested_link
     def nested_link?
