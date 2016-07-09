@@ -88,14 +88,14 @@ module ActiveScaffold::Actions
 
     def each_record_in_page
       _page = active_scaffold_config.list.user.page
-      do_search if respond_to? :do_search
+      do_search if respond_to? :do_search, true
       active_scaffold_config.list.user.page = _page
       do_list
       @page.items.each {|record| yield record}
     end
 
     def each_record_in_scope
-      do_search if respond_to? :do_search
+      do_search if respond_to? :do_search, true
       finder_options = { :order => "#{active_scaffold_config.model.connection.quote_table_name(active_scaffold_config.model.table_name)}.#{active_scaffold_config.model.primary_key} ASC",
         :conditions => all_conditions,
         :joins => joins_for_finder}
@@ -154,7 +154,7 @@ module ActiveScaffold::Actions
     end
 
     def action_update_respond_to_html
-      do_search if respond_to? :do_search
+      do_search if respond_to? :do_search, true
       do_list
       redirect_to :action => 'index'
     end

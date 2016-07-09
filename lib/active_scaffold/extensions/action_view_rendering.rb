@@ -106,7 +106,7 @@ module ActionView #:nodoc:
       
       id = "as_#{eid}-content"
      
-      if context.controller.respond_to?(:render_component_into_view)
+      if context.controller.respond_to?(:render_component_into_view, true)
         context.controller.send(:render_component_into_view, url_options)
       else
         if !context.controller.respond_to?(:uses_active_scaffold?) || context.controller.send(:uses_active_scaffold?) == false

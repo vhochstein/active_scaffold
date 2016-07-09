@@ -177,13 +177,17 @@ module ActiveScaffold::Actions
     def respond_to_action(action)
       respond_to do |type|
         action_formats.each do |format|
-          type.send(format){ send("#{action}_respond_to_#{format}") }
+          type.send(format) do
+            if respond_to?(method_name = "#{action}_respond_to_#{format}", true)
+              send(method_name)
+            end
+          end
         end
       end
     end
 
     def action_formats
-      @action_formats ||= if respond_to? "#{action_name}_formats"
+      @action_formats ||= if respond_to? "#{action_name}_formats", true
         send("#{action_name}_formats")
       else
         (default_formats + active_scaffold_config.formats).uniq

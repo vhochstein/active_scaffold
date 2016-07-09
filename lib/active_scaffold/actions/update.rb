@@ -49,7 +49,7 @@ module ActiveScaffold::Actions
     end
     def update_respond_to_js
       if successful? && update_refresh_list? && !render_parent?
-        do_search if respond_to? :do_search
+        do_search if respond_to? :do_search, true
         do_list
       end
       render :action => 'on_update'

@@ -3,7 +3,7 @@ try {
 var action_link = ActiveScaffold.find_action_link('<%= form_selector%>');
 action_link.update_flash_messages('<%=escape_javascript(render(:partial => 'messages').strip)%>');
 <% if controller.send :successful? %>
-  <% if render_parent? && controller.respond_to?(:render_component_into_view) %>
+  <% if render_parent? && controller.respond_to?(:render_component_into_view, true) %>
     <% parent_rendered = controller.send(:render_component_into_view, render_parent_options) %>
     <% if nested_singular_association? %>
       action_link.close('<%= escape_javascript(parent_rendered) %>');

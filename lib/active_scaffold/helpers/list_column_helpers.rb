@@ -258,7 +258,7 @@ module ActiveScaffold
 
       def inplace_edit?(record, column)
         if column.inplace_edit
-          editable = controller.send(:update_authorized?, record) if controller.respond_to?(:update_authorized?)
+          editable = controller.send(:update_authorized?, record) if controller.respond_to?(:update_authorized?, true)
           editable = record.authorized_for?(:crud_type => :update, :column => column.name) if editable.nil? || editable == true
           editable
         end
@@ -372,7 +372,7 @@ module ActiveScaffold
         rendered = []
         link_nested_controllers = []
         action_links.member.each do |link|
-          if link.nested_link? && link.column && @nested_auto_open[link.column.name] && @records.length <= @nested_auto_open[link.column.name] && controller.respond_to?(:render_component_into_view)
+          if link.nested_link? && link.column && @nested_auto_open[link.column.name] && @records.length <= @nested_auto_open[link.column.name] && controller.respond_to?(:render_component_into_view, true)
             link_url_options = {:embedded => true, :format => :js}.merge(action_link_url_options(link, url_options, record, options = {:reuse_eid => true}))
             link_nested_controllers << link.controller.to_s if link.controller
             rendered << (controller.send(:render_component_into_view, link_url_options))
