@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency(%q<shoulda>, [">= 0"])
   s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
-  s.add_development_dependency(%q<simplecov>, [">= 0"])
+  s.add_development_dependency(%q<simplecov>, ["~> 0.9.0"])
 
   s.add_runtime_dependency(%q<rails>, [">= 3.1.0"])
   s.add_runtime_dependency(%q<kaminari>)
