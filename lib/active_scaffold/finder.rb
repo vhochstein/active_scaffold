@@ -1,5 +1,11 @@
 module ActiveScaffold
   module Finder
+
+    extend ActiveSupport::Concern
+    included do
+      helper_method :append_to_query
+    end
+
     def self.like_operator
       @@like_operator ||= ::ActiveRecord::Base.connection.adapter_name == "PostgreSQL" ? "ILIKE" : "LIKE"
     end
@@ -214,12 +220,6 @@ module ActiveScaffold
       :null,
       :not_null
     ]
-    
-    
-
-    def self.included(klass)
-      klass.extend ClassMethods
-    end
 
     protected
 

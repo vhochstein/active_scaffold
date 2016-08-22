@@ -301,8 +301,12 @@ module ActiveScaffold
           conditions = controller.send(:all_conditions)
           includes = active_scaffold_config.list.count_includes
           includes ||= controller.send(:active_scaffold_includes) unless conditions.nil?
-          calculation = beginning_of_chain.calculate(column.calculate, column.name, :conditions => conditions,
-           :joins => controller.send(:joins_for_collection), :include => includes)
+          calculation_scope = beginning_of_chain
+          append_to_query(calculation_scope, {
+                                               :where => conditions,
+                                               :joins => controller.send(:joins_for_collection),
+                                               :includes => includes})
+          calculation_scope.calculate(column.calculate, column.name)
         else
           column.calculate.call(@records)
         end
