@@ -16,7 +16,7 @@ module ActiveScaffold
           when :integer, :decimal, :float
             "#{column.active_record_class.human_attribute_name(column.name)} #{as_(value[:opt].downcase).downcase} #{format_number_value(controller.class.condition_value_for_numeric(column, value[:from]), column.options)} #{value[:opt] == 'BETWEEN' ? '- ' + format_number_value(controller.class.condition_value_for_numeric(column, value[:to]), column.options).to_s : ''}"
           when :string
-            opt = ActiveScaffold::Finder::StringComparators.index(value[:opt]) || value[:opt]
+            opt = ActiveScaffold::Finder::StringComparators.key(value[:opt]) || value[:opt]
             "#{column.active_record_class.human_attribute_name(column.name)} #{as_(opt).downcase} '#{column.stripped_value(value[:from])}' #{opt == 'BETWEEN' ? '- ' + column.stripped_value(value[:to]).to_s : ''}"
           when :date, :time, :datetime, :timestamp
             conversion = column.column.type == :date ? :to_date : :to_time
