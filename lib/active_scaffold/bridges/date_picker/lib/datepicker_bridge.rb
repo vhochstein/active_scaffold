@@ -1,5 +1,5 @@
-include Sprockets::Helpers::RailsHelper
-include Sprockets::Helpers::IsolatedHelper
+#include Sprockets::Helpers::RailsHelper
+#include Sprockets::Helpers::IsolatedHelper
 
 class File #:nodoc:
 
