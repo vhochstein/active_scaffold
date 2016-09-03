@@ -286,7 +286,7 @@ module ActiveScaffold
  
       # we build the paginator differently for method- and sql-based sorting
       records = if options[:sorting] && options[:sorting].sorts_by_method?
-        Kaminari.paginate_array(sort_collection_by_column(append_to_query(klass, finder_options).all, *options[:sorting].first))
+        Kaminari.paginate_array(sort_collection_by_column(append_to_query(klass, finder_options).to_a, *options[:sorting].first))
       else
         append_to_query(klass, finder_options)
       end
