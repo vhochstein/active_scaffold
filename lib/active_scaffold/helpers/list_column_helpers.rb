@@ -102,21 +102,21 @@ module ActiveScaffold
       end
 
       # There are two basic ways to clean a column's value: h() and sanitize(). The latter is useful
-      # when the column contains *valid* html data, and you want to just disable any scripting. People
-      # can always use field overrides to clean data one way or the other, but having this override
-      # lets people decide which way it should happen by default.
-      #
-      # Why is it not a configuration option? Because it seems like a somewhat rare request. But it
-      # could eventually be an option in config.list (and config.show, I guess).
-      def clean_column_value(v)
-        h(v)
+      # when the column contains *valid* html data, and you want to just disable any scripting.
+      # if sanitize_value key is passed to this function sanitize will be used
+      def clean_column_value(v, options = {})
+        if (options[:sanitize_value].present?)
+          sanitize(v)
+        else
+          h(v)
+        end
       end
 
       ##
       ## Overrides
       ##
       def active_scaffold_column_text(column, record)
-        truncate(clean_column_value(record.send(column.name)), :length => column.options[:truncate] || 50)
+        truncate(clean_column_value(record.send(column.name), column.options), :length => column.options[:truncate] || 50)
       end
 
       def active_scaffold_column_select(column, record)
@@ -236,7 +236,7 @@ module ActiveScaffold
         else
           column_value.to_s
         end
-        clean_column_value(value)
+        clean_column_value(value, options)
       end
 
       def cache_association(value, column)
