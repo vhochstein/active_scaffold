@@ -1,10 +1,10 @@
 module ActiveScaffold
   module MarkedModel
     # This is a module aimed at making the make session_stored marked_records available to ActiveRecord models
-    
-    def self.included(base)
-      base.extend ClassMethods
-      base.scope :marked, lambda {{:conditions => {:id => base.marked_records.to_a}}}
+
+    extend ActiveSupport::Concern
+    included do
+      scope :marked, -> { where(primary_key => marked_records.to_a)}
     end
     
     def marked
