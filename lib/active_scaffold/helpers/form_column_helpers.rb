@@ -360,7 +360,7 @@ module ActiveScaffold
           record_select_field(options[:name], @record, options)
         else
           select_options = options_for_select(options_for_association(nested.association)) #unless column.through_association?
-          select_options ||= options_for_select(active_scaffold_config.model.all.collect {|c| [h(c.to_label), c.id]})
+          select_options ||= options_for_select(active_scaffold_config.model.to_a.collect {|c| [h(c.to_label), c.id]})
           select_tag 'associated_id', ('<option value="">' + as_(:_select_) + '</option>' + select_options).html_safe unless select_options.empty?
         end
       end
