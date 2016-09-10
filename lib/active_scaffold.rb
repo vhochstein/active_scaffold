@@ -1,7 +1,3 @@
-unless Rails::VERSION::MAJOR == 4 && Rails::VERSION::MINOR == 0
-  raise "This version of ActiveScaffold requires Rails 4.0.x."
-end
-
 begin
   require 'render_component'
 rescue LoadError
