@@ -233,6 +233,11 @@ module ActiveScaffold
       @active_scaffold_includes ||= []
     end
 
+    attr_writer :active_scaffold_references
+    def active_scaffold_references
+      @active_scaffold_references ||= []
+    end
+
     attr_writer :active_scaffold_habtm_joins
     def active_scaffold_habtm_joins
       @active_scaffold_habtm_joins ||= []
@@ -280,7 +285,8 @@ module ActiveScaffold
       finder_options = { :reorder => options[:sorting].try(:clause),
                          :where => search_conditions,
                          :joins => joins_for_finder,
-                         :includes => add_association_to_includes_for_sorting(options[:sorting], full_includes)}
+                         :includes => add_association_to_includes_for_sorting(options[:sorting], full_includes),
+                         :references => active_scaffold_references}
                          
       finder_options.merge! custom_finder_options
  
@@ -310,7 +316,7 @@ module ActiveScaffold
     end
     
     def append_to_query(query, options)
-      options.assert_valid_keys :where, :select, :group, :reorder, :limit, :offset, :joins, :includes, :lock, :readonly, :from
+      options.assert_valid_keys :where, :select, :group, :reorder, :limit, :offset, :joins, :includes, :references, :lock, :readonly, :from
       options.reject{|k, v| v.blank?}.inject(query) do |query, (k, v)|
         query.send((k.to_sym), v) 
       end

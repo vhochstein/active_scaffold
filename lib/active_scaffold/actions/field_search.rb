@@ -50,14 +50,17 @@ module ActiveScaffold::Actions
       unless params.nil?
         text_search = active_scaffold_config.field_search.text_search
         search_conditions = []
+        includes_references = []
         human_condition_columns = [] if active_scaffold_config.field_search.human_conditions
         columns = field_search_columns
         params.each do |key, value|
           next unless columns.include? key
-          search_condition = self.class.condition_for_column(active_scaffold_config.columns[key], value, text_search)
+          column = active_scaffold_config.columns[key]
+          search_condition = self.class.condition_for_column(column, value, text_search)
           unless search_condition.blank?
             search_conditions << search_condition
             human_condition_columns << active_scaffold_config.columns[key] unless human_condition_columns.nil?
+            includes_references << column.includes if column.includes.present?
           end
         end
         self.active_scaffold_conditions = merge_conditions(self.active_scaffold_conditions, *search_conditions)
@@ -69,7 +72,7 @@ module ActiveScaffold::Actions
 
         includes_for_search_columns = columns.collect{ |column| column.includes}.flatten.uniq.compact
         self.active_scaffold_includes.concat includes_for_search_columns
-
+        self.active_scaffold_references.concat includes_references.flatten.uniq.compact
         active_scaffold_config.list.user.page = nil
       end
     end

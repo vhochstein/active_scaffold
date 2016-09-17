@@ -30,6 +30,8 @@ module ActiveScaffold::Actions
 
         includes_for_search_columns = columns.collect{ |column| column.includes}.flatten.uniq.compact
         self.active_scaffold_includes.concat includes_for_search_columns
+        # all columns will be searched for condition, so every include needs a reference
+        self.active_scaffold_references.concat includes_for_search_columns
 
         active_scaffold_config.list.user.page = nil
       end
