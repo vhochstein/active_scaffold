@@ -87,11 +87,11 @@ module ActiveScaffold::DataStructures
     end
 
     def sorted?
-      association.options.has_key? :order
+      association.respond_to?(:scope) && association.scope.is_a?(Proc)
     end
 
     def default_sorting
-      association.options[:order]
+      association.klass.class_eval(&association.scope).values[:order]
     end
     
     protected
